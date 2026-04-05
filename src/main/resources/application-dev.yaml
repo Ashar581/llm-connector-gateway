@@ -1,0 +1,58 @@
+server:
+  port: 6969
+
+spring:
+  application:
+    name: llm.connector.gateway
+    #Used for single open AI configuration. (Only for testing will remove it)
+  ai:
+    openai:
+      api-key: ashar581
+      base-url: http://localhost:8080
+      chat:
+        completions-path: /v1/chat/completions
+        options:
+          model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
+          temperature: 0.7
+
+app:
+  security:
+    key:
+      signing-secret: fe80::6184:62f1:2b9e:5b8313:8666:1qaz
+      key-type: shared
+      use-env: false
+      key-env-var: secret
+
+#custom-made llm config for using different models. Hybrid config. (work on progress)
+llm:
+  models:
+    paid:
+      base-url: https://openai/paid/api
+      api-key: sk-939439
+      model: gpt-4o-mini
+      temperature: 0.7
+      max-tokens: 256
+      top-p: 0.9
+    reasoning:
+      base-url : http://localhost:8080
+      api-key: ashar581
+      model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
+      temperature: 0.7
+      max-tokens: 256
+      top-p: 0.9
+    summarization:
+      base-url: http://localhost:8081
+      api-key: ashar581
+      model: phi3.ggfu
+      temperature: 0.5
+      max-tokens: 200
+      top-p: 0.85
+    embedding:
+      local:
+        base-url: http://localhost:9090
+        api-key: ashar581
+        model: local-embed-model.ggfu
+      global:
+        base-url: https://openai/api/v1
+        api-key: sk-0939r899
+        model: openai-embed-model
