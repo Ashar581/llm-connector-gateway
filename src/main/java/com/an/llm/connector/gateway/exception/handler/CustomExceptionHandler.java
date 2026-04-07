@@ -4,6 +4,7 @@ import com.an.llm.connector.gateway.base.ApiExceptionBody;
 import com.an.llm.connector.gateway.exception.AlreadyExistsException;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.exception.NotFoundException;
+import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.util.TimeUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
@@ -67,5 +68,18 @@ public class CustomExceptionHandler implements TimeUtils {
         exception.setCode(HttpStatus.SERVICE_UNAVAILABLE.value());
 
         return new ResponseEntity<>(exception, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @ExceptionHandler(NullException.class)
+    public ResponseEntity<@NonNull ApiExceptionBody> nullExceptionHandler(NullException nullException, HttpServletRequest request) {
+        ApiExceptionBody exception  = new ApiExceptionBody();
+
+        exception.setPath(request.getRequestURI());
+        exception.setMessage(nullException.getMessage());
+        exception.setStatus(false);
+        exception.setTimestamp(EXCEPTION_RESPONSE_FORMAT);
+        exception.setCode(HttpStatus.EXPECTATION_FAILED.value());
+
+        return new ResponseEntity<>(exception, HttpStatus.EXPECTATION_FAILED);
     }
 }

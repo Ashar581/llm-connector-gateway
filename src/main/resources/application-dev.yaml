@@ -49,9 +49,9 @@ llm:
       top-p: 0.85
     embedding:
       local:
-        base-url: http://localhost:9090
+        base-url: http://localhost:8081
         api-key: ashar581
-        model: local-embed-model.ggfu
+        model: nomic-embed-text-v1.5.Q4_K_M.gguf
       global:
         base-url: https://openai/api/v1
         api-key: sk-0939r899
