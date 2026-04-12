@@ -1,0 +1,480 @@
+2026-04-11 00:00:30 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-11 00:00:30 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-11 00:00:30 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 16 ms
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:00:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8579be73-9ab3-47a1-a63e-cfda24bf5ef2
+2026-04-11 00:00:38 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 222363dc-817b-45a1-b229-e25db73f52ce
+2026-04-11 00:00:38 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 59d8365c-4512-4101-a635-01bfee38692e
+2026-04-11 00:00:38 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 54c9b4db-edde-4a5a-bd01-409dcfac08c2
+2026-04-11 00:00:38 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 2a05e50c-911f-4b7c-96f0-aa3992df1660
+2026-04-11 00:00:38 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = c9aa76eb-f609-472f-a046-d78c458c02f2
+2026-04-11 00:00:38 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 0bb8e321-798d-41d2-b44e-847782027117
+2026-04-11 00:00:38 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 7b6e176a-7eac-436d-be78-6895f0d1d792
+2026-04-11 00:00:38 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = bcf8944b-a1e3-4f6b-97f1-9b579833987d
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 2b901fc0-647a-40da-b2a7-4a3451033946
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = ea143f8a-c33c-4bae-be11-3a9e6f408328
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = dccff8a7-d4a6-41ba-906a-4ee63bdfd050
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 020b3fda-7e37-4848-8bed-b27cc1fdc0b7
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = f9da2377-32f8-45fc-96d9-2fcb85d78c6b
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = cc206b0a-e562-44a3-a895-620775a7fc17
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = b7de59f1-2aa6-4e17-9d9e-bc4a095faa07
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 5a419512-3782-4d86-a3ca-7eb9e8a6da51
+2026-04-11 00:00:39 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = d9233364-cc92-4a92-994a-05dbb4ad9ff7
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 5e8720c4-6506-414d-b5a3-965d54ea2d1b
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 92df5cfb-55f4-4146-9d0f-baefd4676fa7
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 74e6bd32-78cc-4fbb-9a94-c40fb00ab88b
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 3498cb10-c4a0-4cd4-99e6-eb3c3d084250
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 40c08f09-063f-4274-97b3-5c8dfefede5c
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 1060e183-3a2a-4fdd-ac01-e35dfbc7823a
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8e662774-2cdc-40c5-85a2-958ab8d66887
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 9aa2bc25-4e3e-47a0-a613-b0b5b2f3d626
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 28a3f545-30f0-44bb-8765-d4525bc8f947
+2026-04-11 00:00:40 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 4b8bb609-03c4-483d-9206-09cbdc9151b8
+2026-04-11 00:00:41 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 3c5a903c-bc20-4127-b1ad-20556a087629
+2026-04-11 00:00:41 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 616ac064-15f5-4367-b0b0-4aaaa1f1da2a
+2026-04-11 00:00:41 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = a283e82f-37e0-4449-a7f2-248f48e2f003
+2026-04-11 00:00:41 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 5ffa7346-5645-47a0-9488-82dce9882567
+2026-04-11 00:00:41 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8db9094c-f5f6-4c7a-bf2b-f3e84fbd1880
+2026-04-11 00:00:41 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = b5fb54c5-b511-442b-895e-b0b7585c1ecf
+2026-04-11 00:00:41 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 6c5c68c3-7ba6-42a4-a096-12096c81f928
+2026-04-11 00:00:41 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 04d03315-284f-4df9-86ee-48cee4206b01
+2026-04-11 00:03:50 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-11 00:03:50 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-11 00:03:57 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-11 00:03:57 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 33019 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-11 00:03:57 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-11 00:03:59 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=185a858d-1346-3959-8c59-f76e3fc70b96
+2026-04-11 00:04:00 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-11 00:04:00 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-11 00:04:00 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-11 00:04:00 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-11 00:04:00 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3056 ms
+2026-04-11 00:04:00 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-11 00:04:02 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: e0008773-8470-42c1-b475-f62d80b738ac
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-11 00:04:02 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-11 00:04:03 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-11 00:04:03 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-11 00:04:03 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-11 00:04:03 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.735 seconds (process running for 9.267)
+2026-04-11 00:04:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-11 00:04:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-11 00:04:46 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-11 00:04:46 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-11 00:04:46 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 8 ms
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = c9537e67-1f22-49cf-9ee6-85c10cc077a7
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 30b99f17-e86e-4d75-ac48-2b674268f72b
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 90b42275-1b2f-46c0-8212-24ec4849e45e
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 0312042c-4a46-443c-a440-08e3e445d49b
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 9e7e6437-adf9-46a7-96a0-076d3305c943
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 6fadbb20-e0f1-4d91-bd7a-360259829256
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = c57defb5-5ed3-450e-907b-b9b191795cc5
+2026-04-11 00:04:56 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 11920e05-d8cf-4409-9e9b-35b00caaf7d6
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 4404e6dd-eed7-43b5-b630-119374b70c4a
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 9f95a158-bf84-456a-a115-a86373ae3b74
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 44311f2d-ae83-4bac-aea5-a05bdbab493a
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = a4c7d434-5af6-42df-a2b4-179b37418742
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = f16c81ca-30e1-487e-87b5-1d28716ed9c9
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = a2492b12-f3bf-44de-82a4-1a69a0dd967d
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = bf1c2eb8-7b49-4926-93d1-cf0e78761c84
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 325357a2-26a1-4319-8195-bfceb5f4904b
+2026-04-11 00:04:57 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 66fda3e1-2ab6-47ed-9a2f-be9cc6ef7df5
+2026-04-11 00:04:58 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 127742dc-0709-41c3-8526-484c6f16f497
+2026-04-11 00:04:58 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8270c1a8-0fab-4110-b059-c95dab36d488
+2026-04-11 00:04:58 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 3a6d6aaf-841d-4589-90e0-ce44c3b62250
+2026-04-11 00:04:58 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 36d53b86-3fd1-44a1-9a89-5162fc30286d
+2026-04-11 00:04:58 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 32f6028b-1986-43a2-9eae-9fdebc429ca9
+2026-04-11 00:04:58 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 2f6c70e2-17f4-4f7e-8bdb-21778693ea68
+2026-04-11 00:04:58 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 1805e03d-cf0c-4b2d-8c04-73c76108bc65
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = bc3d56d2-c8b7-4260-9e48-661006caabad
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = fa797f70-1873-4bc1-bef9-a9328fea16df
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = e9e9ab5b-1a7e-40fd-92f4-d65c95f5607f
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 78a5cde4-82bc-4d6d-8276-7a8886dc572a
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 07f4140d-f201-4ab8-9737-fda5435c0841
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 2ca517f5-b5c1-409c-a74d-4be70d205e19
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 26df6362-2ea1-42a1-a90e-802302758dec
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 97d92c6f-9609-459c-a766-80badc7b3cec
+2026-04-11 00:04:59 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = cfc4b283-82d7-4f1b-a098-e5bb802e10d5
+2026-04-11 00:05:00 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 2348628e-99db-45ff-a6b6-ef21e19724c6
+2026-04-11 00:05:00 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = c9855dc3-959a-45ad-8b5d-40e1b4927b89
+2026-04-11 00:05:00 [http-nio-6969-exec-3] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8816655c-b34d-4b2b-b7fd-692895a08052
+2026-04-11 00:08:03 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-11 00:08:03 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-11 00:08:10 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-11 00:08:10 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 33917 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-11 00:08:10 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-11 00:08:13 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=185a858d-1346-3959-8c59-f76e3fc70b96
+2026-04-11 00:08:13 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-11 00:08:14 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-11 00:08:14 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-11 00:08:14 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-11 00:08:14 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3234 ms
+2026-04-11 00:08:14 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-11 00:08:16 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: a7ddd201-e7fd-41d5-b489-3d389c25a1f2
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-11 00:08:16 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-11 00:08:17 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-11 00:08:17 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-11 00:08:17 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-11 00:08:17 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.905 seconds (process running for 9.588)
+2026-04-11 00:08:17 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-11 00:08:17 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-11 00:09:26 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-11 00:09:26 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-11 00:09:26 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 14 ms
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:09:31 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 9ddcdb9c-cb29-492c-91dc-f3951cac59e9
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = f794ced4-40b5-40f2-ba3d-5a2b8244b4ea
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = cdfce7c6-9b43-443a-92ab-3201973d86f9
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 5fe8f12f-1202-4d51-84af-105c6a31aa51
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 695eb30a-87b1-45c8-8219-b10adccbbdc2
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 186ba73c-3b05-4f8c-953c-5e609cd8d388
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = a3dfcef6-839b-46cb-9b5f-cba5058c17d5
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 0f95dc9a-e596-424e-a7ad-1db4d2cff4e7
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 3901eaad-b606-4a7f-9f41-2abd2bfc4166
+2026-04-11 00:09:34 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 72b49fe8-efbc-4a61-8927-6184648fff3b
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 246d9386-0228-4d48-a1c5-57c066d5bb65
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 380b77f5-8b52-478e-88a1-edfd7632828d
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 7fad3439-23e8-4cc1-b18d-0a74e8e9f9a8
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 6a895192-ece3-4c34-a8ad-8bfab52efa83
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 3f0771e9-0567-445d-9ce3-36e5378b71f3
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = f44887bc-f47c-4332-a2c6-7346c9c03858
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = a377b598-c04b-4e2c-989a-886dd304b1e0
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 0ee12c98-1579-40e7-929d-31963704381c
+2026-04-11 00:09:35 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 75becd00-bdcc-4de4-bceb-9d65458baf43
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = b8b0089f-6fdd-42fb-80ff-e24d993a08d2
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8cc91613-cb31-4457-a05d-ace21bf5a1e2
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 14c55c87-d476-40a1-a7ca-27ed8696c553
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = ace223e3-a5ca-4d75-b8fe-cc37ac8ea667
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 78eeb157-520d-4d94-a170-157be958d2bf
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = c4e8b5a1-8206-4451-bcdb-b1eb77da1c0c
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = e7fc9be6-7b0f-468f-9d49-2603e255a905
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 97a3d3fc-a0d3-4ea2-ada3-5dde576352a8
+2026-04-11 00:09:36 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = a6d820cf-0fb0-4e6f-813d-97305ce39eeb
+2026-04-11 00:09:37 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 0fbf3fda-ca24-4042-8fad-c8b162f74f0f
+2026-04-11 00:09:37 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = dd64517c-003a-4d9e-8764-5d17ae610037
+2026-04-11 00:09:37 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 400a7a37-6bcd-4a99-aad9-7c7274849908
+2026-04-11 00:09:37 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8a19849c-dce2-4e1a-a87a-9384fefaef39
+2026-04-11 00:09:37 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8e222d7f-9a79-4484-ad6b-fb8b21b8b9a5
+2026-04-11 00:09:37 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 77912145-99ba-4297-8d2b-6129e50901ac
+2026-04-11 00:09:37 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 8788f334-b225-4475-8eb8-0335ad8a4faf
+2026-04-11 00:09:37 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 247acaa5-846d-45cf-90cd-9fb18725194b
+2026-04-11 00:12:13 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-11 00:12:13 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-11 00:12:19 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-11 00:12:19 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 34729 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-11 00:12:19 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-11 00:12:22 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=185a858d-1346-3959-8c59-f76e3fc70b96
+2026-04-11 00:12:23 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-11 00:12:23 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-11 00:12:23 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-11 00:12:23 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-11 00:12:23 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3666 ms
+2026-04-11 00:12:23 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-11 00:12:25 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 040c3940-3e3f-4b79-b3b7-cfbbd47d632f
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-11 00:12:25 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-11 00:12:26 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-11 00:12:26 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-11 00:12:26 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-11 00:12:26 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 8.142 seconds (process running for 9.278)
+2026-04-11 00:12:27 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-11 00:12:27 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-11 00:12:38 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-11 00:12:38 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-11 00:12:38 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.transformer.splitter.TextSplitter - Splitting up document into 2 chunks.
+2026-04-11 00:12:42 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 062f0054-5ea7-4ccc-b20d-da2843b5a8a9
+2026-04-11 00:12:44 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = f00f49b0-b449-4381-84a5-f6d61c9a11de
+2026-04-11 00:12:44 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 017f435a-488e-4193-9173-d66fbfd8f637
+2026-04-11 00:12:44 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 27a69e61-55a5-4b82-9fd1-fe46ddd10e43
+2026-04-11 00:12:44 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 89ef9fb6-28c9-4da5-952d-65654f6c92b0
+2026-04-11 00:12:44 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = eaad87de-d617-4307-a15f-0fe04612e183
+2026-04-11 00:12:44 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 941634fd-40b7-43b6-9ec0-504b841cf753
+2026-04-11 00:12:44 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 9b59de5e-c962-45e5-a1af-ff4f2dda3c50
+2026-04-11 00:12:44 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 4a01b567-61f5-403e-b6af-6a652bebf6d3
+2026-04-11 00:12:45 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 637b8b9c-e640-4ba8-ad90-1712beb4bbd5
+2026-04-11 00:12:45 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 263a4e78-8513-49fa-b89e-52d77f053525
+2026-04-11 00:12:45 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 01fa61be-ca2f-4992-a05c-41925fd0701e
+2026-04-11 00:12:45 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = ede21d67-5754-4c6b-8300-be2bebeab5e9
+2026-04-11 00:12:45 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 07a7e0b5-8bbe-4a13-bfd5-4f00da8295df
+2026-04-11 00:12:45 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 0f094a54-77d1-4794-a005-6dc6c00ad5ea
+2026-04-11 00:12:45 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 161b8295-b4fd-4999-91ce-c63ee8f2aa99
+2026-04-11 00:12:45 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = c2f9c9d8-e794-41c1-950a-5f50ee70479d
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = eef3ab6f-0502-4618-9f6b-0b0bf634567d
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 39d3caa2-7916-43a6-b73e-f073272803c3
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 651409fa-1d24-4d49-9cc9-a5272dbe4223
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 23d10f33-c40b-4362-9f82-82720933fa6e
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 2c0ee3db-b690-45fc-a384-f8f7fdb60602
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = efd5e264-0e79-4c35-afc3-503d3fe233c5
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 480b0b3d-021b-46aa-95c8-2943b681c3e3
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 95582905-1925-4a1e-8741-b33eeb773fcf
+2026-04-11 00:12:46 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 22483cf6-f046-4d4b-9e38-cb175a560f7f
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 2c7b16ba-ddff-4714-93c2-27cb6384c46e
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 7335e4ff-9727-44ec-b568-bbbef33f6a14
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 9d454441-fc79-4580-ad89-ad7b061c765f
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = d69640c2-4803-4b83-ab9d-b805428afbba
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 4242b716-8267-4c33-9d01-f7de39b2d7a4
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 5a6f84cb-6156-4867-b824-a9dd3df3314d
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = d18c2ce0-4350-48ec-a8e2-66f3c6ed40b4
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = ff0e1969-713d-4f21-bdf1-813568aad69d
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = e2204130-18c7-4d8e-bfc8-2b439a543aa4
+2026-04-11 00:12:47 [http-nio-6969-exec-2] INFO  org.springframework.ai.vectorstore.SimpleVectorStore - Calling EmbeddingModel for document id = 73401ca3-1f4f-4113-a27a-0e4d8880afaa
+2026-04-11 01:17:17 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-11 01:17:17 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-11 23:56:46 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-11 23:56:46 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 94448 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-11 23:56:46 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-11 23:56:49 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=185a858d-1346-3959-8c59-f76e3fc70b96
+2026-04-11 23:56:49 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-11 23:56:49 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-11 23:56:49 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-11 23:56:49 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-11 23:56:50 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3585 ms
+2026-04-11 23:56:50 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-11 23:56:51 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 97c326ee-e65f-4f7b-b1d1-c6fdf0685937
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-11 23:56:51 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-11 23:56:53 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-11 23:56:53 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-11 23:56:53 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-11 23:56:53 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 8.063 seconds (process running for 9.419)
+2026-04-11 23:56:53 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-11 23:56:53 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-11 23:56:53 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-11 23:59:24 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-11 23:59:24 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-11 23:59:24 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 20 ms
+2026-04-11 23:59:24 [http-nio-6969-exec-1] ERROR com.an.llm.connector.gateway.exception.handler.CustomExceptionHandler - Error during calling /api/llm/v1/embed
+org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unexpected end-of-input: expected close marker for Object (start marker at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #UNKNOWN])
+	at org.springframework.http.converter.AbstractJacksonHttpMessageConverter.readJavaType(AbstractJacksonHttpMessageConverter.java:363)
+	at org.springframework.http.converter.AbstractJacksonHttpMessageConverter.read(AbstractJacksonHttpMessageConverter.java:319)
+	at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodArgumentResolver.readWithMessageConverters(AbstractMessageConverterMethodArgumentResolver.java:203)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.readWithMessageConverters(RequestResponseBodyMethodProcessor.java:181)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.resolveArgument(RequestResponseBodyMethodProcessor.java:156)
+	at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:122)
+	at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:224)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:174)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:649)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:235)
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:493)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:354)
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:86)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:132)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.www.BasicAuthenticationFilter.doFilterInternal(BasicAuthenticationFilter.java:198)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at com.an.llm.connector.gateway.security.filter.JwtValidatorFilter.doFilterInternal(JwtValidatorFilter.java:54)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:337)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:110)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1779)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1570)
+Caused by: tools.jackson.core.exc.UnexpectedEndOfInputException: Unexpected end-of-input: expected close marker for Object (start marker at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #UNKNOWN])
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #55]
+	at tools.jackson.core.base.ParserMinimalBase._reportInvalidEOF(ParserMinimalBase.java:1023)
+	at tools.jackson.core.base.ParserBase._handleEOF(ParserBase.java:349)
+	at tools.jackson.core.base.ParserBase._eofAsNextChar(ParserBase.java:364)
+	at tools.jackson.core.json.UTF8StreamJsonParser._skipWSOrEnd(UTF8StreamJsonParser.java:3628)
+	at tools.jackson.core.json.UTF8StreamJsonParser.nextNameMatch(UTF8StreamJsonParser.java:1122)
+	at tools.jackson.databind.deser.bean.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:648)
+	at tools.jackson.databind.deser.bean.BeanDeserializer.deserialize(BeanDeserializer.java:200)
+	at tools.jackson.databind.deser.DeserializationContextExt.readRootValue(DeserializationContextExt.java:266)
+	at tools.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:1888)
+	at tools.jackson.databind.ObjectReader.readValue(ObjectReader.java:1270)
+	at org.springframework.http.converter.AbstractJacksonHttpMessageConverter.readJavaType(AbstractJacksonHttpMessageConverter.java:352)
+	... 135 common frames omitted

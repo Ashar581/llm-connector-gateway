@@ -14,21 +14,34 @@ public class LlmLocalStartConfig {
     @Bean
     public ApplicationRunner startLlmLocally() {
         return args -> {
+            ProcessBuilder summarizeLlm = new ProcessBuilder(
+                    "bash", "-c",
+                    "cd ~/llama.cpp && ./build/bin/llama-server " +
+                            "-m models/Bonsai-8B.gguf " +
+                            "-c 16384 -np 8 -t 8 -cb -ngl 999 " +
+                            "--host 0.0.0.0 --port 8080"
+            );
+
             ProcessBuilder llm = new ProcessBuilder(
                     "bash", "-c",
                     "cd ~/llama.cpp && ./build/bin/llama-server " +
                             "-m models/qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf " +
-                            "-c 4096 -np 8 -t 8 -cb -ngl 999 " +
+                            "-c 8192 -np 8 -t 8 -cb -ngl 999 " +
                             "--host 0.0.0.0 --port 8080"
             );
 
             ProcessBuilder embed = new ProcessBuilder(
                     "bash", "-c",
                     "cd ~/llama.cpp && ./build/bin/llama-server " +
-                            "-m models/nomic-embed-text-v1.5.Q4_K_M.gguf " +
+                            "-m models/bge-large-en-v1.5-q4_k_m.gguf " +
                             "-c 4096 -np 4 -t 4 -cb -ngl 512 " +
                             "--host 0.0.0.0 --port 8081 --embeddings"
             );
+
+            if (!isLlmRunningLocally(8082)) {
+                summarizeLlm.inheritIO();
+                summarizeLlm.start();
+            }
 
             if (!isLlmRunningLocally(8080)) {
                 llm.inheritIO();

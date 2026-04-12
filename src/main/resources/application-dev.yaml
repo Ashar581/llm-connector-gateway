@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: llm.connector.gateway
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
     #Used for single open AI configuration. (Only for testing will remove it)
   ai:
     openai:
