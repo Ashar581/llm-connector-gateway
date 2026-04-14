@@ -19,7 +19,7 @@ public class LlmLocalStartConfig {
                     "cd ~/llama.cpp && ./build/bin/llama-server " +
                             "-m models/Bonsai-8B.gguf " +
                             "-c 16384 -np 8 -t 8 -cb -ngl 999 " +
-                            "--host 0.0.0.0 --port 8080"
+                            "--host 0.0.0.0 --port 8082"
             );
 
             ProcessBuilder llm = new ProcessBuilder(
