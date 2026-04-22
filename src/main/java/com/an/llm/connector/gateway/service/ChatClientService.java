@@ -14,7 +14,7 @@ public class ChatClientService {
     private final AiBeanFactory aiBeanFactory;
 
     public String ask(LlmConnectorRequest request){
-        String instructions = (request.getInstructions() !=null &&  request.getInstructions().isBlank())? request.getInstructions() : LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL;
+        String instructions = (request.getInstructions() !=null &&  !request.getInstructions().isBlank())? request.getInstructions() : LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL;
         return aiBeanFactory.getChatClient(request.getSource(),  request.getType(),request.getModel())
                 .prompt()
                 .system(instructions)
@@ -24,7 +24,7 @@ public class ChatClientService {
     }
 
     public Flux<@NonNull String> askStream(LlmConnectorRequest request){
-        String instructions = (request.getInstructions() !=null &&  request.getInstructions().isBlank())? request.getInstructions() : LlmInstructions.TEST_CHAT_INSTRUCTION;
+        String instructions = (request.getInstructions() !=null &&  !request.getInstructions().isBlank())? request.getInstructions() : LlmInstructions.TEST_CHAT_INSTRUCTION;
 
         return aiBeanFactory.getChatClient(request.getSource(),  request.getType(),request.getModel())
                 .prompt()
