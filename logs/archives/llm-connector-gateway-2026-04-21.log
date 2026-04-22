@@ -1,0 +1,233 @@
+2026-04-21 18:21:28 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-21 18:21:28 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 53243 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-21 18:21:28 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-21 18:21:31 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=0c40c2ee-c8a3-37fe-a3bf-f4a9e96323cd
+2026-04-21 18:21:31 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-21 18:21:31 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:21:31 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-21 18:21:31 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-21 18:21:32 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3133 ms
+2026-04-21 18:21:32 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-21 18:21:33 [main] INFO  com.an.llm.connector.gateway.model.config.LlmConfig - configs: {free=SourceGroup(models=[ModelConfig(id=qwen-instruct, type=null, baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf), ModelConfig(id=bonsai, type=null, baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=Bonsai-8B.gguf), ModelConfig(id=bge-large-embed, type=null, baseUrl=http://localhost:8081, apiPath=/v1/embeddings, apiKey=null, provider=null, modelName=bge-large)]), paid=SourceGroup(models=[ModelConfig(id=openai-gpt4, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=gpt-4o), ModelConfig(id=openai-embed, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=text-embedding-3-large)])}
+2026-04-21 18:21:33 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 07b25590-4264-4c60-b4fc-028cde0532bf
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-21 18:21:33 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-21 18:21:34 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-21 18:21:34 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:21:34 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-21 18:21:34 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.228 seconds (process running for 8.27)
+2026-04-21 18:21:35 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-21 18:21:35 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-21 18:21:35 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-21 18:22:15 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-21 18:22:15 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-21 18:27:23 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-21 18:27:23 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 53427 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-21 18:27:23 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-21 18:27:25 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=0c40c2ee-c8a3-37fe-a3bf-f4a9e96323cd
+2026-04-21 18:27:26 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-21 18:27:26 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:27:26 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-21 18:27:26 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-21 18:27:26 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3329 ms
+2026-04-21 18:27:26 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-21 18:27:28 [main] INFO  com.an.llm.connector.gateway.model.config.LlmConfig - configs: {free=SourceGroup(models=[ModelConfig(id=qwen-instruct, type=null, baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf), ModelConfig(id=bonsai, type=null, baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=Bonsai-8B.gguf), ModelConfig(id=bge-large-embed, type=null, baseUrl=http://localhost:8081, apiPath=/v1/embeddings, apiKey=null, provider=null, modelName=bge-large)]), paid=SourceGroup(models=[ModelConfig(id=openai-gpt4, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=gpt-4o), ModelConfig(id=openai-embed, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=text-embedding-3-large)])}
+2026-04-21 18:27:28 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 79bec3a2-6c3b-4d8e-9508-61a313595159
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-21 18:27:28 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-21 18:27:29 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-21 18:27:29 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:27:29 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-21 18:27:29 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.885 seconds (process running for 8.97)
+2026-04-21 18:27:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-21 18:27:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-21 18:27:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-21 18:28:16 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21 18:28:16 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-21 18:28:16 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 5 ms
+2026-04-21 18:34:34 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-21 18:34:34 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-21 18:34:40 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-21 18:34:40 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 53696 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-21 18:34:40 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-21 18:34:43 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=0c40c2ee-c8a3-37fe-a3bf-f4a9e96323cd
+2026-04-21 18:34:43 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-21 18:34:43 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:34:43 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-21 18:34:43 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-21 18:34:43 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3054 ms
+2026-04-21 18:34:44 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-21 18:34:45 [main] INFO  com.an.llm.connector.gateway.model.config.LlmConfig - configs: {free=SourceGroup(models=[ModelConfig(id=qwen-instruct, type=null, baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf), ModelConfig(id=bonsai, type=null, baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=Bonsai-8B.gguf), ModelConfig(id=bge-large-embed, type=null, baseUrl=http://localhost:8081, apiPath=/v1/embeddings, apiKey=null, provider=null, modelName=bge-large)]), paid=SourceGroup(models=[ModelConfig(id=openai-gpt4, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=gpt-4o), ModelConfig(id=openai-embed, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=text-embedding-3-large)])}
+2026-04-21 18:34:45 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 1a86fcbd-9ea2-4946-b4a1-e37f7fefd598
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-21 18:34:45 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-21 18:34:46 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-21 18:34:46 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:34:46 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-21 18:34:47 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.463 seconds (process running for 8.543)
+2026-04-21 18:34:47 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-21 18:34:47 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-21 18:34:47 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-21 18:35:24 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21 18:35:24 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-21 18:35:24 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 10 ms
+2026-04-21 18:43:42 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-21 18:43:42 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-21 18:43:49 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-21 18:43:49 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 53994 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-21 18:43:49 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-21 18:43:51 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=0c40c2ee-c8a3-37fe-a3bf-f4a9e96323cd
+2026-04-21 18:43:52 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-21 18:43:52 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:43:52 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-21 18:43:52 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-21 18:43:52 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3123 ms
+2026-04-21 18:43:52 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-21 18:43:53 [main] INFO  com.an.llm.connector.gateway.model.config.LlmConfig - configs: {free=SourceGroup(models=[ModelConfig(id=qwen-instruct, type=null, baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf), ModelConfig(id=bonsai, type=null, baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=Bonsai-8B.gguf), ModelConfig(id=bge-large-embed, type=null, baseUrl=http://localhost:8081, apiPath=/v1/embeddings, apiKey=null, provider=null, modelName=bge-large)]), paid=SourceGroup(models=[ModelConfig(id=openai-gpt4, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=gpt-4o), ModelConfig(id=openai-embed, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=text-embedding-3-large)])}
+2026-04-21 18:43:54 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: c6f665d2-6441-4630-9cad-a46f91b25cf2
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-21 18:43:54 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-21 18:43:55 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-21 18:43:55 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:43:55 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-21 18:43:55 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.245 seconds (process running for 8.338)
+2026-04-21 18:43:55 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-21 18:43:55 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-21 18:43:55 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-21 18:44:13 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21 18:44:13 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-21 18:44:13 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 11 ms
+2026-04-21 18:50:11 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-21 18:50:11 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-21 18:51:36 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-21 18:51:36 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 54202 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-21 18:51:36 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-21 18:51:38 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=0c40c2ee-c8a3-37fe-a3bf-f4a9e96323cd
+2026-04-21 18:51:39 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-21 18:51:39 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:51:39 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-21 18:51:39 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-21 18:51:39 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3057 ms
+2026-04-21 18:51:39 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-21 18:51:41 [main] INFO  com.an.llm.connector.gateway.model.config.LlmConfig - configs: {free=SourceGroup(models=[ModelConfig(id=qwen-instruct, type=null, baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf), ModelConfig(id=bonsai, type=null, baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=Bonsai-8B.gguf), ModelConfig(id=bge-large-embed, type=null, baseUrl=http://localhost:8081, apiPath=/v1/embeddings, apiKey=null, provider=null, modelName=bge-large)]), paid=SourceGroup(models=[ModelConfig(id=openai-gpt4, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=gpt-4o), ModelConfig(id=openai-embed, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=text-embedding-3-large)])}
+2026-04-21 18:51:41 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: aad4ce68-7c07-4848-8b42-a10505973d07
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-21 18:51:41 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-21 18:51:42 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-21 18:51:42 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:51:42 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-21 18:51:42 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.196 seconds (process running for 8.31)
+2026-04-21 18:51:42 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-21 18:51:42 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-21 18:51:42 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-21 18:52:25 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21 18:52:25 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-21 18:52:25 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 11 ms
+2026-04-21 18:55:46 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-21 18:55:46 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-21 18:55:53 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-21 18:55:53 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 54419 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-21 18:55:53 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-21 18:55:56 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=0c40c2ee-c8a3-37fe-a3bf-f4a9e96323cd
+2026-04-21 18:55:57 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-21 18:55:57 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:55:57 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-21 18:55:57 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-21 18:55:57 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3299 ms
+2026-04-21 18:55:57 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-21 18:55:58 [main] INFO  com.an.llm.connector.gateway.model.config.LlmConfig - configs: {free=SourceGroup(models=[ModelConfig(id=qwen-instruct, type=null, baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf), ModelConfig(id=bonsai, type=null, baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=Bonsai-8B.gguf), ModelConfig(id=bge-large-embed, type=null, baseUrl=http://localhost:8081, apiPath=/v1/embeddings, apiKey=null, provider=null, modelName=bge-large)]), paid=SourceGroup(models=[ModelConfig(id=openai-gpt4, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=gpt-4o), ModelConfig(id=openai-embed, type=null, baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=text-embedding-3-large)])}
+2026-04-21 18:55:58 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: b6062031-4c4c-4d8c-8d52-4a6c0088a8ec
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-21 18:55:58 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-21 18:55:59 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-21 18:55:59 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-21 18:55:59 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-21 18:55:59 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.265 seconds (process running for 8.362)
+2026-04-21 18:56:00 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-21 18:56:00 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-21 18:56:00 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-21 18:56:32 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21 18:56:32 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-21 18:56:32 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 13 ms
+2026-04-21 18:58:11 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-21 18:58:11 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-21 23:26:45 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-21 23:26:45 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 55006 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-21 23:26:45 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-21 23:26:47 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=0c40c2ee-c8a3-37fe-a3bf-f4a9e96323cd
+2026-04-21 23:26:48 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-21 23:26:48 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-21 23:26:48 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-21 23:26:48 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-21 23:26:48 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3099 ms
+2026-04-21 23:26:48 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-21 23:26:49 [main] INFO  com.an.llm.connector.gateway.model.config.LlmConfig - configs: {free=SourceGroup(models=[ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, context=8192, parallelExecution=8), ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=null, provider=null, modelName=Bonsai-8B.gguf, context=16384, parallelExecution=8), ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:8081, apiPath=/v1/embeddings, apiKey=null, provider=null, modelName=bge-large, context=8192, parallelExecution=4)]), paid=SourceGroup(models=[ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=gpt-4o, context=0, parallelExecution=0), ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, provider=openai, modelName=text-embedding-3-large, context=0, parallelExecution=0)])}
+2026-04-21 23:26:50 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 9749a19e-43e4-44fd-a75d-26323056d471
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-21 23:26:50 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-21 23:26:51 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-21 23:26:51 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-21 23:26:51 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-21 23:26:51 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.669 seconds (process running for 8.802)
+2026-04-21 23:26:51 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-21 23:26:51 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-21 23:26:51 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-21 23:42:00 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-21 23:42:00 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-04-21 23:42:07 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-04-21 23:42:07 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 55316 (/Users/macbook/Downloads/llm.connector.gateway/target/classes started by macbook in /Users/macbook/Downloads/llm.connector.gateway)
+2026-04-21 23:42:07 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-04-21 23:42:11 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=9b07f5e4-43dd-3241-af3d-1535b92e3db6
+2026-04-21 23:42:12 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-04-21 23:42:12 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-04-21 23:42:12 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-04-21 23:42:12 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-04-21 23:42:12 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 4465 ms
+2026-04-21 23:42:12 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-04-21 23:42:14 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: ca51c536-31eb-4443-8d43-5da8e755968c
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-21 23:42:14 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-21 23:42:15 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-04-21 23:42:16 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-04-21 23:42:16 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-04-21 23:42:16 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 9.474 seconds (process running for 10.553)
+2026-04-21 23:42:16 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8082
+2026-04-21 23:42:16 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8080
+2026-04-21 23:42:16 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8081
+2026-04-21 23:42:34 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21 23:42:34 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-04-21 23:42:34 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 13 ms
+2026-04-21 23:43:37 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-21 23:43:37 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete

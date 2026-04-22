@@ -20,10 +20,6 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class BeanConfig {
     @Bean
-    public ChatClient chatClient(OpenAiChatModel chatModel) {
-        return ChatClient.create(chatModel);
-    }
-    @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
@@ -39,44 +35,10 @@ public class BeanConfig {
                 .build();
     }
 
-    /**
-     * I will be removing it post dynamic configurations. As of now this stays.
-     * @return {@link OpenAiEmbeddingModel} bean
-     */
-    @Primary
-    @Bean(name = "bge-large-embedding")
-    public OpenAiEmbeddingModel embeddingModel() {
-        OpenAiApi openAiApi = OpenAiApi.builder()
-                .baseUrl("http://localhost:8081")
-                .embeddingsPath("/v1/embeddings")
-                .apiKey("ashar581")
-                .build();
-
-        return new OpenAiEmbeddingModel(openAiApi);
-    }
-
-    /**
-     * For paid open ai model
-     * @return {@link OpenAiEmbeddingModel}
-     */
-    @Bean(name = "open_ai_embedding")
-    public OpenAiEmbeddingModel openAiEmbeddingModel() {
-        OpenAiApi openAiApi = OpenAiApi.builder()
-                .baseUrl("http://localhost:8081")
-                .embeddingsPath("/v1/embeddings")
-                .apiKey("ashar581")
-                .build();
-
-        OpenAiEmbeddingOptions options = OpenAiEmbeddingOptions.builder()
-                .model("text-embedding-model")
-                .build();
-
-        return new OpenAiEmbeddingModel(openAiApi, MetadataMode.EMBED, options);
-    }
-
-
+    //changed the qualifier from bge-large-embedding to bge-large-embed
+    //This is just a quick fix for testing -> will change it to strategy pattern.
     @Bean
-    public VectorStore vectorStore(@Qualifier("bge-large-embedding") OpenAiEmbeddingModel embeddingModel) {
+    public VectorStore vectorStore(@Qualifier("bge-large-embed") OpenAiEmbeddingModel embeddingModel) {
         return SimpleVectorStore.builder(embeddingModel).build();
     }
 }

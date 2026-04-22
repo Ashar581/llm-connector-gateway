@@ -27,36 +27,91 @@ app:
       use-env: false
       key-env-var: secret
 
-#custom-made llm config for using different models. Hybrid config. (work on progress)
 llm:
-  models:
+  sources:
+    free:
+      models:
+        - id: qwen-instruct
+          type:
+            - chat
+            - agent
+            - summarization
+            - generation
+            - tool
+          base-url: http://localhost:8080
+          api-path: /v1/chat/completions
+          api-key: ashar581
+          port: 8080
+          model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
+          context: 8192
+          parallelExecution: 8
+          active: true
+
+        - id: bonsai
+          type:
+            - chat
+            - agent
+            - summarization
+            - generation
+          base-url: http://localhost:8082
+          api-path: /v1/chat/completions
+          api-key: ashar581
+          port: 8082
+          model-name: Bonsai-8B.gguf
+          context: 16384
+          parallelExecution: 8
+          active: true
+
+        - id: qwen-coder
+          type:
+            - code
+          base-url: http://localhost:8083
+          api-path: /v1/chat/completions
+          api-key: ashar581
+          port: 8083
+          model-name: qwen2.5-coder-7b-instruct-q4_k_m.gguf
+          context: 9000
+          parallelExecution: 1
+          active: true
+
+        - id: bge-large-embed
+          type:
+            - embedding
+          base-url: http://localhost:9090
+          api-path: /v1/embeddings
+          api-key: ashar581
+          port: 9090
+          model-name: bge-large-en-v1.5-q4_k_m.gguf
+          context: 8192
+          parallelExecution: 4
+          active: true
+
+        - id: qwen3-embed
+          type:
+            - embedding
+          base-url: http://localhost:9091
+          api-path: /v1/embeddings
+          api-key: ashar581
+          port: 9091
+          model-name: Qwen3-Embedding-8B-Q4_K_M.gguf
+          context: 8192
+          parallelExecution: 2
+          active: false
     paid:
-      base-url: https://openai/paid/api
-      api-key: sk-939439
-      model: gpt-4o-mini
-      temperature: 0.7
-      max-tokens: 256
-      top-p: 0.9
-    reasoning:
-      base-url : http://localhost:8080
-      api-key: ashar581
-      model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
-      temperature: 0.7
-      max-tokens: 256
-      top-p: 0.9
-    summarization:
-      base-url: http://localhost:8081
-      api-key: ashar581
-      model: phi3.ggfu
-      temperature: 0.5
-      max-tokens: 200
-      top-p: 0.85
-    embedding:
-      local:
-        base-url: http://localhost:8081
-        api-key: ashar581
-        model: nomic-embed-text-v1.5.Q4_K_M.gguf
-      global:
-        base-url: https://openai/api/v1
-        api-key: sk-0939r899
-        model: openai-embed-model
+      models:
+        - id: openai-gpt4
+          type:
+            - chat
+            - agent
+            - summarization
+            - generation
+          provider: openai
+          api-key: ashar581
+          model-name: gpt-4o
+
+        - id: openai-embed
+          type:
+            - embedding
+          provider: openai
+          api-key: ashar581
+          model-name: text-embedding-3-large

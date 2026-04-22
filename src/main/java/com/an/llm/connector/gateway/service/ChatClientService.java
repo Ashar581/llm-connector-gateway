@@ -5,32 +5,28 @@ import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.util.LlmInstructions;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-@Deprecated
 @Service
-public class AiService {
-    //just for quick testing.
-    @Qualifier("qwen-instruct")
-    @Autowired
-    private ChatClient chatClient;
+@RequiredArgsConstructor
+public class ChatClientService {
+    private final AiBeanFactory aiBeanFactory;
 
-    public String ask(String prompt){
-        return chatClient.prompt()
+    public String ask(LlmConnectorRequest request){
+        return aiBeanFactory.getChatClient(request.getSource(),  request.getType(),request.getModel())
+                .prompt()
                 .system(LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL)
-                .user(prompt)
+                .user(request.getQuery())
                 .call()
                 .content();
     }
 
-    public Flux<@NonNull String> askStream(String prompt){
-        return chatClient.prompt()
+    public Flux<@NonNull String> askStream(LlmConnectorRequest request){
+        return aiBeanFactory.getChatClient(request.getSource(),  request.getType(),request.getModel())
+                .prompt()
                 .system(LlmInstructions.TEST_CHAT_INSTRUCTION)
-                .user(prompt)
+                .user(request.getQuery())
                 .stream()
                 .content();
     }

@@ -1,10 +1,7 @@
 package com.an.llm.connector.gateway.exception.handler;
 
 import com.an.llm.connector.gateway.base.ApiExceptionBody;
-import com.an.llm.connector.gateway.exception.AlreadyExistsException;
-import com.an.llm.connector.gateway.exception.ApiFallbackException;
-import com.an.llm.connector.gateway.exception.NotFoundException;
-import com.an.llm.connector.gateway.exception.NullException;
+import com.an.llm.connector.gateway.exception.*;
 import com.an.llm.connector.gateway.util.TimeUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
@@ -81,5 +78,31 @@ public class CustomExceptionHandler implements TimeUtils {
         exception.setCode(HttpStatus.EXPECTATION_FAILED.value());
 
         return new ResponseEntity<>(exception, HttpStatus.EXPECTATION_FAILED);
+    }
+
+    @ExceptionHandler(NotActivatedException.class)
+    public ResponseEntity<@NonNull ApiExceptionBody> notActivateExceptionHandler(NotActivatedException notActivatedException, HttpServletRequest request) {
+        ApiExceptionBody exception  = new ApiExceptionBody();
+
+        exception.setPath(request.getRequestURI());
+        exception.setMessage(notActivatedException.getMessage());
+        exception.setStatus(false);
+        exception.setTimestamp(EXCEPTION_RESPONSE_FORMAT);
+        exception.setCode(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS.value());
+
+        return new ResponseEntity<>(exception, HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
+    }
+
+    @ExceptionHandler(NotAvailableException.class)
+    public ResponseEntity<@NonNull ApiExceptionBody> notActivateExceptionHandler(NotAvailableException notAvailableException, HttpServletRequest request) {
+        ApiExceptionBody exception  = new ApiExceptionBody();
+
+        exception.setPath(request.getRequestURI());
+        exception.setMessage(notAvailableException.getMessage());
+        exception.setStatus(false);
+        exception.setTimestamp(EXCEPTION_RESPONSE_FORMAT);
+        exception.setCode(HttpStatus.SERVICE_UNAVAILABLE.value());
+
+        return new ResponseEntity<>(exception, HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

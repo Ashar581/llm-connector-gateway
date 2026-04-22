@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 
+@Deprecated
 @RestController
 @RequestMapping("api/llm/v1")
 @RequiredArgsConstructor

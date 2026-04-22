@@ -1,56 +1,79 @@
 package com.an.llm.connector.gateway.config;
 
+import com.an.llm.connector.gateway.enums.LlmCapability;
+import com.an.llm.connector.gateway.enums.Source;
+import com.an.llm.connector.gateway.model.config.ModelConfig;
+import com.an.llm.connector.gateway.model.config.SourceConfig;
+import com.an.llm.connector.gateway.service.LlmConfigService;
+import com.an.llm.connector.gateway.util.ProcessBuilderUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.Socket;
+import java.util.List;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class LlmLocalStartConfig {
+    private final LlmConfigService llmConfigService;
 
     @Bean
     public ApplicationRunner startLlmLocally() {
         return args -> {
-            ProcessBuilder summarizeLlm = new ProcessBuilder(
-                    "bash", "-c",
-                    "cd ~/llama.cpp && ./build/bin/llama-server " +
-                            "-m models/Bonsai-8B.gguf " +
-                            "-c 16384 -np 8 -t 8 -cb -ngl 999 " +
-                            "--host 0.0.0.0 --port 8082"
-            );
+            log.info("Starting activated LLMs.");
+            SourceConfig sourceConfig = llmConfigService.getModelConfigBySource(Source.FREE);
 
-            ProcessBuilder llm = new ProcessBuilder(
-                    "bash", "-c",
-                    "cd ~/llama.cpp && ./build/bin/llama-server " +
-                            "-m models/qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf " +
-                            "-c 8192 -np 8 -t 8 -cb -ngl 999 " +
-                            "--host 0.0.0.0 --port 8080"
-            );
+            if (sourceConfig!=null) {
+                List<ModelConfig> modelConfigs = sourceConfig.getModels();
+                if (modelConfigs!=null && !modelConfigs.isEmpty()) {
+                    for (ModelConfig config : modelConfigs) {
+                        try {
+                            if (config.getActive() != null && config.getActive()) {
+                                log.info("Processing model: {}. Listening on port: {}. Adjusted context: {}. Allowed parallel: {}", config.getModelName(), config.getPort(), config.getContext(), config.getParallelExecution());
+                                boolean isEmbedding = config.getType().contains(LlmCapability.EMBEDDING.getValue());
+                                ProcessBuilder modelBuilder = new ProcessBuilder(
+                                        "bash",
+                                        "-c",
+                                        isEmbedding
+                                                ?
+                                                ProcessBuilderUtils.generateProcessBuilderEmbedScript(
+                                                        config.getModelName(),
+                                                        config.getContext(),
+                                                        config.getParallelExecution(),
+                                                        config.getPort()
+                                                )
+                                                :
+                                                ProcessBuilderUtils.generateProcessBuilderScript(
+                                                        config.getModelName(),
+                                                        config.getContext(),
+                                                        config.getParallelExecution(),
+                                                        config.getPort()
+                                                )
+                                );
+                                if (isLlmRunningLocally(config.getPort())) {
+                                    log.info("Model : {} processing was not started. Port: {} is already running. Either the model is already running or some other application is running in the port.", config.getModelName(), config.getPort());
+                                    continue;
+                                }
+                                modelBuilder.inheritIO();
+                                modelBuilder.start();
 
-            ProcessBuilder embed = new ProcessBuilder(
-                    "bash", "-c",
-                    "cd ~/llama.cpp && ./build/bin/llama-server " +
-                            "-m models/bge-large-en-v1.5-q4_k_m.gguf " +
-                            "-c 4096 -np 4 -t 4 -cb -ngl 512 " +
-                            "--host 0.0.0.0 --port 8081 --embeddings"
-            );
+                                try {
+                                    Thread.sleep(30000);
+                                } catch (Exception ignore) {
+                                }
 
-            if (!isLlmRunningLocally(8082)) {
-                summarizeLlm.inheritIO();
-                summarizeLlm.start();
-            }
-
-            if (!isLlmRunningLocally(8080)) {
-                llm.inheritIO();
-                llm.start();
-            }
-
-            if (!isLlmRunningLocally(8081)) {
-                embed.inheritIO();
-                embed.start();
+                            } else {
+                                log.info("Model: {} will not run since it was disable.", config.getModelName());
+                            }
+                        }catch (Exception e){
+                            log.error("Error while having processing LLM.",e);
+                        }
+                    }
+                }
             }
         };
     }

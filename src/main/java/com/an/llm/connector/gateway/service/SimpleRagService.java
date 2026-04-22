@@ -5,6 +5,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.document.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class SimpleRagService {
 
     private final RetrievalService retrievalService;
     private final ConfidenceService confidenceService;
-    private final ChatClient chatClient;
+    //just for quick testing -> will switch to Strategy pattern
+    @Autowired
+    @Qualifier("bonsai")
+    private ChatClient chatClient;
+
+    //just for quick testing.
+    SimpleRagService(RetrievalService retrievalService, ConfidenceService confidenceService){
+        this.confidenceService = confidenceService;
+        this.retrievalService = retrievalService;
+    }
 
     public String ask(String question) {
 
