@@ -14,18 +14,21 @@ public class ChatClientService {
     private final AiBeanFactory aiBeanFactory;
 
     public String ask(LlmConnectorRequest request){
+        String instructions = (request.getInstructions() !=null &&  request.getInstructions().isBlank())? request.getInstructions() : LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL;
         return aiBeanFactory.getChatClient(request.getSource(),  request.getType(),request.getModel())
                 .prompt()
-                .system(LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL)
+                .system(instructions)
                 .user(request.getQuery())
                 .call()
                 .content();
     }
 
     public Flux<@NonNull String> askStream(LlmConnectorRequest request){
+        String instructions = (request.getInstructions() !=null &&  request.getInstructions().isBlank())? request.getInstructions() : LlmInstructions.TEST_CHAT_INSTRUCTION;
+
         return aiBeanFactory.getChatClient(request.getSource(),  request.getType(),request.getModel())
                 .prompt()
-                .system(LlmInstructions.TEST_CHAT_INSTRUCTION)
+                .system(instructions)
                 .user(request.getQuery())
                 .stream()
                 .content();
