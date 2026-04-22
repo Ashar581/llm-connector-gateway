@@ -70,7 +70,7 @@ llm:
           api-key: ashar581
           port: 8083
           model-name: qwen2.5-coder-7b-instruct-q4_k_m.gguf
-          context: 9000
+          context: 8192
           parallelExecution: 1
           active: true
 
