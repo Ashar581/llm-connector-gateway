@@ -6,7 +6,6 @@ import com.an.llm.connector.gateway.model.config.ModelConfig;
 import com.an.llm.connector.gateway.model.config.SourceConfig;
 import com.an.llm.connector.gateway.service.LlmConfigService;
 import com.an.llm.connector.gateway.util.ProcessBuilderUtils;
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -22,8 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LlmLocalStartConfig {
     private final LlmConfigService llmConfigService;
-
-    private final List<Process> runningProcesses = new ArrayList<>();
 
     @Bean
     public ApplicationRunner startLlmLocally() {
@@ -63,9 +59,7 @@ public class LlmLocalStartConfig {
                                     continue;
                                 }
                                 modelBuilder.inheritIO();
-                                Process process = modelBuilder.start();
-
-                                runningProcesses.add(process);
+                                modelBuilder.start();
 
                                 try {
                                     Thread.sleep(30000);
@@ -84,7 +78,7 @@ public class LlmLocalStartConfig {
         };
     }
 
-    private boolean isLlmRunningLocally(int port) {
+    public boolean isLlmRunningLocally(int port) {
         try (Socket socket = new Socket("localhost", port)) {
             log.info("LLM already running locally on port {}.",port);
             return true;
@@ -92,22 +86,5 @@ public class LlmLocalStartConfig {
             log.info("LLM needs to be started on port {}",port);
             return false;
         }
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        log.info("Stopping all LLM processes");
-
-        for (Process process : runningProcesses) {
-            process.destroy();
-        }
-
-        for (Process process : runningProcesses) {
-            if (process.isAlive()) {
-                process.destroyForcibly(); // fallback
-            }
-        }
-
-        log.info("All LLM processes stopped.");
     }
 }
