@@ -44,7 +44,7 @@ llm:
           port: 8080
           model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
           context: 8192
-          parallelExecution: 8
+          parallelExecution: 4
           active: true
 
         - id: bonsai
@@ -72,7 +72,7 @@ llm:
           model-name: qwen2.5-coder-7b-instruct-q4_k_m.gguf
           context: 8192
           parallelExecution: 1
-          active: true
+          active: false
 
         - id: bge-large-embed
           type:

@@ -14,6 +14,8 @@ import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -68,6 +70,7 @@ public class GenericBeanConfig {
                 .apiKey(config.getApiKey())
                 .baseUrl(config.getBaseUrl())
                 .completionsPath(config.getApiPath())
+                .restClientBuilder(buildRestClientBuilder())
                 .build();
     }
 
@@ -85,4 +88,19 @@ public class GenericBeanConfig {
                 .build();
     }
 
+    private RestClient.Builder buildRestClientBuilder() {
+
+        return RestClient.builder()
+                .requestFactory(clientHttpRequestFactory());
+    }
+
+    private SimpleClientHttpRequestFactory clientHttpRequestFactory() {
+
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+
+        factory.setConnectTimeout(10_000);
+        factory.setReadTimeout(180_000);
+
+        return factory;
+    }
 }
