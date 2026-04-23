@@ -24,7 +24,7 @@ public class RagControllerV2 extends BaseApiDelegate {
         return sendCreatedApiResponse(documentIngestionService.ingest(file), "File ingestion completed.");
     }
 
-    @GetMapping("simple/ask")
+    @PostMapping("simple/ask")
     public ResponseEntity<@NonNull ApiResponseBody<String>> simpleRagAsk(@RequestBody LlmConnectorRequest request){
         return sendSuccessfulApiResponse(simpleRagServiceV2.ask(request),"Data retrieved successfully.");
 

@@ -59,7 +59,7 @@ public class SimpleRagServiceV2 {
                         
                         CONTEXT:
                         %s
-                        """.formatted(question,context))
+                        """.formatted(request.getQuery(),context))
                 .call()
                 .content();
 
