@@ -29,4 +29,42 @@ public interface LlmInstructions {
             - Only give the code do not explain the question or solution.
             """;
 
+    String AADHAAR_OCR_INSTRUCTIONS = """
+            You are an OCR engine.
+
+            Extract from Aadhaar card:
+            - name
+            - date_of_birth
+            - aadhaar_number
+
+            Return ONLY valid JSON.
+            """;
+
+    String INVOICE_OCR_INSTRUCTIONS = """
+            You are an ORC engine capable of detecting both printed and handwritten images.
+            
+            Extract from the Invoice:
+            - sellerName
+            - customerName
+            - gstin
+            - pan
+            - phoneNumber
+            - invoiceNumber
+            - invoiceType
+            - invoiceAmountExcludingGST
+            - invoiceAmountIncludingGST
+            - items
+            - hsn
+            - quantity
+            - rate
+            - amount
+            
+            Instructions:
+            - customerName will always be present so always work extra hard to find it.
+            - GSTIN will always be there be sure to get that only of the seller and not the buyer.
+            
+            Find these details accurately. If you are unable to find it, give default values for the json keys.
+            Return ONLY valid JSON.
+            """;
+
 }

@@ -35,25 +35,65 @@ public class LlmLocalStartConfig {
                             if (config.getActive() != null && config.getActive()) {
                                 log.info("Processing model: {}. Listening on port: {}. Adjusted context: {}. Allowed parallel: {}", config.getModelName(), config.getPort(), config.getContext(), config.getParallelExecution());
                                 boolean isEmbedding = config.getType().contains(LlmCapability.EMBEDDING.getValue());
-                                ProcessBuilder modelBuilder = new ProcessBuilder(
-                                        "bash",
-                                        "-c",
-                                        isEmbedding
-                                                ?
-                                                ProcessBuilderUtils.generateProcessBuilderEmbedScript(
-                                                        config.getModelName(),
-                                                        config.getContext(),
-                                                        config.getParallelExecution(),
-                                                        config.getPort()
-                                                )
-                                                :
-                                                ProcessBuilderUtils.generateProcessBuilderScript(
-                                                        config.getModelName(),
-                                                        config.getContext(),
-                                                        config.getParallelExecution(),
-                                                        config.getPort()
-                                                )
-                                );
+                                boolean isVision = config.getType().contains(LlmCapability.VISION.getValue());
+
+                                ProcessBuilder modelBuilder;
+
+//                                ProcessBuilder modelBuilder = new ProcessBuilder(
+//                                        "bash",
+//                                        "-c",
+//                                        isEmbedding
+//                                                ?
+//                                                ProcessBuilderUtils.generateProcessBuilderEmbedScript(
+//                                                        config.getModelName(),
+//                                                        config.getContext(),
+//                                                        config.getParallelExecution(),
+//                                                        config.getPort()
+//                                                )
+//                                                :
+//                                                ProcessBuilderUtils.generateProcessBuilderScript(
+//                                                        config.getModelName(),
+//                                                        config.getContext(),
+//                                                        config.getParallelExecution(),
+//                                                        config.getPort()
+//                                                )
+//                                );
+
+                                if (isVision){
+                                    modelBuilder = new ProcessBuilder(
+                                            "bash",
+                                            "-c",
+                                            ProcessBuilderUtils.generateProcessBuilderVlScript(
+                                                    config.getModelName(),
+                                                    config.getMmProj(),
+                                                    config.getContext(),
+                                                    config.getParallelExecution(),
+                                                    config.getPort()
+                                            )
+                                    );
+                                } else if (isEmbedding) {
+                                    modelBuilder = new ProcessBuilder(
+                                            "bash",
+                                            "-c",
+                                            ProcessBuilderUtils.generateProcessBuilderEmbedScript(
+                                                    config.getModelName(),
+                                                    config.getContext(),
+                                                    config.getParallelExecution(),
+                                                    config.getPort()
+                                            )
+                                    );
+                                } else {
+                                    modelBuilder = new ProcessBuilder(
+                                            "bash",
+                                            "-c",
+                                            ProcessBuilderUtils.generateProcessBuilderScript(
+                                                    config.getModelName(),
+                                                    config.getContext(),
+                                                    config.getParallelExecution(),
+                                                    config.getPort()
+                                            )
+                                    );
+                                }
                                 if (isLlmRunningLocally(config.getPort())) {
                                     log.info("Model : {} processing was not started. Port: {} is already running. Either the model is already running or some other application is running in the port.", config.getModelName(), config.getPort());
                                     continue;

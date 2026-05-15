@@ -43,9 +43,10 @@ llm:
           api-key: ashar581
           port: 8080
           model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
-          context: 8192
+          mm-proj :
+          context: 16000
           parallelExecution: 4
-          active: true
+          active: false
 
         - id: bonsai
           type:
@@ -58,9 +59,10 @@ llm:
           api-key: ashar581
           port: 8082
           model-name: Bonsai-8B.gguf
+          mm-proj :
           context: 16384
           parallelExecution: 8
-          active: true
+          active: false
 
         - id: qwen-coder
           type:
@@ -70,9 +72,23 @@ llm:
           api-key: ashar581
           port: 8083
           model-name: qwen2.5-coder-7b-instruct-q4_k_m.gguf
+          mm-proj :
           context: 8192
           parallelExecution: 1
           active: false
+
+        - id: qwen-vl
+          type:
+            - vision
+          base-url: http://localhost:8084
+          api-path: /v1/chat/completions
+          api-key: ashar581
+          port: 8084
+          model-name: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf
+          mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
+          context: 18000
+          parallelExecution: 4
+          active: true
 
         - id: bge-large-embed
           type:
@@ -82,6 +98,7 @@ llm:
           api-key: ashar581
           port: 9090
           model-name: bge-large-en-v1.5-q4_k_m.gguf
+          mm-proj :
           context: 8192
           parallelExecution: 4
           active: true
@@ -94,6 +111,7 @@ llm:
           api-key: ashar581
           port: 9091
           model-name: Qwen3-Embedding-8B-Q4_K_M.gguf
+          mm-proj :
           context: 8192
           parallelExecution: 2
           active: false

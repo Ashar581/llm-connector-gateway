@@ -14,6 +14,7 @@ public class ModelConfig {
     private Integer port;
     private String provider;
     private String modelName;
+    private String mmProj;
     private Integer context;
     private Integer parallelExecution;
     private Boolean active;

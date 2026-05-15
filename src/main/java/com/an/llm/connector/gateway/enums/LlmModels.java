@@ -7,6 +7,7 @@ public enum LlmModels {
     QWEN_INSTRUCT("qwen-instruct"),
     BONSAI("bonsai"),
     QWEN_CODE("qwen-coder"),
+    QWEN_VL("qwen-vl"),
     BGE_LARGE_EMBED("bge-large-embed"),
     QWEN3_EMBED("qwen-3-embed");
 
