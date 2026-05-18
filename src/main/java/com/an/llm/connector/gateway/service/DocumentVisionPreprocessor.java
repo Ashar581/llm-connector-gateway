@@ -26,7 +26,7 @@ public class DocumentVisionPreprocessor {
     private static final int IMAGE_MAX_SIZE = 768;   // for images (Qwen optimal)
     private static final int PDF_MAX_SIZE = 1024;    // for PDF pages (higher fidelity)
     private static final int PDF_DPI = 220;          // PDF rendering quality
-    private static final float JPEG_QUALITY = 0.75f; // compression balance
+    private static final float JPEG_QUALITY = 0.90f; // compression balance
 
 
     public List<byte[]> preprocess(MultipartFile file) throws Exception {
