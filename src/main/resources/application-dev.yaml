@@ -46,7 +46,7 @@ llm:
           mm-proj :
           context: 16000
           parallelExecution: 4
-          active: false
+          active: true
 
         - id: bonsai
           type:
@@ -62,7 +62,7 @@ llm:
           mm-proj :
           context: 16384
           parallelExecution: 8
-          active: false
+          active: true
 
         - id: qwen-coder
           type:
