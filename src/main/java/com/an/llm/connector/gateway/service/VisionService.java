@@ -59,8 +59,7 @@ public class VisionService {
 
     public String visionPrompt(LlmConnectorRequest request) {
         try {
-
-            List<byte[]> pages = documentVisionPreprocessor.preprocess(request.getFiles().getFirst());
+            List<byte[]> pages = documentVisionPreprocessor.preprocess(request.getFiles());
 
             int maxPages = Math.min(pages.size(), 10);
             pages = pages.subList(0, maxPages);

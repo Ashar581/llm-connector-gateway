@@ -18,5 +18,5 @@ public class LlmConnectorRequest {
     private String model;
     private String instructions;
     private String query;
-    private List<MultipartFile> files;
+    private MultipartFile files;
 }
