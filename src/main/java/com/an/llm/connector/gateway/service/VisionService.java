@@ -62,12 +62,12 @@ public class VisionService {
 
             List<byte[]> pages = documentVisionPreprocessor.preprocess(request.getFiles().getFirst());
 
-            int maxPages = Math.min(pages.size(), 10);
+            int maxPages = Math.min(pages.size(), 15);
             pages = pages.subList(0, maxPages);
 
             List<Media> mediaList = pages.stream()
                     .map(bytes -> Media.builder()
-                            .mimeType(MediaType.IMAGE_JPEG)
+                            .mimeType(MediaType.IMAGE_PNG)
                             .data(new ByteArrayResource(bytes))
                             .build()
                     )
