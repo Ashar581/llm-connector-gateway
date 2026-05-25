@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.service;
+package com.an.llm.connector.gateway.service.ai;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;

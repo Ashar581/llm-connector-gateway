@@ -1,9 +1,9 @@
-package com.an.llm.connector.gateway.controller;
+package com.an.llm.connector.gateway.controller.agent;
 
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
 import com.an.llm.connector.gateway.dto.AgentFileDto;
-import com.an.llm.connector.gateway.service.AgentFileService;
+import com.an.llm.connector.gateway.service.agent.AgentFileService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

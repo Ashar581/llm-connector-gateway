@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.controller;
+package com.an.llm.connector.gateway.controller.ai;
 
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
 import com.an.llm.connector.gateway.service.LlmConfigService;

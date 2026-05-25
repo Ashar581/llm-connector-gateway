@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.service;
+package com.an.llm.connector.gateway.service.agent;
 
 import com.an.llm.connector.gateway.dto.AgentFileDto;
 import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;

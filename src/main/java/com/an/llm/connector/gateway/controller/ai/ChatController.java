@@ -1,9 +1,9 @@
-package com.an.llm.connector.gateway.controller;
+package com.an.llm.connector.gateway.controller.ai;
 
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
-import com.an.llm.connector.gateway.service.ChatClientService;
+import com.an.llm.connector.gateway.service.ai.ChatClientService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

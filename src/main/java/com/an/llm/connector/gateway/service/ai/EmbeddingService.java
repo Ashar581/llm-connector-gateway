@@ -1,8 +1,7 @@
-package com.an.llm.connector.gateway.service;
+package com.an.llm.connector.gateway.service.ai;
 
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.model.AiRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

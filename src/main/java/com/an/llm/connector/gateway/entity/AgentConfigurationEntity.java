@@ -40,7 +40,7 @@ public class AgentConfigurationEntity implements TimeUtils {
     @Enumerated(EnumType.STRING)
     private LlmModels model;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT",nullable = false)
     private String instructions;
 
     @OneToMany(mappedBy = "agentConfiguration",cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)

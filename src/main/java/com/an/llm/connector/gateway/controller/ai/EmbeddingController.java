@@ -1,9 +1,9 @@
-package com.an.llm.connector.gateway.controller;
+package com.an.llm.connector.gateway.controller.ai;
 
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
 import com.an.llm.connector.gateway.model.AiRequest;
-import com.an.llm.connector.gateway.service.EmbeddingService;
+import com.an.llm.connector.gateway.service.ai.EmbeddingService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

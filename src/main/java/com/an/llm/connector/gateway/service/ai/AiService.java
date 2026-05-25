@@ -1,10 +1,7 @@
-package com.an.llm.connector.gateway.service;
+package com.an.llm.connector.gateway.service.ai;
 
-import com.an.llm.connector.gateway.model.LlmConnectorRequest;
-import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.util.LlmInstructions;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

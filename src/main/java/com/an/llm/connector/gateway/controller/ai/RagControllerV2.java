@@ -1,11 +1,10 @@
-package com.an.llm.connector.gateway.controller;
+package com.an.llm.connector.gateway.controller.ai;
 
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
-import com.an.llm.connector.gateway.service.DocumentIngestionService;
-import com.an.llm.connector.gateway.service.SimpleRagService;
-import com.an.llm.connector.gateway.service.SimpleRagServiceV2;
+import com.an.llm.connector.gateway.service.ai.DocumentIngestionService;
+import com.an.llm.connector.gateway.service.ai.SimpleRagServiceV2;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

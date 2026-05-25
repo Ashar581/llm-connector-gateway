@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.service;
+package com.an.llm.connector.gateway.service.ai;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;

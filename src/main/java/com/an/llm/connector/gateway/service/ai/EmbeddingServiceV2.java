@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.service;
+package com.an.llm.connector.gateway.service.ai;
 
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;

@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.service;
+package com.an.llm.connector.gateway.service.ai;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

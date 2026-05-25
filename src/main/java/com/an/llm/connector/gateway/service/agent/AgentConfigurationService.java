@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.service;
+package com.an.llm.connector.gateway.service.agent;
 
 import com.an.llm.connector.gateway.dto.AgentConfigurationDto;
 import com.an.llm.connector.gateway.dto.AgentFileDto;
@@ -17,6 +17,7 @@ import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
 import com.an.llm.connector.gateway.repository.views.AgentConfigWithFilesView;
 import com.an.llm.connector.gateway.repository.views.AgentFileMetadataView;
 import com.an.llm.connector.gateway.repository.AgentFileRepository;
+import com.an.llm.connector.gateway.service.LlmConfigService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -157,8 +158,9 @@ public class AgentConfigurationService {
         }
         entity.setMaxTokens(updateRequested.getMaxTokens());
         if (updateRequested.getTemperature() != null) {
-            entity.setMaxTokens(updateRequested.getMaxTokens());
+            entity.setTemperature(updateRequested.getTemperature());
         }
+        entity.setMaxTokens(updateRequested.getMaxTokens());
 
         verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue());
 
