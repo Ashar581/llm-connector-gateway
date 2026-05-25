@@ -12,6 +12,7 @@ public enum LlmCapability {
     SUMMARIZATION("summarization"),
     CODE("code"),
     VISION("vision"),
+    RAG("rag"),
     ALL("all");
 
     private final String id;
