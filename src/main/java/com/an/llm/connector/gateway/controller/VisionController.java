@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/llm/v2/vl")
+@RequestMapping("api/llm/v1/vl")
 public class VisionController extends BaseApiDelegate {
     private final VisionService visionService;
 
