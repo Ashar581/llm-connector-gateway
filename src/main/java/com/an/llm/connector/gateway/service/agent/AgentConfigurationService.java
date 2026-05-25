@@ -8,6 +8,7 @@ import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
 import com.an.llm.connector.gateway.enums.Source;
 import com.an.llm.connector.gateway.exception.AlreadyExistsException;
+import com.an.llm.connector.gateway.exception.NotAllowedException;
 import com.an.llm.connector.gateway.exception.NotFoundException;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.mapper.AgentConfigurationMapper;
@@ -48,6 +49,9 @@ public class AgentConfigurationService {
         AgentConfigurationEntity entity = agentConfigurationMapper.toEntity(dto);
 
         if (files != null && !files.isEmpty()) {
+            if (!dto.getType().equalsIgnoreCase(LlmCapability.RAG.getValue())) {
+                throw new NotAllowedException("Only RAG based configurations allows files ingestion.");
+            }
             List<AgentFileEntity> agentFileEntities = new ArrayList<>();
             for (MultipartFile file : files) {
                 AgentFileEntity agentFileEntity = new AgentFileEntity();
@@ -164,10 +168,16 @@ public class AgentConfigurationService {
 
         verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue());
 
+        //before saving check if the files are there and the type of agent isn't RAG, restrict
+        List<AgentFileMetadataView> metadataView = agentFileRepository.findByAgentConfiguration_Name(name);
+
+        if (metadataView != null && !metadataView.isEmpty() && !entity.getType().equals(LlmCapability.RAG)) {
+            throw new NotAllowedException("Only RAG based configurations allows files ingestion.");
+        }
+
         entity = agentConfigurationRepository.save(entity);
 
         //get the files for the final response.
-        List<AgentFileMetadataView> metadataView = agentFileRepository.findByAgentConfiguration_Name(name);
         if (metadataView != null && !metadataView.isEmpty()) {
             List<AgentFileEntity> agentFileEntities = new ArrayList<>();
             for (AgentFileMetadataView agentFileMetadataView : metadataView) {
