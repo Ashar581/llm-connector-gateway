@@ -25,7 +25,16 @@ public class AgentController extends BaseApiDelegate {
     }
 
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<@NonNull Flux<@NonNull String>> stream(@RequestBody @Valid AiRequest aiRequest){
-        return new ResponseEntity<>(agentService.stream(aiRequest), HttpStatus.OK);
+    public Flux<@NonNull ApiResponseBody<String>> stream(@RequestBody @Valid AiRequest aiRequest) {
+        return agentService.stream(aiRequest).map(chunk -> {
+                    ApiResponseBody<String> response = new ApiResponseBody<>();
+
+                    response.setStatus(true);
+                    response.setCode(200);
+                    response.setMessage("Ai response stream chunk.");
+                    response.setData(chunk);
+
+                    return response;
+                });
     }
 }
