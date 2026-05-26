@@ -165,6 +165,12 @@ public class AgentConfigurationService {
             entity.setTemperature(updateRequested.getTemperature());
         }
         entity.setMaxTokens(updateRequested.getMaxTokens());
+        if (updateRequested.getActive() !=null){
+            entity.setActive(updateRequested.getActive());
+        }
+        if (updateRequested.getIsPrivate() != null){
+            entity.setIsPrivate(updateRequested.getIsPrivate());
+        }
 
         verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue());
 

@@ -58,7 +58,7 @@ llm:
           mm-proj :
           context: 16000
           parallelExecution: 4
-          active: false
+          active: true
 
         - id: bonsai
           type:
