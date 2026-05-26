@@ -13,5 +13,5 @@ public class AiRequest {
     private String model;
     @NotNull(message = "Query is mandatory.")
     private String query;
-//    private MultipartFile file;
+    private MultipartFile file;
 }

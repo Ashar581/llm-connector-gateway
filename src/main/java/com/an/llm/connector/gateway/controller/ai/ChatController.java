@@ -29,8 +29,18 @@ public class ChatController extends BaseApiDelegate {
     }
 
     @PostMapping(value = "/stream/ask", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<@NonNull Flux<@NonNull String>> generateStream(@RequestBody LlmConnectorRequest request){
-        return new ResponseEntity<>(chatClientService.askStream(request), HttpStatus.OK);
+    public Flux<@NonNull ApiResponseBody<String>> generateStream(@RequestBody LlmConnectorRequest request){
+
+        return chatClientService.askStream(request).map(chunk -> {
+            ApiResponseBody<String> response = new ApiResponseBody<>();
+
+            response.setStatus(true);
+            response.setCode(200);
+            response.setMessage("Ai response stream chunk.");
+            response.setData(chunk);
+
+            return response;
+        });
     }
 
 }

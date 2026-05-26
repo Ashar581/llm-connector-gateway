@@ -19,7 +19,7 @@ public class ChatClientService {
         return aiBeanFactory.getChatClient(request.getSource(),  request.getType(),request.getModel())
                 .prompt()
                 .system(instructions)
-//                .options(buildChatOptions())
+                .options(buildChatOptions(request))
                 .user(request.getQuery())
                 .call()
                 .content();
@@ -31,17 +31,22 @@ public class ChatClientService {
         return aiBeanFactory.getChatClient(request.getSource(),  request.getType(),request.getModel())
                 .prompt()
                 .system(instructions)
+                .options(buildChatOptions(request))
                 .user(request.getQuery())
                 .stream()
                 .content();
     }
 
     // make a dynamic configuration
-    private ChatOptions buildChatOptions(){
+    private ChatOptions buildChatOptions(LlmConnectorRequest request){
         ChatOptions.Builder<?> builder = ChatOptions.builder();
 
-        builder.temperature(0.0);
-        builder.maxTokens(1000);
+        if (request.getTemperature()!=null) {
+            builder.temperature(request.getTemperature());
+        }
+        if (request.getMaxTokens() != null) {
+            builder.maxTokens(request.getMaxTokens());
+        }
 
         return builder.build();
     }

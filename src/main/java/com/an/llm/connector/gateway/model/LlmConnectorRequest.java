@@ -19,4 +19,6 @@ public class LlmConnectorRequest {
     private String instructions;
     private String query;
     private List<MultipartFile> files;
+    private Double temperature;
+    private Integer maxTokens;
 }
