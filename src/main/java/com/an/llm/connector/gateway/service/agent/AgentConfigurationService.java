@@ -7,10 +7,7 @@ import com.an.llm.connector.gateway.entity.AgentFileEntity;
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
 import com.an.llm.connector.gateway.enums.Source;
-import com.an.llm.connector.gateway.exception.AlreadyExistsException;
-import com.an.llm.connector.gateway.exception.NotAllowedException;
-import com.an.llm.connector.gateway.exception.NotFoundException;
-import com.an.llm.connector.gateway.exception.NullException;
+import com.an.llm.connector.gateway.exception.*;
 import com.an.llm.connector.gateway.mapper.AgentConfigurationMapper;
 import com.an.llm.connector.gateway.model.config.ModelConfig;
 import com.an.llm.connector.gateway.model.config.SourceConfig;
@@ -44,7 +41,7 @@ public class AgentConfigurationService {
             }
         }
 
-        verifyLlmAccessibility(dto.getSource(), dto.getModel(), dto.getType());
+        verifyLlmAccessibility(dto.getSource(), dto.getModel(), dto.getType(), dto.getMaxTokens());
 
         AgentConfigurationEntity entity = agentConfigurationMapper.toEntity(dto);
 
@@ -172,7 +169,7 @@ public class AgentConfigurationService {
             entity.setIsPrivate(updateRequested.getIsPrivate());
         }
 
-        verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue());
+        verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue(), entity.getMaxTokens());
 
         //before saving check if the files are there and the type of agent isn't RAG, restrict
         List<AgentFileMetadataView> metadataView = agentFileRepository.findByAgentConfiguration_Name(name);
@@ -225,7 +222,7 @@ public class AgentConfigurationService {
         return metadata;
     }
 
-    private void verifyLlmAccessibility(@NonNull String source, @NonNull String model, @NonNull String type){
+    private void verifyLlmAccessibility(@NonNull String source, @NonNull String model, @NonNull String type, Integer maxTokens){
         //check if source is valid or not
         Source.getFromValue(source);
         //check if given model is valid or not
@@ -247,10 +244,20 @@ public class AgentConfigurationService {
                 if (!modelConfig.getType().contains(type)) {
                     throw new NotFoundException(String.format("%s does not have %s capabilities.",model,type));
                 }
+                int availableMaxTokens = calculateContextPerParallel(modelConfig.getContext(), modelConfig.getParallelExecution());
+                if (maxTokens != null) {
+                    if (maxTokens>availableMaxTokens) throw new NotAllowedException("Max tokens cannot be greater than "+availableMaxTokens);
+                }
             }
         }
 
         if (!modelExists) throw new NotFoundException("Either the model does not exists or its not under "+source);
+    }
+
+    private int calculateContextPerParallel(int totalContext, int parallel) {
+        int alignment = 256;
+        int raw = totalContext / parallel;
+        return  (raw / alignment) * alignment;
     }
 
 }
