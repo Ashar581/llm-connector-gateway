@@ -79,7 +79,9 @@ public class LlmConfigService {
         if (!config.getType().contains(type)) throw new NotAvailableException(String.format("Model %s does not supports %s type request. Available type: %s",model,type,config.getType()));
     }
 
-    public List<LlmCapability> getTypes() {
-        return Arrays.asList(LlmCapability.values());
+    public List<String > getTypes() {
+        return Arrays.stream(LlmCapability.values())
+                .map(LlmCapability::getValue)
+                .collect(Collectors.toList());
     }
 }

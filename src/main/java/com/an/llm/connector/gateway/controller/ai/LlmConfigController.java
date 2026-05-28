@@ -26,7 +26,7 @@ public class LlmConfigController extends BaseApiDelegate {
     }
 
     @GetMapping("types")
-    public ResponseEntity<@NonNull ApiResponseBody<List<LlmCapability>>> getLlmTypes(){
+    public ResponseEntity<@NonNull ApiResponseBody<List<String>>> getLlmTypes(){
         return sendSuccessfulApiResponse(llmConfigService.getTypes(),"Successfully retrieved available LLM types.");
     }
 }
