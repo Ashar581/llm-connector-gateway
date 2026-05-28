@@ -19,17 +19,6 @@ import java.util.Objects;
 
 @Service
 public class DocumentVisionPreprocessor {
-    /**
-     * Optimized for Qwen2.5-VL
-     *
-     * Goals:
-     * - Preserve natural document appearance
-     * - Preserve small text clarity
-     * - Avoid OCR-style overprocessing
-     * - Avoid JPEG artifacts
-     * - Preserve layout semantics
-     */
-
     private static final int IMAGE_MAX_SIZE = 1400;
     private static final int PDF_MAX_SIZE = 1600;
 
@@ -39,10 +28,7 @@ public class DocumentVisionPreprocessor {
     private static final float BRIGHTNESS_OFFSET = 5f;
 
     public List<byte[]> preprocess(MultipartFile file) throws Exception {
-
-        String filename = Objects
-                .requireNonNull(file.getOriginalFilename())
-                .toLowerCase();
+        String filename = Objects.requireNonNull(file.getOriginalFilename()).toLowerCase();
 
         if (isImage(filename)) {
             return List.of(processImage(readImage(file)));
@@ -64,11 +50,9 @@ public class DocumentVisionPreprocessor {
     }
 
     private List<byte[]> processPdf(MultipartFile file) throws Exception {
-
         List<byte[]> pages = new ArrayList<>();
 
         try (PDDocument document = Loader.loadPDF(file.getBytes())) {
-
             PDFRenderer renderer = new PDFRenderer(document);
 
             int totalPages = document.getNumberOfPages();
@@ -96,7 +80,6 @@ public class DocumentVisionPreprocessor {
     }
 
     private byte[] processImage(BufferedImage original) throws Exception {
-
         BufferedImage resized = resizeAndNormalize(original, IMAGE_MAX_SIZE);
         BufferedImage enhanced = normalizeContrast(resized);
 
@@ -109,7 +92,6 @@ public class DocumentVisionPreprocessor {
     }
 
     private BufferedImage readImage(MultipartFile file) throws Exception {
-
         try (InputStream is = file.getInputStream()) {
             BufferedImage image = ImageIO.read(is);
             if (image == null) {
@@ -197,7 +179,6 @@ public class DocumentVisionPreprocessor {
      * Preserve natural appearance for VLMs.
      */
     private BufferedImage normalizeToRGB(BufferedImage img) {
-
         if (img.getType() == BufferedImage.TYPE_INT_RGB) {
             return img;
         }
@@ -225,7 +206,6 @@ public class DocumentVisionPreprocessor {
      * Avoid aggressive OCR-style preprocessing.
      */
     private BufferedImage normalizeContrast(BufferedImage image) {
-
         BufferedImage output = new BufferedImage(
                 image.getWidth(),
                 image.getHeight(),
@@ -247,9 +227,7 @@ public class DocumentVisionPreprocessor {
      * PNG preserves text edges much better than JPEG.
      */
     private byte[] compressToPng(BufferedImage image) throws Exception {
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
         ImageIO.write(image, "png", baos);
 
         return baos.toByteArray();

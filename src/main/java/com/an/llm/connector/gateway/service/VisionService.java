@@ -1,5 +1,6 @@
 package com.an.llm.connector.gateway.service;
 
+import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.util.LlmInstructions;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.content.Media;
 import org.springframework.core.io.ByteArrayResource;
@@ -20,42 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VisionService {
     private final AiBeanFactory aiBeanFactory;
-    private final ImagePreprocessorService imagePreprocessorService;
     private final DocumentVisionPreprocessor documentVisionPreprocessor;
-
-//    public String visionPrompt(LlmConnectorRequest request) {
-//        try {
-//            byte[] imageBytes = imagePreprocessorService.preprocess(request.getFiles().getFirst());
-//
-//            ByteArrayResource imageResource = new ByteArrayResource(imageBytes);
-//
-//            String prompt = LlmInstructions.INVOICE_OCR_INSTRUCTIONS;
-//
-//            UserMessage userMessage = UserMessage.builder()
-//                    .text(prompt)
-//                    .media(
-//                            Media.builder()
-//                                    .mimeType(MediaType.IMAGE_JPEG)
-//                                    .data(imageResource)
-//                                    .build()
-//                    )
-//                    .build();
-//
-//            ChatClient chatClient = aiBeanFactory.getChatClient(
-//                    request.getSource(),
-//                    request.getType(),
-//                    request.getModel()
-//            );
-//
-//            return chatClient.prompt(new Prompt(userMessage))
-//                    .call()
-//                    .content();
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//    }
 
     public String visionPrompt(LlmConnectorRequest request) {
         try {
@@ -86,11 +53,13 @@ public class VisionService {
             );
 
             return chatClient.prompt(new Prompt(userMessage))
+                    .options(ChatOptions.builder().temperature(0.0).build())
                     .call()
                     .content();
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.info("Error while calling vision service.",e);
+            throw new ApiFallbackException(e.getMessage());
         }
     }
 

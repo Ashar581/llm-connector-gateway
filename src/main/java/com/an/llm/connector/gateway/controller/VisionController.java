@@ -2,8 +2,11 @@ package com.an.llm.connector.gateway.controller;
 
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
+import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
+import com.an.llm.connector.gateway.model.classification.ClassificationResponse;
 import com.an.llm.connector.gateway.service.VisionService;
+import com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +17,19 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/llm/v2/vl")
 public class VisionController extends BaseApiDelegate {
     private final VisionService visionService;
+    private final ClassificationOrchestrator classificationOrchestrator;
 
     @PostMapping("")
     public ResponseEntity<@NonNull ApiResponseBody<String>> vison(@ModelAttribute LlmConnectorRequest request){
         return sendSuccessfulApiResponse(visionService.visionPrompt(request));
+    }
+    @PostMapping("classify")
+    public ResponseEntity<@NonNull ApiResponseBody< @NonNull ClassificationResponse>> classify(@ModelAttribute LlmConnectorRequest request) {
+        try {
+            return sendSuccessfulApiResponse(classificationOrchestrator.process(request));
+        } catch (Exception e) {
+            throw new ApiFallbackException(e.getMessage());
+        }
     }
 
 }

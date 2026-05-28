@@ -1,0 +1,37 @@
+2026-05-25 23:56:42 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-25 23:56:42 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 1655 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-25 23:56:42 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-25 23:56:45 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=56927b4d-8960-3728-9b06-dc9a1ebfafe8
+2026-05-25 23:56:46 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-25 23:56:46 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-25 23:56:46 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-25 23:56:46 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-25 23:56:46 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3518 ms
+2026-05-25 23:56:46 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-25 23:56:46 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-25 23:56:46 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-25 23:56:46 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-25 23:56:46 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-25 23:56:46 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-25 23:56:46 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-25 23:56:46 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-25 23:56:48 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: a9c94fb4-9e53-4871-89b3-f92635780c23
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-25 23:56:48 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-25 23:56:49 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-25 23:56:49 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-25 23:56:49 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-25 23:56:49 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 8.142 seconds (process running for 9.652)
+2026-05-25 23:56:49 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-25 23:56:49 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-25 23:56:49 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-25 23:56:49 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-25 23:56:49 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-25 23:56:49 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-25 23:57:19 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-25 23:57:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-25 23:57:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.

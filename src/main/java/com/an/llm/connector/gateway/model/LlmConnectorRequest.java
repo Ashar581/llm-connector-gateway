@@ -1,11 +1,10 @@
 package com.an.llm.connector.gateway.model;
 
+import com.an.llm.connector.gateway.enums.ClassificationMode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,4 +18,8 @@ public class LlmConnectorRequest {
     private String instructions;
     private String query;
     private MultipartFile files;
+    @NotNull(message = "Classification mode is mandatory.")
+    private ClassificationMode mode;
+//    private List<DocumentTypeDefinition> documentTypes;
+    private String documentTypes;
 }

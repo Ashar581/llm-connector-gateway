@@ -1,0 +1,768 @@
+2026-05-28 00:55:35 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 00:55:35 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 23670 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 00:55:35 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 00:55:35 [main] WARN  org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.an.llm.connector.gateway.Application]
+2026-05-28 00:55:35 [main] ERROR org.springframework.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.an.llm.connector.gateway.Application]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:196)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:452)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:316)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118)
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:795)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:603)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.an.llm.connector.gateway.Application.main(Application.java:13)
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'documentBoundaryResolver' for bean class [com.an.llm.connector.gateway.service.classification.DocumentBoundaryResolver] conflicts with existing, non-compatible bean definition of same name and class [com.an.llm.connector.gateway.service.DocumentBoundaryResolver]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:363)
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:290)
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128)
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:347)
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:283)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:206)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:174)
+	... 13 common frames omitted
+2026-05-28 00:56:11 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 00:56:11 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 23689 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 00:56:11 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 00:56:14 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 00:56:14 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 00:56:15 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 00:56:15 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 00:56:15 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 00:56:15 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3116 ms
+2026-05-28 00:56:15 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 00:56:15 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 00:56:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 00:56:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 00:56:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 00:56:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 00:56:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 00:56:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 00:56:16 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 980e8177-5e93-41a4-b8ee-d83767d6524a
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 00:56:16 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 00:56:18 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 00:56:18 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 00:56:18 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 00:56:18 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.745 seconds (process running for 8.718)
+2026-05-28 00:56:18 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 00:56:18 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 00:56:18 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 00:56:18 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 00:56:18 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 00:56:18 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 00:56:48 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 00:56:48 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 00:57:18 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 01:01:59 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 01:01:59 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 01:01:59 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 13 ms
+2026-05-28 01:01:59 [http-nio-6969-exec-2] ERROR com.an.llm.connector.gateway.exception.handler.CustomExceptionHandler - Error during calling /api/llm/v2/vl/classify
+org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.an.llm.connector.gateway.base.ApiResponseBody<com.an.llm.connector.gateway.model.classification.ClassificationResponse>> com.an.llm.connector.gateway.controller.VisionController.classify(com.an.llm.connector.gateway.model.LlmConnectorRequest): [Field error in object 'llmConnectorRequest' on field 'documentTypes': rejected value [[
+  {
+    "id": "PURCHASE_ORDER",
+    "description": "Purchase order issued by buyer to supplier for ordering goods or services.",
+    "keywords": [
+      "purchase order",
+      "po number",
+      "buyer",
+      "ordered quantity",
+      "delivery schedule"
+    ]
+  },
+  {
+    "id": "INVOICE",
+    "description": "Vendor invoice requesting payment for supplied goods or services.",
+    "keywords": [
+      "invoice",
+      "tax invoice",
+      "invoice number",
+      "gst",
+      "total amount"
+    ]
+  },
+  {
+    "id": "GRN",
+    "description": "Goods receipt note confirming receipt of goods.",
+    "keywords": [
+      "goods receipt note",
+      "grn number",
+      "material receipt",
+      "received quantity"
+    ]
+  }
+]]; codes [typeMismatch.llmConnectorRequest.documentTypes,typeMismatch.documentTypes,typeMismatch.java.util.List,typeMismatch]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [llmConnectorRequest.documentTypes,documentTypes]; arguments []; default message [documentTypes]]; default message [Failed to convert property value of type 'java.lang.String' to required type 'java.util.List' for property 'documentTypes'; Cannot convert value of type 'java.lang.String' to required type 'com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition' for property 'documentTypes[0]': no matching editors or conversion strategy found]]
+	at org.springframework.web.method.annotation.ModelAttributeMethodProcessor.resolveArgument(ModelAttributeMethodProcessor.java:157)
+	at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:122)
+	at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:224)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:174)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:649)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:235)
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:493)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:354)
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:86)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:132)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.www.BasicAuthenticationFilter.doFilterInternal(BasicAuthenticationFilter.java:198)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at com.an.llm.connector.gateway.security.filter.JwtValidatorFilter.doFilterInternal(JwtValidatorFilter.java:54)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:337)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:110)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1779)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1570)
+2026-05-28 01:07:43 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 01:07:43 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 01:07:52 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 01:07:52 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 24169 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 01:07:52 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 01:07:54 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 01:07:55 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 01:07:55 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:07:55 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 01:07:55 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 01:07:55 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3173 ms
+2026-05-28 01:07:55 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 01:07:55 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 01:07:55 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 01:07:55 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 01:07:55 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 01:07:55 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 01:07:55 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 01:07:55 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 01:07:57 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 3b5f2ad4-ddd6-48dc-99e4-662e3b599654
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 01:07:57 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 01:07:58 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 01:07:59 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:07:59 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 01:07:59 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 8.25 seconds (process running for 9.292)
+2026-05-28 01:07:59 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 01:07:59 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 01:07:59 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 01:07:59 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 01:07:59 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 01:07:59 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 01:08:24 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 01:08:24 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 01:08:24 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 11 ms
+2026-05-28 01:08:28 [http-nio-6969-exec-2] ERROR com.an.llm.connector.gateway.util.JsonUtils - Error deserializing class 
+java.lang.IllegalArgumentException: Cannot deserialize value of type `java.util.ArrayList<com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition>` from String value (token `JsonToken.VALUE_STRING`)
+ at [Source: UNKNOWN; byte offset: #UNKNOWN]
+	at com.fasterxml.jackson.databind.ObjectMapper._convert(ObjectMapper.java:4742)
+	at com.fasterxml.jackson.databind.ObjectMapper.convertValue(ObjectMapper.java:4671)
+	at com.an.llm.connector.gateway.util.JsonUtils.deserializeClass(JsonUtils.java:43)
+	at com.an.llm.connector.gateway.service.classification.PageAnalysisService.parseDocumentTypes(PageAnalysisService.java:429)
+	at com.an.llm.connector.gateway.service.classification.PageAnalysisService.analyzeAllPages(PageAnalysisService.java:60)
+	at com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator.handlePage(ClassificationOrchestrator.java:108)
+	at com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator.process(ClassificationOrchestrator.java:54)
+	at com.an.llm.connector.gateway.controller.VisionController.classify(VisionController.java:58)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:252)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:184)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:934)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:853)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:86)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:963)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:866)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1000)
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:649)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:874)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:710)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:235)
+	at org.springframework.security.web.ObservationFilterChainDecorator$FilterObservation$SimpleFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:493)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$1(ObservationFilterChainDecorator.java:354)
+	at org.springframework.security.web.ObservationFilterChainDecorator.lambda$wrapSecured$0(ObservationFilterChainDecorator.java:86)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:132)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:132)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:86)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:181)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.www.BasicAuthenticationFilter.doFilterInternal(BasicAuthenticationFilter.java:198)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at com.an.llm.connector.gateway.security.filter.JwtValidatorFilter.doFilterInternal(JwtValidatorFilter.java:54)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:110)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:96)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:231)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.wrapFilter(ObservationFilterChainDecorator.java:244)
+	at org.springframework.security.web.ObservationFilterChainDecorator$AroundFilterObservation$SimpleAroundFilterObservation.lambda$wrap$0(ObservationFilterChainDecorator.java:337)
+	at org.springframework.security.web.ObservationFilterChainDecorator$ObservationFilter.doFilter(ObservationFilterChainDecorator.java:228)
+	at org.springframework.security.web.ObservationFilterChainDecorator$VirtualFilterChain.doFilter(ObservationFilterChainDecorator.java:141)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:237)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:317)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:355)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:272)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.ServerHttpObservationFilter.doFilterInternal(ServerHttpObservationFilter.java:110)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1779)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1570)
+Caused by: com.fasterxml.jackson.databind.exc.MismatchedInputException: Cannot deserialize value of type `java.util.ArrayList<com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition>` from String value (token `JsonToken.VALUE_STRING`)
+ at [Source: UNKNOWN; byte offset: #UNKNOWN]
+	at com.fasterxml.jackson.databind.exc.MismatchedInputException.from(MismatchedInputException.java:72)
+	at com.fasterxml.jackson.databind.DeserializationContext.reportInputMismatch(DeserializationContext.java:1814)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleUnexpectedToken(DeserializationContext.java:1588)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleUnexpectedToken(DeserializationContext.java:1535)
+	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer.handleNonArray(CollectionDeserializer.java:404)
+	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer._deserializeFromString(CollectionDeserializer.java:331)
+	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer.deserialize(CollectionDeserializer.java:251)
+	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer.deserialize(CollectionDeserializer.java:29)
+	at com.fasterxml.jackson.databind.ObjectMapper._convert(ObjectMapper.java:4737)
+	... 139 common frames omitted
+2026-05-28 01:08:29 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 01:08:29 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 01:08:59 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 01:10:21 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 01:10:21 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 01:10:28 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 01:10:28 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 24241 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 01:10:28 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 01:10:30 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 01:10:31 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 01:10:31 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:10:31 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 01:10:31 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 01:10:31 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3076 ms
+2026-05-28 01:10:31 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 01:10:31 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 01:10:31 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 01:10:31 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 01:10:31 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 01:10:31 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 01:10:31 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 01:10:31 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 01:10:33 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 05c91300-e17a-469d-89c2-312ba1d4d30b
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 01:10:33 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 01:10:34 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 01:10:34 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:10:34 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 01:10:34 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.852 seconds (process running for 8.868)
+2026-05-28 01:10:34 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 01:10:34 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 01:10:34 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 01:10:34 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 01:10:34 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 01:10:34 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 01:10:50 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 01:10:50 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 01:10:50 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 11 ms
+2026-05-28 01:11:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 01:11:05 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 01:11:35 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 01:25:45 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 01:25:45 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 01:33:30 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 01:33:30 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 24979 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 01:33:30 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 01:33:33 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 01:33:33 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 01:33:33 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:33:33 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 01:33:33 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 01:33:33 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3216 ms
+2026-05-28 01:33:34 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 01:33:34 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 01:33:34 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 01:33:34 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 01:33:34 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 01:33:34 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 01:33:34 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 01:33:34 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 01:33:35 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: b943537f-4f80-4a37-8108-c8cebbbdc28e
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 01:33:35 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 01:33:36 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 01:33:37 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:33:37 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 01:33:37 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 8.469 seconds (process running for 9.627)
+2026-05-28 01:33:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 01:33:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 01:33:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 01:33:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 01:33:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 01:33:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 01:34:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 01:34:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 01:34:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 01:35:12 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 01:35:12 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 01:35:12 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 5 ms
+2026-05-28 01:42:20 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 01:42:20 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 01:43:42 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 01:43:42 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 25381 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 01:43:42 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 01:43:45 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 01:43:46 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 01:43:46 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:43:46 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 01:43:46 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 01:43:46 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3486 ms
+2026-05-28 01:43:46 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 01:43:47 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 01:43:47 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 01:43:47 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 01:43:47 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 01:43:47 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 01:43:47 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 01:43:47 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 01:43:48 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 14804074-af9b-4883-a327-41a5052f0970
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 01:43:48 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 01:43:50 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 01:43:50 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:43:50 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 01:43:50 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 8.797 seconds (process running for 9.891)
+2026-05-28 01:43:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 01:43:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 01:43:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 01:43:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 01:43:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 01:43:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 01:44:04 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 01:44:04 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 01:44:04 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 8 ms
+2026-05-28 01:44:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 01:44:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 01:44:51 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 01:52:46 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 01:52:46 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 01:55:57 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 01:55:57 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 25971 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 01:55:57 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 01:56:00 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 01:56:00 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 01:56:00 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:56:00 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 01:56:00 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 01:56:00 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3208 ms
+2026-05-28 01:56:01 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 01:56:01 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 01:56:01 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 01:56:01 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 01:56:01 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 01:56:01 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 01:56:01 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 01:56:01 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 01:56:02 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: b896fd35-43d2-4a3c-b27c-83687f3bb9cd
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 01:56:02 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 01:56:03 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 01:56:04 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 01:56:04 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 01:56:04 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.854 seconds (process running for 8.977)
+2026-05-28 01:56:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 01:56:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 01:56:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 01:56:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 01:56:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 01:56:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 01:56:22 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 01:56:22 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 01:56:22 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 7 ms
+2026-05-28 01:56:34 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 01:56:34 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 01:57:04 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 02:02:11 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 02:02:11 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 02:04:01 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 02:04:01 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 26259 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 02:04:01 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 02:04:03 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 02:04:04 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 02:04:04 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 02:04:04 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 02:04:04 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 02:04:04 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3158 ms
+2026-05-28 02:04:04 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 02:04:04 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 02:04:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 02:04:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 02:04:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 02:04:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 02:04:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 02:04:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 02:04:06 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: fa2a2328-7972-4209-a2e3-a2cdfd1088d6
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 02:04:06 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 02:04:07 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 02:04:07 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 02:04:07 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 02:04:07 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.55 seconds (process running for 8.64)
+2026-05-28 02:04:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 02:04:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 02:04:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 02:04:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 02:04:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 02:04:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 02:04:20 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 02:04:20 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 02:04:20 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 8 ms
+2026-05-28 02:04:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 02:04:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 02:05:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 02:23:02 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 02:23:02 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 02:23:10 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 02:23:10 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 26889 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 02:23:10 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 02:23:13 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 02:23:13 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 02:23:13 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 02:23:13 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 02:23:13 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 02:23:14 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3302 ms
+2026-05-28 02:23:14 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 02:23:14 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 02:23:14 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 02:23:14 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 02:23:14 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 02:23:14 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 02:23:14 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 02:23:14 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 02:23:16 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 035795d2-8819-497b-9478-986521ad96c7
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 02:23:16 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 02:23:17 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 02:23:17 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 02:23:17 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 02:23:17 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 8.951 seconds (process running for 10.067)
+2026-05-28 02:23:17 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 02:23:17 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 02:23:17 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 02:23:17 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 02:23:17 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 02:23:17 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 02:23:37 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 02:23:37 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 02:23:37 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 10 ms
+2026-05-28 02:23:48 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 02:23:48 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 02:24:18 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 02:38:24 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 02:38:24 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 02:38:31 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 02:38:31 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 27594 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 02:38:31 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 02:38:34 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=29b1385c-f423-371d-80c5-381dfe851923
+2026-05-28 02:38:34 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 02:38:34 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 02:38:34 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 02:38:34 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 02:38:34 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3095 ms
+2026-05-28 02:38:35 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 02:38:35 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 02:38:35 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 02:38:35 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 02:38:35 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 02:38:35 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 02:38:35 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 02:38:35 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 02:38:36 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 8516952d-65b7-4c6a-84f2-b932c44de87e
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 02:38:36 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 02:38:38 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 02:38:38 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 02:38:38 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 02:38:38 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.833 seconds (process running for 8.933)
+2026-05-28 02:38:38 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 02:38:38 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 02:38:38 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 02:38:38 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 02:38:38 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 02:38:38 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 02:38:54 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-28 02:38:54 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-05-28 02:38:54 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 10 ms
+2026-05-28 02:39:08 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 02:39:08 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 02:39:38 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 02:46:30 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 02:46:30 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-05-28 11:08:01 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-05-28 11:08:01 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 30254 (/Users/macbook/DigitalSherpa/llm-connector-gateway/target/classes started by macbook in /Users/macbook/DigitalSherpa/llm-connector-gateway)
+2026-05-28 11:08:01 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-05-28 11:08:03 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=97b1796f-b5e8-3a7b-9231-2382824a0517
+2026-05-28 11:08:04 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-05-28 11:08:04 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-05-28 11:08:04 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-05-28 11:08:04 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-28 11:08:04 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 3042 ms
+2026-05-28 11:08:04 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-05-28 11:08:04 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=18000, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false)}}
+2026-05-28 11:08:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-05-28 11:08:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-05-28 11:08:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-05-28 11:08:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-05-28 11:08:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-05-28 11:08:04 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-05-28 11:08:06 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 1d98de14-110f-440b-b185-9207e86c3d2f
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-28 11:08:06 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-05-28 11:08:07 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-28 11:08:07 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-05-28 11:08:07 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-05-28 11:08:07 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 7.509 seconds (process running for 8.452)
+2026-05-28 11:08:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-05-28 11:08:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-05-28 11:08:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-05-28 11:08:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-05-28 11:08:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf. Listening on port: 8084. Adjusted context: 18000. Allowed parallel: 1
+2026-05-28 11:08:07 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-05-28 11:08:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-05-28 11:08:37 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-05-28 11:09:08 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-05-28 11:10:53 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-28 11:10:54 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
