@@ -1,5 +1,6 @@
 package com.an.llm.connector.gateway.model;
 
+import com.an.llm.connector.gateway.enums.ClassificationMode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -21,4 +22,8 @@ public class LlmConnectorRequest {
     private List<MultipartFile> files;
     private Double temperature;
     private Integer maxTokens;
+    @NotNull(message = "Classification mode is mandatory.")
+    private ClassificationMode mode;
+//    private List<DocumentTypeDefinition> documentTypes;
+    private String documentTypes;
 }

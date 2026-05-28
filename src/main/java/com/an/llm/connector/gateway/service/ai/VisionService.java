@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.content.Media;
 import org.springframework.core.io.ByteArrayResource;
@@ -52,6 +53,7 @@ public class VisionService {
             );
 
             return chatClient.prompt(new Prompt(userMessage))
+                    .options(ChatOptions.builder().temperature(0.0).build())
                     .call()
                     .content();
 
