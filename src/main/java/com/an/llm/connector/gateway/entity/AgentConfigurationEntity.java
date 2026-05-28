@@ -74,7 +74,7 @@ public class AgentConfigurationEntity implements TimeUtils {
         this.updatedBy = currentUser;
         this.updatedAt = Instant.now();
         this.active = active != null && active;
-        this.name = "agent_"+this.type.getValue()+ getLlmConfigUtcPostfix();
+        this.name = "agent_" + getLlmConfigUtcPostfix();
         this.temperature = this.temperature == null ? 0.0 : this.temperature;
         this.uniqueId = UUID.randomUUID();
         this.isPrivate = this.isPrivate != null && this.isPrivate;
