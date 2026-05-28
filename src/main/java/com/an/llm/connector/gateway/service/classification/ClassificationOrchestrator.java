@@ -206,7 +206,6 @@ public class ClassificationOrchestrator {
 
     private void validateRequest(LlmConnectorRequest request) {
         if (request == null) throw new NullException("Invalid request detected.");
-        if (request.getInstructions() == null || request.getInstructions().isBlank()) throw new NullException("Agent does not have instructions.");
         if (request.getModel() == null) throw new NullException("Model is mandatory.");
         if (request.getType() == null) throw new NullException("Model Type is mandatory.");
         if (request.getFiles() == null || request.getFiles().isEmpty()) throw new NullException("File is mandatory.");

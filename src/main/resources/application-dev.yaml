@@ -99,9 +99,9 @@ llm:
           port: 8084
           model-name: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
-          context: 18000
+          context: 8192
           parallelExecution: 1
-          active: false
+          active: true
 
         - id: qwen-sml
           type:
