@@ -1,5 +1,6 @@
 package com.an.llm.connector.gateway.service;
 
+import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.Source;
 import com.an.llm.connector.gateway.exception.NotActivatedException;
 import com.an.llm.connector.gateway.exception.NotAvailableException;
@@ -13,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -79,5 +77,11 @@ public class LlmConfigService {
         if (!config.getActive()) throw new NotActivatedException(String.format("Model %s not activated. Contact the service provider.",model));
 
         if (!config.getType().contains(type)) throw new NotAvailableException(String.format("Model %s does not supports %s type request. Available type: %s",model,type,config.getType()));
+    }
+
+    public List<String > getTypes() {
+        return Arrays.stream(LlmCapability.values())
+                .map(LlmCapability::getValue)
+                .collect(Collectors.toList());
     }
 }

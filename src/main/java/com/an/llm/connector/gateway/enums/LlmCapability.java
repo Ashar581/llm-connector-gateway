@@ -4,6 +4,7 @@ import com.an.llm.connector.gateway.exception.NotFoundException;
 import jakarta.validation.constraints.NotNull;
 
 public enum LlmCapability {
+    ALL("all"),
     AGENT("agent"),
     EMBEDDING("embedding"),
     GENERATION("generation"),
@@ -12,7 +13,8 @@ public enum LlmCapability {
     SUMMARIZATION("summarization"),
     CODE("code"),
     VISION("vision"),
-    ALL("all");
+    RAG("rag"),
+    CLASSIFICATION("classification");
 
     private final String id;
 

@@ -4,6 +4,17 @@ server:
 spring:
   application:
     name: llm.connector.gateway
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    username: postgres
+    password: 123edc#EDC
+    url: jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified
   servlet:
     multipart:
       max-file-size: 10MB
@@ -38,6 +49,7 @@ llm:
             - summarization
             - generation
             - tool
+            - rag
           base-url: http://localhost:7070
           api-path: /v1/chat/completions
           api-key: ashar581
@@ -54,6 +66,7 @@ llm:
             - agent
             - summarization
             - generation
+            - rag
           base-url: http://localhost:7072
           api-path: /v1/chat/completions
           api-key: ashar581
@@ -75,20 +88,39 @@ llm:
           mm-proj :
           context: 8192
           parallelExecution: 1
-          active: false
+          active: true
 
         - id: qwen-vl
           type:
             - vision
+            - classification
           base-url: http://localhost:7074
           api-path: /v1/chat/completions
           api-key: ashar581
           port: 7074
           model-name: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
-          context: 128000
+          context: 32768
           parallelExecution: 4
           active: true
+
+        - id: qwen-sml
+          type:
+            - chat
+            - agent
+            - summarization
+            - generation
+            - tool
+            - rag
+          base-url: http://localhost:8085
+          api-path: /v1/chat/completions
+          api-key: ashar581
+          port: 7075
+          model-name: Qwen3.5-4B-Q4_K_M.gguf
+          mm-proj :
+          context: 4096
+          parallelExecution: 2
+          active: false
 
         - id: bge-large-embed
           type:

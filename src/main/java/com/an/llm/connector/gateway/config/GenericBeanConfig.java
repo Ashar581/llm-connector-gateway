@@ -99,7 +99,7 @@ public class GenericBeanConfig {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
 
         factory.setConnectTimeout(10_000);
-        factory.setReadTimeout(180_000);
+        factory.setReadTimeout(1000_000);
 
         return factory;
     }
