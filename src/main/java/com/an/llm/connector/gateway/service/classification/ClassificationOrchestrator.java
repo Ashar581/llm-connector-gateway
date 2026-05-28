@@ -1,6 +1,8 @@
 package com.an.llm.connector.gateway.service.classification;
 
 import com.an.llm.connector.gateway.enums.ClassificationMode;
+import com.an.llm.connector.gateway.enums.LlmCapability;
+import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.classification.DocumentGroup;
@@ -11,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.DoubleSummaryStatistics;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -210,6 +209,7 @@ public class ClassificationOrchestrator {
         if (request.getType() == null) throw new NullException("Model Type is mandatory.");
         if (request.getFiles() == null || request.getFiles().isEmpty()) throw new NullException("File is mandatory.");
         if (request.getMode() == null) throw new NullException("Classification mode is mandatory.");
+        validateAllowedType(request);
     }
 
     private ClassificationResponse emptySingleResponse() {
@@ -230,5 +230,13 @@ public class ClassificationOrchestrator {
 
     private double round(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    private void validateAllowedType(LlmConnectorRequest request){
+        LlmCapability type = LlmCapability.getFromValue(request.getType());
+        //not allowed list
+        Set<LlmCapability> allowedTypes = Set.of(LlmCapability.CLASSIFICATION);
+
+        if (!allowedTypes.contains(type)) throw new ApiFallbackException("The requested type is not supported by this endpoint.");
     }
 }

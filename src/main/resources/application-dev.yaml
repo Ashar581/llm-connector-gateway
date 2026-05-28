@@ -93,6 +93,7 @@ llm:
         - id: qwen-vl
           type:
             - vision
+            - classification
           base-url: http://localhost:8084
           api-path: /v1/chat/completions
           api-key: ashar581

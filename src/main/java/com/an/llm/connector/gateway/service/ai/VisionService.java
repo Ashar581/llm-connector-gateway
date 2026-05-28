@@ -1,5 +1,6 @@
 package com.an.llm.connector.gateway.service.ai;
 
+import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -25,6 +27,7 @@ public class VisionService {
     private final DocumentVisionPreprocessor documentVisionPreprocessor;
 
     public String visionPrompt(LlmConnectorRequest request) {
+        validateAllowedType(request);
         try {
             List<byte[]> pages = documentVisionPreprocessor.preprocess(request.getFiles().getFirst());
 
@@ -61,6 +64,14 @@ public class VisionService {
             log.error("Error while communication with VL.",e);
             throw new ApiFallbackException("Error while communicating with VL model.");
         }
+    }
+
+    private void validateAllowedType(LlmConnectorRequest request){
+        LlmCapability type = LlmCapability.getFromValue(request.getType());
+        //not allowed list
+        Set<LlmCapability> allowedTypes = Set.of(LlmCapability.VISION);
+
+        if (!allowedTypes.contains(type)) throw new ApiFallbackException("The requested type is not supported by this endpoint.");
     }
 
 }

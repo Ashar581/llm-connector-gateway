@@ -1,5 +1,7 @@
 package com.an.llm.connector.gateway.service.ai;
 
+import com.an.llm.connector.gateway.enums.LlmCapability;
+import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.util.LlmInstructions;
@@ -9,6 +11,7 @@ import org.springframework.ai.document.Document;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +28,8 @@ public class SimpleRagServiceV2 {
         if (!confidenceService.hasUsableContext(docs)) {
             return "I am afraid I don't know how to answer that.";
         }
+
+        validateAllowedType(request);
 
         String context = docs.stream()
                 .map(Document::getText)
@@ -68,5 +73,13 @@ public class SimpleRagServiceV2 {
         }
 
         return response;
+    }
+
+    private void validateAllowedType(LlmConnectorRequest request){
+        LlmCapability type = LlmCapability.getFromValue(request.getType());
+        //not allowed list
+        Set<LlmCapability> notAllowedTypes = Set.of(LlmCapability.CLASSIFICATION, LlmCapability.EMBEDDING, LlmCapability.VISION);
+
+        if (notAllowedTypes.contains(type)) throw new ApiFallbackException("The requested type is not supported by this endpoint.");
     }
 }
