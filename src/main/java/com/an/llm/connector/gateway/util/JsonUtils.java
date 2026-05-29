@@ -46,4 +46,30 @@ public class JsonUtils {
             return null;
         }
     }
+
+    public static <T,T1> T1 deserializeString(String data, Class<T1> clazz){
+        if (data==null){
+            log.error("Data received for deserializing was null. Returning null as default value");
+            return null;
+        }
+        try{
+            return objectMapper.readValue(data, clazz);
+        }catch (Exception e){
+            log.error("Error deserializing class ",e);
+            return null;
+        }
+    }
+
+    public static <T,T1> T1 deserializeString(String data, TypeReference<T1> typeReference){
+        if (data==null){
+            log.error("Data received for deserializing was null. Returning null as default value");
+            return null;
+        }
+        try{
+            return objectMapper.readValue(data, typeReference);
+        }catch (Exception e){
+            log.error("Error deserializing class ",e);
+            return null;
+        }
+    }
 }

@@ -4,11 +4,13 @@ import com.an.llm.connector.gateway.dto.AgentConfigurationDto;
 import com.an.llm.connector.gateway.dto.AgentFileDto;
 import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.entity.AgentFileEntity;
+import com.an.llm.connector.gateway.enums.ClassificationMode;
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
 import com.an.llm.connector.gateway.enums.Source;
 import com.an.llm.connector.gateway.exception.*;
 import com.an.llm.connector.gateway.mapper.AgentConfigurationMapper;
+import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;
 import com.an.llm.connector.gateway.model.config.ModelConfig;
 import com.an.llm.connector.gateway.model.config.SourceConfig;
 import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
@@ -16,6 +18,8 @@ import com.an.llm.connector.gateway.repository.views.AgentConfigWithFilesView;
 import com.an.llm.connector.gateway.repository.views.AgentFileMetadataView;
 import com.an.llm.connector.gateway.repository.AgentFileRepository;
 import com.an.llm.connector.gateway.service.LlmConfigService;
+import com.an.llm.connector.gateway.util.JsonUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +38,7 @@ public class AgentConfigurationService {
     private final AgentConfigurationRepository agentConfigurationRepository;
     private final AgentFileRepository agentFileRepository;
 
-    public AgentConfigurationDto add(AgentConfigurationDto dto, List<MultipartFile> files){
+    public AgentConfigurationDto add(AgentConfigurationDto dto, List<MultipartFile> files, String documentTypeDefinitions){
         if (dto.getName()!=null && !dto.getName().isBlank()) {
             if (agentConfigurationRepository.existsByName(dto.getName())){
                 throw new AlreadyExistsException("Agent already exists.");
@@ -42,6 +46,17 @@ public class AgentConfigurationService {
         }
 
         verifyLlmAccessibility(dto.getSource(), dto.getModel(), dto.getType(), dto.getMaxTokens());
+
+        //convert and populate the document type definitions if provided.
+        if (documentTypeDefinitions != null && !documentTypeDefinitions.isBlank()) {
+            List<DocumentTypeDefinition> documentTypes = JsonUtils.deserializeString(documentTypeDefinitions, new TypeReference<List<DocumentTypeDefinition>>() {});
+
+            if (documentTypes == null) throw new NullException("Invalid document type format detected.");
+            dto.setDocumentTypes(documentTypes);
+        }
+
+        //if type is classification -> expect the mode and documentTypes JSON
+        verifyAdditionalConfigurations(dto.getDocumentTypes(), dto.getClassificationMode(), dto.getType());
 
         AgentConfigurationEntity entity = agentConfigurationMapper.toEntity(dto);
 
@@ -119,6 +134,8 @@ public class AgentConfigurationService {
                         dto.setIsPrivate(row.getIsPrivate());
                         dto.setMaxTokens(row.getMaxTokens());
                         dto.setUniqueId(row.getUniqueId());
+                        dto.setClassificationMode(row.getClassificationMode());
+                        dto.setDocumentTypes(row.getDocumentTypes());
                         dto.setCreatedAt(row.getCreatedAt());
                         dto.setCreatedBy(row.getCreatedBy());
                         dto.setUpdatedBy(row.getUpdatedBy());
@@ -168,8 +185,15 @@ public class AgentConfigurationService {
         if (updateRequested.getIsPrivate() != null){
             entity.setIsPrivate(updateRequested.getIsPrivate());
         }
+        if (updateRequested.getDocumentTypes() != null) {
+            entity.setDocumentTypes(updateRequested.getDocumentTypes());
+        }
+        if (updateRequested.getClassificationMode() != null) {
+            entity.setClassificationMode(updateRequested.getClassificationMode());
+        }
 
         verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue(), entity.getMaxTokens());
+        verifyAdditionalConfigurations(entity.getDocumentTypes(),entity.getClassificationMode(),entity.getType().getValue());
 
         //before saving check if the files are there and the type of agent isn't RAG, restrict
         List<AgentFileMetadataView> metadataView = agentFileRepository.findByAgentConfiguration_Name(name);
@@ -258,6 +282,17 @@ public class AgentConfigurationService {
         int alignment = 256;
         int raw = totalContext / parallel;
         return  (raw / alignment) * alignment;
+    }
+
+    private void verifyAdditionalConfigurations(List<DocumentTypeDefinition> documentTypeDefinitions, ClassificationMode classificationMode, String type){
+        if (LlmCapability.CLASSIFICATION.getValue().equalsIgnoreCase(type)) {
+            //make sure to have the classificationMode populated.
+            if (classificationMode == null) throw new NotAllowedException("Document classification mode is mandatory.");
+            //make sure to have the documentTypes added.
+        }
+        if ((documentTypeDefinitions != null || classificationMode != null) && !LlmCapability.CLASSIFICATION.getValue().equalsIgnoreCase(type)) {
+            throw new NotAllowedException("Only classification type can have the mode and document types defined.");
+        }
     }
 
 }

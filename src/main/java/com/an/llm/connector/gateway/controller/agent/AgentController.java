@@ -20,7 +20,7 @@ public class AgentController extends BaseApiDelegate {
     private final AgentService agentService;
 
     @PostMapping("")
-    public ResponseEntity<@NonNull ApiResponseBody<String>> generate(@RequestBody @Valid AiRequest aiRequest) {
+    public ResponseEntity<@NonNull ApiResponseBody<Object>> generate(@ModelAttribute @Valid AiRequest aiRequest) {
         return sendSuccessfulApiResponse(agentService.generate(aiRequest),"Ai response generated successfully.");
     }
 

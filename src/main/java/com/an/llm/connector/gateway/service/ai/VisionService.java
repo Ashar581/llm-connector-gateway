@@ -56,7 +56,7 @@ public class VisionService {
             );
 
             return chatClient.prompt(new Prompt(userMessage))
-                    .options(ChatOptions.builder().temperature(0.0).build())
+                    .options(buildChatOptions(request))
                     .call()
                     .content();
 
@@ -72,6 +72,17 @@ public class VisionService {
         Set<LlmCapability> allowedTypes = Set.of(LlmCapability.VISION);
 
         if (!allowedTypes.contains(type)) throw new ApiFallbackException("The requested type is not supported by this endpoint.");
+    }
+
+    private ChatOptions buildChatOptions(LlmConnectorRequest request){
+        ChatOptions.Builder<?> builder = ChatOptions.builder();
+
+        builder.temperature(request.getTemperature());
+        if (request.getMaxTokens() != null) {
+            builder.maxTokens(request.getMaxTokens());
+        }
+
+        return builder.build();
     }
 
 }

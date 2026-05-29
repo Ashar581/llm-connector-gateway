@@ -1,8 +1,10 @@
 package com.an.llm.connector.gateway.dto;
 
+import com.an.llm.connector.gateway.enums.ClassificationMode;
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
 import com.an.llm.connector.gateway.enums.Source;
+import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -40,6 +42,8 @@ public class AgentConfigurationDto {
     private Double temperature;
     private Integer maxTokens;
     private Boolean isPrivate;
+    private ClassificationMode classificationMode;
+    private List<DocumentTypeDefinition> documentTypes;
     private String createdBy;
     private Instant createdAt;
     private String updatedBy;

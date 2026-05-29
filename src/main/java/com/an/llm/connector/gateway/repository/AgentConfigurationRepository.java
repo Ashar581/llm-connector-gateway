@@ -27,6 +27,8 @@ public interface AgentConfigurationRepository extends JpaRepository<@NonNull Age
            a.temperature as temperature,
            a.maxTokens as maxTokens,
            a.isPrivate as isPrivate,
+           a.classificationMode as classificationMode,
+           a.documentTypes as documentTypes,
            a.createdBy as createdBy,
            a.createdAt as createdAt,
            a.updatedBy as updatedBy,

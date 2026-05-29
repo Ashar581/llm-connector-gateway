@@ -1,5 +1,6 @@
 package com.an.llm.connector.gateway.service.classification;
 
+import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.content.Media;
 import org.springframework.core.io.ByteArrayResource;
@@ -82,6 +84,7 @@ public class PageAnalysisService {
                         .build();
 
                 String response = client.prompt(new Prompt(message))
+                        .options(buildChatOptions(request))
                         .call()
                         .content();
 
@@ -272,5 +275,17 @@ public class PageAnalysisService {
         }catch (Exception e){
             throw new NullException("Invalid document types received.");
         }
+    }
+
+    // make a dynamic configuration
+    private ChatOptions buildChatOptions(LlmConnectorRequest request){
+        ChatOptions.Builder<?> builder = ChatOptions.builder();
+
+        builder.temperature(request.getTemperature());
+        if (request.getMaxTokens() != null) {
+            builder.maxTokens(request.getMaxTokens());
+        }
+
+        return builder.build();
     }
 }
