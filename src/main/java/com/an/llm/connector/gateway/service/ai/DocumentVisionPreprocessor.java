@@ -50,29 +50,32 @@ public class DocumentVisionPreprocessor {
     }
 
     private List<byte[]> processPdf(MultipartFile file) throws Exception {
+
         List<byte[]> pages = new ArrayList<>();
 
         try (PDDocument document = Loader.loadPDF(file.getBytes())) {
+
             PDFRenderer renderer = new PDFRenderer(document);
 
             int totalPages = document.getNumberOfPages();
             int maxPages = Math.min(totalPages, 15);
 
             for (int i = 0; i < maxPages; i++) {
+
                 BufferedImage rendered = renderer.renderImageWithDPI(
                         i,
                         PDF_DPI,
                         ImageType.RGB
                 );
 
-                BufferedImage resized = resizeAndNormalize(rendered, PDF_MAX_SIZE);
-                BufferedImage enhanced = normalizeContrast(resized);
+                BufferedImage normalized = normalizeToRGB(rendered);
 
-                pages.add(compressToPng(enhanced));
+                pages.add(
+                        compressToPng(normalized)
+                );
 
                 rendered.flush();
-                resized.flush();
-                enhanced.flush();
+                normalized.flush();
             }
         }
 
