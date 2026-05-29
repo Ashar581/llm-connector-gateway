@@ -56,7 +56,13 @@ public class AgentConfigurationService {
         }
 
         //if type is classification -> expect the mode and documentTypes JSON
-        verifyAdditionalConfigurations(dto.getDocumentTypes(), dto.getClassificationMode(), dto.getType());
+        verifyAdditionalConfigurations(dto.getClassificationMode(), dto.getType());
+
+        //if non-classification then make sure to populate the classification related data as null
+        if ((documentTypeDefinitions != null || dto.getClassificationMode() != null) && !LlmCapability.CLASSIFICATION.getValue().equalsIgnoreCase(dto.getType())) {
+            dto.setDocumentTypes(null);
+            dto.setClassificationMode(null);
+        }
 
         AgentConfigurationEntity entity = agentConfigurationMapper.toEntity(dto);
 
@@ -193,7 +199,12 @@ public class AgentConfigurationService {
         }
 
         verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue(), entity.getMaxTokens());
-        verifyAdditionalConfigurations(entity.getDocumentTypes(),entity.getClassificationMode(),entity.getType().getValue());
+        verifyAdditionalConfigurations(entity.getClassificationMode(),entity.getType().getValue());
+
+        if ((entity.getDocumentTypes() != null || entity.getClassificationMode() != null) && !LlmCapability.CLASSIFICATION.equals(entity.getType())) {
+            entity.setDocumentTypes(null);
+            entity.setClassificationMode(null);
+        }
 
         //before saving check if the files are there and the type of agent isn't RAG, restrict
         List<AgentFileMetadataView> metadataView = agentFileRepository.findByAgentConfiguration_Name(name);
@@ -284,14 +295,10 @@ public class AgentConfigurationService {
         return  (raw / alignment) * alignment;
     }
 
-    private void verifyAdditionalConfigurations(List<DocumentTypeDefinition> documentTypeDefinitions, ClassificationMode classificationMode, String type){
+    private void verifyAdditionalConfigurations(ClassificationMode classificationMode, String type){
         if (LlmCapability.CLASSIFICATION.getValue().equalsIgnoreCase(type)) {
             //make sure to have the classificationMode populated.
             if (classificationMode == null) throw new NotAllowedException("Document classification mode is mandatory.");
-            //make sure to have the documentTypes added.
-        }
-        if ((documentTypeDefinitions != null || classificationMode != null) && !LlmCapability.CLASSIFICATION.getValue().equalsIgnoreCase(type)) {
-            throw new NotAllowedException("Only classification type can have the mode and document types defined.");
         }
     }
 
