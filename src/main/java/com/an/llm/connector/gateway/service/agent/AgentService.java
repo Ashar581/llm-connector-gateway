@@ -6,10 +6,13 @@ import com.an.llm.connector.gateway.exception.NotAllowedException;
 import com.an.llm.connector.gateway.exception.NotFoundException;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.model.AiRequest;
-import com.an.llm.connector.gateway.model.config.SourceConfig;
+import com.an.llm.connector.gateway.model.LlmConnectorRequest;
+import com.an.llm.connector.gateway.model.classification.ClassificationResponse;
 import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
-import com.an.llm.connector.gateway.service.LlmConfigService;
+import com.an.llm.connector.gateway.service.ai.VisionService;
+import com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
+import com.an.llm.connector.gateway.util.JsonUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,34 +26,26 @@ import reactor.core.publisher.Flux;
 @RequiredArgsConstructor
 public class AgentService {
     private final AgentConfigurationRepository agentConfigurationRepository;
+    private final VisionService visionService;
+    private final ClassificationOrchestrator classificationOrchestrator;
     private final AiBeanFactory aiBeanFactory;
 
-    public String generate(@NonNull AiRequest aiRequest){
+    public Object generate(@NonNull AiRequest aiRequest){
         AgentConfigurationEntity agentConfiguration = agentConfigurationRepository.findByName(aiRequest.getAgent())
                 .orElseThrow(()->new NotFoundException("Agent does not exist."));
 
         verifyAgentRequest(agentConfiguration);
 
-        ChatClient chatClient = aiBeanFactory.getChatClient(
-                agentConfiguration.getSource().getValue(),
-                agentConfiguration.getType().getValue(),
-                agentConfiguration.getModel().getValue()
-        );
-
-        try {
-
-            ChatOptions chatOptions = buildChatOptions(agentConfiguration);
-
-            return chatClient
-                    .prompt()
-                    .system(agentConfiguration.getInstructions())
-                    .options(chatOptions)
-                    .user(aiRequest.getQuery())
-                    .call()
-                    .content();
-        }catch (Exception e){
-            log.error("Error while calling LLM.",e);
-            throw new ApiFallbackException("Error communicating with AI.");
+        switch (agentConfiguration.getType()) {
+            case CLASSIFICATION -> {
+                return generateClassificationResponse(agentConfiguration,aiRequest);
+            }
+            case VISION -> {
+                return generateVisionResponse(agentConfiguration,aiRequest);
+            }
+            default -> {
+                return generateChatClientResponse(agentConfiguration,aiRequest);
+            }
         }
     }
 
@@ -79,6 +74,61 @@ public class AgentService {
         }catch (Exception e){
             log.error("Error while calling LLM.",e);
             throw new ApiFallbackException("Error communicating with AI.");
+        }
+    }
+
+    private String generateChatClientResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest){
+        try {
+            ChatClient chatClient = aiBeanFactory.getChatClient(
+                    agentConfiguration.getSource().getValue(),
+                    agentConfiguration.getType().getValue(),
+                    agentConfiguration.getModel().getValue()
+            );
+
+            ChatOptions chatOptions = buildChatOptions(agentConfiguration);
+
+            return chatClient
+                    .prompt()
+                    .system(agentConfiguration.getInstructions())
+                    .options(chatOptions)
+                    .user(aiRequest.getQuery())
+                    .call()
+                    .content();
+        }catch (Exception e){
+            log.error("Error while calling LLM.",e);
+            throw new ApiFallbackException("Error communicating with AI.");
+        }
+    }
+
+    private String generateVisionResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest){
+        LlmConnectorRequest request = new LlmConnectorRequest();
+        request.setFiles(aiRequest.getFiles());
+        request.setQuery(aiRequest.getQuery());
+        request.setModel(agentConfiguration.getModel().getValue());
+        request.setSource(agentConfiguration.getSource().getValue());
+        request.setType(agentConfiguration.getType().getValue());
+        request.setTemperature(agentConfiguration.getTemperature());
+        request.setMaxTokens(agentConfiguration.getMaxTokens());
+        request.setInstructions(agentConfiguration.getInstructions());
+
+        return visionService.visionPrompt(request);
+    }
+
+    private ClassificationResponse generateClassificationResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+        LlmConnectorRequest request = new LlmConnectorRequest();
+
+        request.setFiles(aiRequest.getFiles());
+        request.setQuery(aiRequest.getQuery());
+        request.setModel(agentConfiguration.getModel().getValue());
+        request.setType(agentConfiguration.getType().getValue());
+        request.setSource(agentConfiguration.getSource().getValue());
+        request.setInstructions(agentConfiguration.getInstructions());
+        request.setMode(agentConfiguration.getClassificationMode());
+        request.setDocumentTypes(JsonUtils.serializeClass(agentConfiguration.getDocumentTypes()));
+        try {
+            return classificationOrchestrator.process(request);
+        } catch (Exception e){
+            throw new ApiFallbackException(e.getMessage());
         }
     }
 

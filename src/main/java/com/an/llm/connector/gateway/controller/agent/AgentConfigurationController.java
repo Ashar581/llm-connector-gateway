@@ -28,8 +28,8 @@ public class AgentConfigurationController extends BaseApiDelegate {
         return sendSuccessfulApiResponse(agentConfigurationService.all(),"All agents fetched successfully.");
     }
     @PostMapping("")
-    public ResponseEntity<@NonNull ApiResponseBody<AgentConfigurationDto>> add(@Valid @ModelAttribute AgentConfigurationDto dto, @RequestParam(value = "agentFiles", required = false)List<MultipartFile> files){
-        return sendCreatedApiResponse(agentConfigurationService.add(dto,files),"Agent was created successfully.");
+    public ResponseEntity<@NonNull ApiResponseBody<AgentConfigurationDto>> add(@Valid @ModelAttribute AgentConfigurationDto dto, @RequestParam(value = "agentFiles", required = false)List<MultipartFile> files, @RequestParam(value = "documentTypeDefinitions", required = false) String documentTypeDefinitions){
+        return sendCreatedApiResponse(agentConfigurationService.add(dto,files,documentTypeDefinitions),"Agent was created successfully.");
     }
     @PutMapping("{name}")
     public ResponseEntity<@NonNull ApiResponseBody<AgentConfigurationDto>> update(@PathVariable("name")String name, @RequestBody AgentConfigurationDto updateRequested){

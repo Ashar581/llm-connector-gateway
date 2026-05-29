@@ -1,14 +1,18 @@
 package com.an.llm.connector.gateway.entity;
 
+import com.an.llm.connector.gateway.enums.ClassificationMode;
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
 import com.an.llm.connector.gateway.enums.Source;
+import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;
 import com.an.llm.connector.gateway.util.AppUtils;
 import com.an.llm.connector.gateway.util.TimeUtils;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.List;
@@ -56,6 +60,11 @@ public class AgentConfigurationEntity implements TimeUtils {
     private Double temperature;
     private Integer maxTokens;
     private Boolean isPrivate;
+
+    @Enumerated(EnumType.STRING)
+    private ClassificationMode classificationMode;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<DocumentTypeDefinition> documentTypes;
 
     private String createdBy;
 
