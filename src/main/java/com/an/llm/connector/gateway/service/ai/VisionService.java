@@ -42,10 +42,10 @@ public class VisionService {
                     )
                     .toList();
 
-            String prompt = request.getInstructions() != null ? request.getInstructions() : LlmInstructions.INVOICE_OCR_INSTRUCTIONS;
+            String instructions = request.getInstructions() != null ? request.getInstructions() : LlmInstructions.INVOICE_OCR_INSTRUCTIONS;
 
             UserMessage userMessage = UserMessage.builder()
-                    .text(prompt)
+                    .text(request.getQuery() != null ? request.getQuery() : "")
                     .media(mediaList)
                     .build();
 
@@ -56,6 +56,7 @@ public class VisionService {
             );
 
             return chatClient.prompt(new Prompt(userMessage))
+                    .system(instructions)
                     .options(buildChatOptions(request))
                     .call()
                     .content();
