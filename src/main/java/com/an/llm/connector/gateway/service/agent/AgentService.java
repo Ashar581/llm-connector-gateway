@@ -12,7 +12,7 @@ import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
 import com.an.llm.connector.gateway.service.ai.VisionService;
 import com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
-import com.an.llm.connector.gateway.service.v2.VisionServiceV2;
+import com.an.llm.connector.gateway.service.ai.VisionServiceV2;
 import com.an.llm.connector.gateway.util.JsonUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
