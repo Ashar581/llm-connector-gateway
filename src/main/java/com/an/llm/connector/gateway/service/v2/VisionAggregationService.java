@@ -54,12 +54,14 @@ public class VisionAggregationService {
 
         aggregationPrompt.append("""
 
-                Merge all chunk responses.
-
-                - Remove duplicates.
-                - Preserve information.
-                - Follow the original instruction.
-                - Return a single final response.
+                You are merging partial extraction results from different pages of the same document.
+                
+                Rules:
+                - Never replace a non-null value with null.
+                - Prefer non-null values.
+                - Merge all fields.
+                - If a field exists in one response and is null in another, keep the non-null value.
+                - Return only the final merged JSON.
                 """);
 
         ChatClient chatClient =

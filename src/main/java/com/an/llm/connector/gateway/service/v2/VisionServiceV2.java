@@ -73,6 +73,8 @@ public class VisionServiceV2 {
                 );
             }
 
+            System.out.println("\n\nChunk Response: "+chunkResponses+"\n\n");
+
             return visionAggregationService.aggregate(
                     prompt,
                     chunkResponses,
