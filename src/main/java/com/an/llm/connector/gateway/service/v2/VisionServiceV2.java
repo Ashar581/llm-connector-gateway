@@ -1,5 +1,6 @@
 package com.an.llm.connector.gateway.service.v2;
 
+import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.service.ai.DocumentVisionPreprocessor;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -20,9 +22,9 @@ public class VisionServiceV2 {
     private final VisionAggregationService visionAggregationService;
     private final PageChunker pageChunker;
 
-    public String visionPrompt(
-            LlmConnectorRequest request
-    ) {
+    public String visionPrompt(LlmConnectorRequest request) {
+
+        validateAllowedType(request);
 
         try {
 
@@ -36,6 +38,24 @@ public class VisionServiceV2 {
                             ? request.getInstructions()
                             : LlmInstructions.INVOICE_OCR_INSTRUCTIONS;
 
+            /*
+             * Fast path.
+             *
+             * Images and small PDFs should remain
+             * a single VLM call.
+             */
+            if (pages.size() <= PageChunker.PAGES_PER_CHUNK) {
+
+                return chunkingVisionService.executeChunk(
+                        pages,
+                        prompt,
+                        request
+                );
+            }
+
+            /*
+             * Large document path.
+             */
             List<List<byte[]>> chunks =
                     pageChunker.chunk(pages);
 
@@ -44,18 +64,13 @@ public class VisionServiceV2 {
 
             for (List<byte[]> chunk : chunks) {
 
-                String response =
+                chunkResponses.add(
                         chunkingVisionService.executeChunk(
                                 chunk,
                                 prompt,
                                 request
-                        );
-
-                chunkResponses.add(response);
-            }
-
-            if (chunkResponses.size() == 1) {
-                return chunkResponses.getFirst();
+                        )
+                );
             }
 
             return visionAggregationService.aggregate(
@@ -64,16 +79,24 @@ public class VisionServiceV2 {
                     request
             );
 
-        } catch (Exception ex) {
+        } catch (Exception e) {
 
             log.error(
                     "Error while communication with VL.",
-                    ex
+                    e
             );
 
             throw new ApiFallbackException(
                     "Error while communicating with VL model."
             );
         }
+    }
+
+    private void validateAllowedType(LlmConnectorRequest request){
+        LlmCapability type = LlmCapability.getFromValue(request.getType());
+        //not allowed list
+        Set<LlmCapability> allowedTypes = Set.of(LlmCapability.VISION);
+
+        if (!allowedTypes.contains(type)) throw new ApiFallbackException("The requested type is not supported by this endpoint.");
     }
 }

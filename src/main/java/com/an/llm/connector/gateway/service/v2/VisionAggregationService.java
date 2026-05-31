@@ -20,27 +20,35 @@ public class VisionAggregationService {
             LlmConnectorRequest request
     ) {
 
-        StringBuilder aggregationPrompt = new StringBuilder();
+        StringBuilder aggregationPrompt =
+                new StringBuilder();
 
         aggregationPrompt.append("""
-                You are given responses generated from different chunks of the same document.
+                The following responses were generated
+                from different page groups of the same
+                document.
 
-                Original user instruction:
+                Original Instruction:
                 """);
 
-        aggregationPrompt.append(originalPrompt);
+        aggregationPrompt.append(
+                originalPrompt
+        );
 
         aggregationPrompt.append("\n\n");
 
-        for (int i = 0; i < chunkResponses.size(); i++) {
+        for (
+                int i = 0;
+                i < chunkResponses.size();
+                i++
+        ) {
 
-            aggregationPrompt.append("""
-                    
-                    CHUNK RESPONSE %d:
-                    """
-                    .formatted(i + 1));
+            aggregationPrompt.append("\nCHUNK ").append(i + 1).append(":\n");
 
-            aggregationPrompt.append(chunkResponses.get(i));
+            aggregationPrompt.append(
+                    chunkResponses.get(i)
+            );
+
             aggregationPrompt.append("\n");
         }
 
@@ -51,17 +59,20 @@ public class VisionAggregationService {
                 - Remove duplicates.
                 - Preserve information.
                 - Follow the original instruction.
-                - Return a single final answer.
+                - Return a single final response.
                 """);
 
-        ChatClient chatClient = aiBeanFactory.getChatClient(
-                request.getSource(),
-                request.getType(),
-                request.getModel()
-        );
+        ChatClient chatClient =
+                aiBeanFactory.getChatClient(
+                        request.getSource(),
+                        request.getType(),
+                        request.getModel()
+                );
 
         return chatClient.prompt()
-                .user(aggregationPrompt.toString())
+                .user(
+                        aggregationPrompt.toString()
+                )
                 .call()
                 .content();
     }

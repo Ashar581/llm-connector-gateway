@@ -21,36 +21,58 @@ public class ChunkingVisionService {
     private final AiBeanFactory aiBeanFactory;
 
     public String executeChunk(
-            List<byte[]> chunk,
+            List<byte[]> pages,
             String prompt,
             LlmConnectorRequest request
     ) {
 
-        List<Media> mediaList = chunk.stream()
-                .map(bytes -> Media.builder()
-                        .mimeType(MediaType.IMAGE_PNG)
-                        .data(new ByteArrayResource(bytes))
-                        .build())
-                .toList();
+        List<Media> mediaList =
+                pages.stream()
+                        .map(bytes ->
+                                Media.builder()
+                                        .mimeType(
+                                                MediaType.IMAGE_PNG
+                                        )
+                                        .data(
+                                                new ByteArrayResource(
+                                                        bytes
+                                                )
+                                        )
+                                        .build()
+                        )
+                        .toList();
 
-        UserMessage message = UserMessage.builder()
-                .text(prompt)
-                .media(mediaList)
-                .build();
+        UserMessage message =
+                UserMessage.builder()
+                        .text(prompt)
+                        .media(mediaList)
+                        .build();
 
-        ChatClient chatClient = aiBeanFactory.getChatClient(
-                request.getSource(),
-                request.getType(),
-                request.getModel()
-        );
+        ChatClient chatClient =
+                aiBeanFactory.getChatClient(
+                        request.getSource(),
+                        request.getType(),
+                        request.getModel()
+                );
 
-        return chatClient.prompt(new Prompt(message))
+        return chatClient.prompt(
+                        new Prompt(message)
+                )
                 .options(
-                        ChatOptions.builder()
-                                .temperature(0D)
-                                .build()
+                        buildChatOptions(request)
                 )
                 .call()
                 .content();
+    }
+
+    private ChatOptions buildChatOptions(LlmConnectorRequest request){
+        ChatOptions.Builder<?> builder = ChatOptions.builder();
+
+        builder.temperature(request.getTemperature());
+        if (request.getMaxTokens() != null) {
+            builder.maxTokens(request.getMaxTokens());
+        }
+
+        return builder.build();
     }
 }

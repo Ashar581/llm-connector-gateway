@@ -7,19 +7,28 @@ import java.util.List;
 
 @Component
 public class PageChunker {
+    public static final int PAGES_PER_CHUNK = 3;
 
-    private static final int PAGES_PER_CHUNK = 3;
+    public List<List<byte[]>> chunk(
+            List<byte[]> pages
+    ) {
 
-    public List<List<byte[]>> chunk(List<byte[]> pages) {
+        List<List<byte[]>> chunks =
+                new ArrayList<>();
 
-        List<List<byte[]>> chunks = new ArrayList<>();
-
-        for (int i = 0; i < pages.size(); i += PAGES_PER_CHUNK) {
+        for (
+                int i = 0;
+                i < pages.size();
+                i += PAGES_PER_CHUNK
+        ) {
 
             chunks.add(
                     pages.subList(
                             i,
-                            Math.min(i + PAGES_PER_CHUNK, pages.size())
+                            Math.min(
+                                    i + PAGES_PER_CHUNK,
+                                    pages.size()
+                            )
                     )
             );
         }
