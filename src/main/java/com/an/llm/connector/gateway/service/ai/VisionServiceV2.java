@@ -29,11 +29,11 @@ public class VisionServiceV2 {
         try {
             List<byte[]> pages = documentVisionPreprocessor.preprocess(request.getFiles().getFirst());
 
-            String prompt = request.getInstructions() != null ? request.getInstructions() : LlmInstructions.INVOICE_OCR_INSTRUCTIONS;
+            String instructions = request.getInstructions() != null ? request.getInstructions() : LlmInstructions.INVOICE_OCR_INSTRUCTIONS;
 
             if (pages.size() <= PageChunker.PAGES_PER_CHUNK) {
                 log.info("Selecting single vision mode.");
-                return chunkingVisionService.executeChunk(pages, prompt, request);
+                return chunkingVisionService.executeChunk(pages, instructions, request);
             }
 
             log.info("Selecting aggregation vision mode.");
@@ -41,11 +41,11 @@ public class VisionServiceV2 {
             List<String> chunkResponses = new ArrayList<>();
 
             for (List<byte[]> chunk : chunks) {
-                chunkResponses.add(chunkingVisionService.executeChunk(chunk, prompt, request));
+                chunkResponses.add(chunkingVisionService.executeChunk(chunk, instructions, request));
             }
 
             return visionAggregationService.aggregate(
-                    prompt,
+                    instructions,
                     chunkResponses,
                     request
             );

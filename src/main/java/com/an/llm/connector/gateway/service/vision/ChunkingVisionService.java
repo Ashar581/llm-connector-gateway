@@ -21,7 +21,7 @@ import java.util.List;
 public class ChunkingVisionService {
     private final AiBeanFactory aiBeanFactory;
 
-    public String executeChunk(List<byte[]> pages, String prompt, LlmConnectorRequest request) {
+    public String executeChunk(List<byte[]> pages, String instructions, LlmConnectorRequest request) {
         List<Media> mediaList = pages.stream()
                 .map(bytes -> Media.builder()
                         .mimeType(MediaType.IMAGE_PNG)
@@ -31,7 +31,7 @@ public class ChunkingVisionService {
                 .toList();
 
         UserMessage message = UserMessage.builder()
-                .text(prompt)
+                .text((request.getQuery() != null && !request.getQuery().isBlank()) ? request.getQuery() : "Follow the system instructions")
                 .media(mediaList)
                 .build();
 
@@ -42,6 +42,7 @@ public class ChunkingVisionService {
         );
 
         return chatClient.prompt(new Prompt(message))
+                .system(instructions)
                 .options(buildChatOptions(request))
                 .call()
                 .content();
