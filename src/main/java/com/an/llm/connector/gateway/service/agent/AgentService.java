@@ -12,6 +12,7 @@ import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
 import com.an.llm.connector.gateway.service.ai.VisionService;
 import com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
+import com.an.llm.connector.gateway.service.ai.VisionServiceV2;
 import com.an.llm.connector.gateway.util.JsonUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import reactor.core.publisher.Flux;
 public class AgentService {
     private final AgentConfigurationRepository agentConfigurationRepository;
     private final VisionService visionService;
+    private final VisionServiceV2 visionServiceV2;
     private final ClassificationOrchestrator classificationOrchestrator;
     private final AiBeanFactory aiBeanFactory;
 
@@ -111,7 +113,8 @@ public class AgentService {
         request.setMaxTokens(agentConfiguration.getMaxTokens());
         request.setInstructions(agentConfiguration.getInstructions());
 
-        return visionService.visionPrompt(request);
+//        return visionService.visionPrompt(request);
+        return visionServiceV2.visionPrompt(request);
     }
 
     private ClassificationResponse generateClassificationResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
