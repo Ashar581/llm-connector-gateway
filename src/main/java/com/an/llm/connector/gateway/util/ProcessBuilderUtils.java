@@ -2,7 +2,7 @@ package com.an.llm.connector.gateway.util;
 
 public class ProcessBuilderUtils {
 
-    private static final String LLAMA_PATH = "/llama.cpp";
+    private static final String LLAMA_PATH = "~/llama.cpp";
 
     public static String generateProcessBuilderScript(String model, Integer context, Integer parallelExecution, Integer port) {
         return String.format(
