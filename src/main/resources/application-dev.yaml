@@ -98,7 +98,7 @@ llm:
           api-path: /v1/chat/completions
           api-key: ashar581
           port: 7074
-          model-name: Qwen_Qwen2.5-VL-7B-Instruct-Q2_K_L.gguf
+          model-name: Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
           context: 65536
           parallelExecution: 4
