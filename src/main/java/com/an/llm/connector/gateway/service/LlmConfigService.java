@@ -84,4 +84,15 @@ public class LlmConfigService {
                 .map(LlmCapability::getValue)
                 .collect(Collectors.toList());
     }
+
+    public ModelConfig getModelConfig(@NotNull String source, @NotNull String type, @NotNull String model){
+        isLlmSupported(source, type, model);
+        return getAvailableModels()
+                .get(source)
+                .getModels()
+                .stream()
+                .filter(filter -> filter.getId().equalsIgnoreCase(model))
+                .toList()
+                .getFirst();
+    }
 }
