@@ -160,7 +160,8 @@ public class ChatClientService {
         Set<LlmCapability> allowedHistoryTypes = Set.of(
                 LlmCapability.CHAT,
                 LlmCapability.AGENT,
-                LlmCapability.RAG
+                LlmCapability.RAG,
+                LlmCapability.CODE
         );
 
         if (request.isChatHistoryEnabled() && !allowedHistoryTypes.contains(type)) {
