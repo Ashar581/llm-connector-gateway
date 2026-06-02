@@ -29,4 +29,6 @@ public class LlmConnectorRequest {
     private ClassificationMode mode;
 //    private List<DocumentTypeDefinition> documentTypes;
     private String documentTypes;
+    private boolean chatHistoryEnabled;
+    private List<ChatHistory> chatHistory;
 }
