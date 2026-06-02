@@ -156,5 +156,15 @@ public class ChatClientService {
         if (notAllowedTypes.contains(type)) {
             throw new ApiFallbackException("The requested type is not supported by this endpoint.");
         }
+
+        Set<LlmCapability> allowedHistoryTypes = Set.of(
+                LlmCapability.CHAT,
+                LlmCapability.AGENT,
+                LlmCapability.RAG
+        );
+
+        if (request.isChatHistoryEnabled() && !allowedHistoryTypes.contains(type)) {
+            throw new ApiFallbackException("Chat history is not available for "+type.getValue()+" type.");
+        }
     }
 }
