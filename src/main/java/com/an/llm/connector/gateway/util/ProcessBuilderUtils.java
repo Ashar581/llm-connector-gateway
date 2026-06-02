@@ -9,8 +9,11 @@ public class ProcessBuilderUtils {
                 "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
                         "-c %s -np %s -t 8 -cb -ngl 999 " +
+                        "--batch-size 3072 " +
+                        "--ubatch-size 768 " +
                         "--cache-type-k q8_0 " +
                         "--cache-type-v q8_0 " +
+                        "--flash-attn on " +
                         "--host 0.0.0.0 --port %s",
                 LLAMA_PATH, model, context, parallelExecution, port
         );
@@ -21,6 +24,11 @@ public class ProcessBuilderUtils {
                 "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
                         "-c %s -np %s -t 8 -cb -ngl 999 " +
+                        "--batch-size 3072 " +
+                        "--ubatch-size 768 " +
+                        "--cache-type-k q8_0 " +
+                        "--cache-type-v q8_0 " +
+                        "--flash-attn auto " +
                         "--host 0.0.0.0 --port %s " +
                         "--embedding",
                 LLAMA_PATH, model, context, parallelExecution, port
@@ -32,10 +40,13 @@ public class ProcessBuilderUtils {
                 "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
                         "--mmproj models/%s " +
+                        "-c %s -np %s -t 8 -cb -ngl 999 " +
                         "--cache-type-k q8_0 " +
                         "--cache-type-v q8_0 " +
-                        "-cram 0 " +
-                        "-c %s -np %s -t 4 -cb -ngl 999 " +
+                        "--batch-size 3072 " +
+                        "--ubatch-size 768 " +
+                        "--flash-attn auto " +
+                        "--cache-ram 0 " +
                         "--host 0.0.0.0 --port %s",
                 LLAMA_PATH, model, mmProj, context, parallelExecution, port
         );
