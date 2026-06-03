@@ -102,7 +102,7 @@ llm:
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
           context: 8192
           parallelExecution: 2
-          active: false
+          active: true
 
         - id: nu-extractor
           type:
@@ -116,7 +116,7 @@ llm:
           mm-proj : mmproj-BF16.gguf
           context: 16384
           parallelExecution: 1
-          active: true
+          active: false
 
         - id: qwen-sml
           type:
