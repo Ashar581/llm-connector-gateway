@@ -132,6 +132,7 @@ public class AgentConfigurationService {
                         dto.setId(row.getAgentId());
                         dto.setName(row.getAgentName());
                         dto.setInstructions(row.getInstructions());
+                        dto.setDescription(row.getDescription());
                         dto.setActive(row.getActive());
                         dto.setModel(row.getModel().getValue());
                         dto.setType(row.getType().getValue());
