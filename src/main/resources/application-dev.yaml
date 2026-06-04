@@ -88,7 +88,7 @@ llm:
           mm-proj :
           context: 8192
           parallelExecution: 1
-          active: true
+          active: false
 
         - id: qwen-vl
           type:
