@@ -22,6 +22,7 @@ public interface AgentConfigurationRepository extends JpaRepository<@NonNull Age
            a.type as type,
            a.model as model,
            a.instructions as instructions,
+           a.description as description,
            a.uniqueId as uniqueId,
            a.active as active,
            a.temperature as temperature,
