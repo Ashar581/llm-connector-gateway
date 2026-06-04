@@ -18,6 +18,7 @@ public interface AgentConfigWithFilesView {
     LlmModels getModel();
     LlmCapability getType();
     String getInstructions();
+    String getDescription();
     UUID getUniqueId();
     Boolean getActive();
     Double getTemperature();
