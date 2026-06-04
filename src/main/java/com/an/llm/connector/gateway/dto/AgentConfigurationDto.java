@@ -35,6 +35,9 @@ public class AgentConfigurationDto {
     @NotBlank(message = "Agent instructions is mandatory.")
     @NotNull(message = "Agent instructions is mandatory.")
     private String instructions;
+    @NotNull(message = "Agent description is mandatory.")
+    @NotBlank(message = "Agent description is mandatory.")
+    private String description;
     private List<AgentFileDto> files;
     private UUID uniqueId;
     private String name;

@@ -46,6 +46,7 @@ public class AgentConfigurationEntity implements TimeUtils {
 
     @Column(columnDefinition = "TEXT",nullable = false)
     private String instructions;
+    private String description;
 
     @OneToMany(mappedBy = "agentConfiguration",cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<AgentFileEntity> files;
