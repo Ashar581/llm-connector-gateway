@@ -12,9 +12,9 @@ spring:
       hibernate:
         format_sql: true
   datasource:
-    username: postgres
-    password: 123edc#EDC
-    url: jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
   servlet:
     multipart:
       max-file-size: 10MB
