@@ -1,12 +1,14 @@
 package com.an.llm.connector.gateway.service.classification;
 
-import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
+import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;
 import com.an.llm.connector.gateway.model.classification.PageAnalysisResult;
+import com.an.llm.connector.gateway.repository.SystemConsumptionStatsRepo;
 import com.an.llm.connector.gateway.service.ai.DocumentVisionPreprocessor;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
+import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.util.PageContentHeuristics;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.content.Media;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +41,8 @@ public class PageAnalysisService {
     private final DocumentVisionPreprocessor preprocessor;
     private final AiBeanFactory aiBeanFactory;
     private final ClassificationPromptBuilder promptBuilder;
+    private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
+    private final SystemConsumptionStatsRepo systemConsumptionStatsRepo;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -57,11 +63,18 @@ public class PageAnalysisService {
 
         List<PageAnalysisResult> results = new ArrayList<>();
 
+        int promptTokens = 0;
+        int completionTokens = 0;
+        int totalTokens = 0;
+
+        long start = System.currentTimeMillis();
+        SystemConsumptionStatsEntity stats = null;
+
         for (int i = 0; i < pages.size(); i++) {
             byte[] currentPage = pages.get(i);
 
             if (i > 0 && PageContentHeuristics.isLikelyBlankOrStampOnly(currentPage)) {
-                PageAnalysisResult previous = results.get(results.size() - 1);
+                PageAnalysisResult previous = results.getLast();
 
                 results.add(
                         new PageAnalysisResult(
@@ -83,16 +96,41 @@ public class PageAnalysisService {
                         .media(media)
                         .build();
 
-                String response = client.prompt(new Prompt(message))
+                ChatResponse response = client.prompt(new Prompt(message))
                         .options(buildChatOptions(request))
                         .call()
-                        .content();
+                        .chatResponse();
 
-                results.add(parse(response, i + 1));
+                assert response != null;
+
+                stats = systemConsumptionStatsSvc.generateStatsEntityWithoutPersisting(response,request);
+
+                promptTokens+=stats.getPromptTokens();
+                completionTokens+=stats.getCompletionTokens();
+                totalTokens+=stats.getTotalTokens();
+
+                String serializedResponse = Objects.requireNonNull(response.getResult()).getOutput().getText();
+                results.add(parse(serializedResponse, i + 1));
 
             } catch (Exception e) {
                 log.error("Failed processing page {}", i + 1, e);
                 results.add(fallbackUnknown(i + 1));
+            }
+        }
+
+        long completionTimeMs = System.currentTimeMillis() - start;
+
+        if (stats != null) {
+            try {
+                stats.setResponseTimeInMs(completionTimeMs);
+                stats.setCompletionTokens(completionTokens);
+                stats.setPromptTokens(promptTokens);
+                stats.setTotalTokens(totalTokens);
+
+                SystemConsumptionStatsEntity finalStats = stats;
+                Thread.startVirtualThread(() -> systemConsumptionStatsRepo.save(finalStats));
+            } catch (Exception e) {
+                log.error("Error recording non-stream consumption tokens stats.", e);
             }
         }
 
@@ -120,11 +158,16 @@ public class PageAnalysisService {
 
         List<Integer> indexes = buildSampleIndexes(pages.size());
 
-        List<PageAnalysisResult> results =
-                new ArrayList<>();
+        List<PageAnalysisResult> results = new ArrayList<>();
+
+        int promptTokens = 0;
+        int completionTokens = 0;
+        int totalTokens = 0;
+
+        long start = System.currentTimeMillis();
+        SystemConsumptionStatsEntity stats = null;
 
         for (Integer index : indexes) {
-
             try {
                 List<Media> media = List.of(buildMedia(pages.get(index)));
 
@@ -133,15 +176,42 @@ public class PageAnalysisService {
                         .media(media)
                         .build();
 
-                String response = client
+                ChatResponse response = client
                         .prompt(new Prompt(message))
                         .call()
-                        .content();
+                        .chatResponse();
 
-                results.add(parse(response, index + 1));
+                assert response != null;
+
+                stats = systemConsumptionStatsSvc.generateStatsEntityWithoutPersisting(response,request);
+
+                promptTokens+=stats.getPromptTokens();
+                completionTokens+=stats.getCompletionTokens();
+                totalTokens+=stats.getTotalTokens();
+
+                String serializedResponse = Objects.requireNonNull(response.getResult()).getOutput().getText();
+
+                results.add(parse(serializedResponse, index + 1));
             } catch (Exception e) {
                 log.error("Failed processing sampled page {}", index + 1, e);
                 results.add(fallbackUnknown(index + 1));
+            }
+        }
+
+        //code block for saving the final tokens stats.
+        long completionTimeMs = System.currentTimeMillis() - start;
+
+        if (stats != null) {
+            try {
+                stats.setResponseTimeInMs(completionTimeMs);
+                stats.setCompletionTokens(completionTokens);
+                stats.setPromptTokens(promptTokens);
+                stats.setTotalTokens(totalTokens);
+
+                SystemConsumptionStatsEntity finalStats = stats;
+                Thread.startVirtualThread(() -> systemConsumptionStatsRepo.save(finalStats));
+            } catch (Exception e) {
+                log.error("Error recording non-stream consumption tokens stats.", e);
             }
         }
 
