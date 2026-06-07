@@ -4,19 +4,23 @@ import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
+import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.util.LlmInstructions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.content.Media;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -25,6 +29,7 @@ import java.util.Set;
 public class VisionService {
     private final AiBeanFactory aiBeanFactory;
     private final DocumentVisionPreprocessor documentVisionPreprocessor;
+    private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
 
     public String visionPrompt(LlmConnectorRequest request) {
         validateAllowedType(request);
@@ -55,10 +60,24 @@ public class VisionService {
                     request.getModel()
             );
 
-            return chatClient.prompt(new Prompt(userMessage))
+            long start = System.currentTimeMillis();
+
+            ChatResponse response = chatClient.prompt(new Prompt(userMessage))
                     .options(buildChatOptions(request))
                     .call()
-                    .content();
+                    .chatResponse();
+
+            long completionTimeMs = System.currentTimeMillis() - start;
+
+            assert response != null;
+            //async service for generating the stats.
+            try {
+                systemConsumptionStatsSvc.add(response, request, completionTimeMs);
+            } catch (Exception e){
+                log.error("Error recording non-stream consumption tokens stats.",e);
+            }
+
+            return Objects.requireNonNull(response.getResult()).getOutput().getText();
 
         } catch (Exception e) {
             log.error("Error while communication with VL.",e);
@@ -74,15 +93,18 @@ public class VisionService {
         if (!allowedTypes.contains(type)) throw new ApiFallbackException("The requested type is not supported by this endpoint.");
     }
 
-    private ChatOptions buildChatOptions(LlmConnectorRequest request){
-        ChatOptions.Builder<?> builder = ChatOptions.builder();
+    private ChatOptions buildChatOptions(LlmConnectorRequest request) {
+        OpenAiChatOptions.Builder openAiOptions = OpenAiChatOptions.builder()
+                .streamUsage(true);
 
-        builder.temperature(request.getTemperature());
-        if (request.getMaxTokens() != null) {
-            builder.maxTokens(request.getMaxTokens());
+        if (request.getTemperature() != null) {
+            openAiOptions.temperature(request.getTemperature());
         }
 
-        return builder.build();
+        if (request.getMaxTokens() != null) {
+            openAiOptions.maxTokens(request.getMaxTokens());
+        }
+        return openAiOptions.build();
     }
 
 }
