@@ -95,7 +95,7 @@ public class SystemConsumptionStatsSvc {
         stats.setResponseTimeInMs(responseTime);
 
         //to be changed for every branch eg -> mac-server, local, vast-ai, rtx-home
-        stats.setServer("local");
+        stats.setServer("mac-server");
 
         log.info("Token Consumption Stats: {}",stats);
 
@@ -144,7 +144,7 @@ public class SystemConsumptionStatsSvc {
         stats.setResponseTimeInMs(responseTime);
 
         //to be changed for every branch eg -> mac-server, local, vast-ai, rtx-home
-        stats.setServer("local");
+        stats.setServer("mac-server");
 
         log.info("Token Consumption Stats: {}",stats);
 
@@ -192,6 +192,9 @@ public class SystemConsumptionStatsSvc {
         stats.setCompletionTokens(completionTokens);
         stats.setTotalTokens(totalTokens);
 
+        //to be changed for every branch eg -> mac-server, local, vast-ai, rtx-home
+        stats.setServer("mac-server");
+
         return stats;
     }
 
@@ -236,7 +239,7 @@ public class SystemConsumptionStatsSvc {
         stats.setTotalTokens(totalTokens);
 
         //to be changed for every branch eg -> mac-server, local, vast-ai, rtx-home
-        stats.setServer("local");
+        stats.setServer("mac-server");
 
         return stats;
     }
