@@ -192,6 +192,9 @@ public class SystemConsumptionStatsSvc {
         stats.setCompletionTokens(completionTokens);
         stats.setTotalTokens(totalTokens);
 
+        //to be changed for every branch eg -> mac-server, local, vast-ai, rtx-home
+        stats.setServer("local");
+
         return stats;
     }
 
