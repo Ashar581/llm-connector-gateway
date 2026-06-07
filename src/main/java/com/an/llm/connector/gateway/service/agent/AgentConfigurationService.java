@@ -96,6 +96,7 @@ public class AgentConfigurationService {
         return agentConfigurationMapper.toDto(agentConfigurationRepository.save(entity));
     }
 
+    @Transactional(readOnly = true)
     public AgentConfigurationDto get(@NonNull String name){
         if (name.isBlank()) throw new NullException("Agent name is mandatory.");
         AgentConfigurationEntity entity = agentConfigurationRepository.findByName(name)

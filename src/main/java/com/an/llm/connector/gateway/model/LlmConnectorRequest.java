@@ -31,4 +31,6 @@ public class LlmConnectorRequest {
     private String documentTypes;
     private boolean chatHistoryEnabled;
     private List<ChatHistory> chatHistory;
+    //just added it for internal usages. Not exposable.
+    private String agentName;
 }

@@ -1,21 +1,26 @@
 package com.an.llm.connector.gateway.service.vision;
 
+import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
+import com.an.llm.connector.gateway.model.VisionInternalStatsAndResponse;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
+import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
 public class VisionAggregationService {
-
     private final AiBeanFactory aiBeanFactory;
+    private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
 
-    public String aggregate(String originalPrompt, List<String> chunkResponses, LlmConnectorRequest request) {
+    public VisionInternalStatsAndResponse aggregate(String originalPrompt, List<String> chunkResponses, LlmConnectorRequest request) {
         StringBuilder aggregationPrompt = new StringBuilder();
 
         aggregationPrompt.append("""
@@ -67,10 +72,22 @@ public class VisionAggregationService {
                 request.getModel()
         );
 
-        return chatClient.prompt()
+        ChatResponse response =  chatClient.prompt()
                 .user(aggregationPrompt.toString())
                 .options(ChatOptions.builder().temperature(0D).build())
                 .call()
-                .content();
+                .chatResponse();
+
+        //code block for computing the tokens stats.
+        assert response != null;
+        String serializedResponse = Objects.requireNonNull(response.getResult()).getOutput().getText();
+
+        //block for retaining the token consumption stats.
+        SystemConsumptionStatsEntity stats = null;
+        try {
+            stats = systemConsumptionStatsSvc.generateStatsEntityWithoutPersisting(response, request);
+        } catch (Exception ignore) {}
+
+        return new VisionInternalStatsAndResponse(serializedResponse,stats);
     }
 }
