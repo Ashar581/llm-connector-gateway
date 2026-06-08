@@ -18,7 +18,9 @@ import java.time.Instant;
         indexes = {
                 @Index(name = "idx_created", columnList = "createdAt"),
                 @Index(name = "idx_model_name_created", columnList = "modelName, createdAt"),
-                @Index(name = "idx_agent_name_created", columnList = "agentName, createdAt")
+                @Index(name = "idx_agent_name_created", columnList = "agentName, createdAt"),
+                @Index(name = "idx_model_server_createdAt", columnList = "modelName, server, createdAt"),
+                @Index(name = "idx_agent_server_createdAt", columnList = "agentName, server, createdAt")
         }
 )
 public class SystemConsumptionStatsEntity {
@@ -45,6 +47,7 @@ public class SystemConsumptionStatsEntity {
 
     private Integer totalTokens;
     private Long responseTimeInMs;
+    @Column(nullable = false)
     private Instant createdAt;
     private String server;
 

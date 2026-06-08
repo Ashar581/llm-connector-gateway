@@ -14,8 +14,8 @@ public interface SystemConsumptionStatsMapper {
             @Mapping(target = "id",ignore = true),
             @Mapping(target = "source", expression = "java(entity.getSource() != null ? entity.getSource().getValue() : null)"),
             @Mapping(target = "type", expression = "java(entity.getType() != null ? entity.getType().getValue() : null)"),
-            @Mapping(target = "modelName", expression = "java(entity.getModelName() != null ? entity.getModelName().getValue() : null)"),
+            @Mapping(target = "modelName", expression = "java(entity.getModelName() != null ? entity.getModelName().getValue() : null)")
     })
     SystemConsumptionStatsDto toDto(SystemConsumptionStatsEntity entity);
-    List<SystemConsumptionStatsEntity> toDtoList(List<SystemConsumptionStatsEntity> entities);
+    List<SystemConsumptionStatsDto> toDtoList(List<SystemConsumptionStatsEntity> entities);
 }

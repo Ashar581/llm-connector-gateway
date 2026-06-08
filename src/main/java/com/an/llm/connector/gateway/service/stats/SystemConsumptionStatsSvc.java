@@ -1,6 +1,7 @@
 package com.an.llm.connector.gateway.service.stats;
 
 import com.an.llm.connector.gateway.dto.AgentConfigurationDto;
+import com.an.llm.connector.gateway.dto.SystemConsumptionStatsDto;
 import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
@@ -8,9 +9,13 @@ import com.an.llm.connector.gateway.enums.Source;
 import com.an.llm.connector.gateway.exception.NotAllowedException;
 import com.an.llm.connector.gateway.exception.NotFoundException;
 import com.an.llm.connector.gateway.exception.NullException;
+import com.an.llm.connector.gateway.mapper.SystemConsumptionStatsMapper;
 import com.an.llm.connector.gateway.model.AiRequest;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
+import com.an.llm.connector.gateway.model.filter.TokenStatsFilterRequest;
+import com.an.llm.connector.gateway.model.filter.TokenStatsFilterResponse;
 import com.an.llm.connector.gateway.repository.SystemConsumptionStatsRepo;
+import com.an.llm.connector.gateway.repository.filter.SystemConsumptionStatsSpecification;
 import com.an.llm.connector.gateway.service.agent.AgentConfigurationService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +25,18 @@ import org.springframework.ai.embedding.EmbeddingResponse;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SystemConsumptionStatsSvc {
     private final SystemConsumptionStatsRepo systemConsumptionStatsRepo;
     private final AgentConfigurationService agentConfigurationService;
+    private final SystemConsumptionStatsMapper mapper;
 
     @Async
     public <T,T1> void add(@NonNull T consumption, @NonNull T1 request, long responseTime){
@@ -50,6 +61,107 @@ public class SystemConsumptionStatsSvc {
             }
             default -> throw new NotFoundException("Invalid support type");
         }
+    }
+
+    public TokenStatsFilterResponse getStatsForTheDay(){
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+
+        Instant startOfDay = today.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant endOfDay = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().minusNanos(1);
+
+        List<SystemConsumptionStatsDto> stats =  mapper.toDtoList(systemConsumptionStatsRepo.findByCreatedAtBetween(startOfDay,endOfDay));
+
+        int totalTokens = 0;
+        int totalTimeInMs = 0;
+        int totalCompletionTokens = 0;
+        int totalPromptTokens = 0;
+        int totalAiRequest = stats.size();
+        String server = "all";
+
+        TokenStatsFilterResponse filteredResponse = new TokenStatsFilterResponse();
+        for (SystemConsumptionStatsDto stat : stats){
+            totalTokens += stat.getTotalTokens();
+            totalTimeInMs += stat.getResponseTimeInMs();
+            totalCompletionTokens += stat.getCompletionTokens();
+            totalPromptTokens += stat.getPromptTokens();
+        }
+
+        double averageTotalTokens = totalAiRequest == 0 ? 0.0 : (double) totalTokens /totalAiRequest;
+        double averageTimeInMs = totalAiRequest == 0 ? 0.0 : (double) totalTimeInMs /totalAiRequest;
+        double averageTotalCompletionTokens = totalAiRequest == 0 ? 0.0 : (double) totalCompletionTokens /totalAiRequest;
+        double averagePromptTokens = totalAiRequest == 0 ? 0.0 : (double) totalPromptTokens /totalAiRequest;
+
+        filteredResponse.setStats(stats);
+        filteredResponse.setServer(server);
+
+        filteredResponse.setTotalToken(totalTokens);
+        filteredResponse.setTotalTimeInMs(totalTimeInMs);
+        filteredResponse.setTotalCompletionTokens(totalCompletionTokens);
+        filteredResponse.setTotalPromptTokens(totalPromptTokens);
+
+        filteredResponse.setTotalAiRequests(totalAiRequest);
+
+        filteredResponse.setAverageTotalTokens(averageTotalTokens);
+        filteredResponse.setAverageTimeInMs(averageTimeInMs);
+        filteredResponse.setAverageCompletionTokens(averageTotalCompletionTokens);
+        filteredResponse.setAveragePromptTokens(averagePromptTokens);
+
+        return filteredResponse;
+    }
+
+    public TokenStatsFilterResponse filter(TokenStatsFilterRequest filter){
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+
+        Instant startOfDay = today.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant endOfDay = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().minusNanos(1);
+
+        if (filter.getStartDate()==null) {
+            filter.setStartDate(startOfDay);
+        }
+        if (filter.getEndDate()==null) {
+            filter.setEndDate(endOfDay);
+        }
+
+        List<SystemConsumptionStatsDto> stats = mapper.toDtoList(
+                systemConsumptionStatsRepo.findAll(SystemConsumptionStatsSpecification.filter(filter))
+        );
+
+        int totalTokens = 0;
+        int totalTimeInMs = 0;
+        int totalCompletionTokens = 0;
+        int totalPromptTokens = 0;
+        int totalAiRequest = stats.size();
+        String server = filter.getServer();
+
+        TokenStatsFilterResponse filteredResponse = new TokenStatsFilterResponse();
+        for (SystemConsumptionStatsDto stat : stats){
+            totalTokens += stat.getTotalTokens();
+            totalTimeInMs += stat.getResponseTimeInMs();
+            totalCompletionTokens += stat.getCompletionTokens();
+            totalPromptTokens += stat.getPromptTokens();
+        }
+
+        double averageTotalTokens = totalAiRequest == 0 ? 0.0 : (double) totalTokens /totalAiRequest;
+        double averageTimeInMs = totalAiRequest == 0 ? 0.0 : (double) totalTimeInMs /totalAiRequest;
+        double averageTotalCompletionTokens = totalAiRequest == 0 ? 0.0 : (double) totalCompletionTokens /totalAiRequest;
+        double averagePromptTokens = totalAiRequest == 0 ? 0.0 : (double) totalPromptTokens /totalAiRequest;
+
+        filteredResponse.setStats(stats);
+        filteredResponse.setServer(server);
+
+        filteredResponse.setTotalToken(totalTokens);
+        filteredResponse.setTotalTimeInMs(totalTimeInMs);
+        filteredResponse.setTotalCompletionTokens(totalCompletionTokens);
+        filteredResponse.setTotalPromptTokens(totalPromptTokens);
+
+        filteredResponse.setTotalAiRequests(totalAiRequest);
+
+        filteredResponse.setAverageTotalTokens(averageTotalTokens);
+        filteredResponse.setAverageTimeInMs(averageTimeInMs);
+        filteredResponse.setAverageCompletionTokens(averageTotalCompletionTokens);
+        filteredResponse.setAveragePromptTokens(averagePromptTokens);
+
+        return filteredResponse;
     }
 
     private <T> void handleAiRequest(@NonNull T consumption, @NonNull LlmConnectorRequest request, long responseTime) {
