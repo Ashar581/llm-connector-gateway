@@ -59,7 +59,7 @@ llm:
           port: 7070
           model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
           mm-proj :
-          context: 16000
+          context: 32768
           parallelExecution: 4
           active: true
 
