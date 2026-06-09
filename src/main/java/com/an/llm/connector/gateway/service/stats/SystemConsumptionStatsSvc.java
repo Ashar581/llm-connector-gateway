@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 
@@ -64,10 +65,18 @@ public class SystemConsumptionStatsSvc {
     }
 
     public TokenStatsFilterResponse getStatsForTheDay(){
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        ZoneId kolkataZone = ZoneId.of("Asia/Kolkata");
+        LocalDate today = LocalDate.now(kolkataZone);
 
-        Instant startOfDay = today.atStartOfDay(ZoneOffset.UTC).toInstant();
-        Instant endOfDay = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().minusNanos(1);
+        Instant startOfDay = today
+                .atStartOfDay(kolkataZone)
+                .toInstant();
+
+        Instant endOfDay = today
+                .plusDays(1)
+                .atStartOfDay(kolkataZone)
+                .toInstant()
+                .minusNanos(1);
 
         List<SystemConsumptionStatsDto> stats =  mapper.toDtoList(systemConsumptionStatsRepo.findByCreatedAtBetween(startOfDay,endOfDay));
 
@@ -110,10 +119,18 @@ public class SystemConsumptionStatsSvc {
     }
 
     public TokenStatsFilterResponse filter(TokenStatsFilterRequest filter){
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        ZoneId kolkataZone = ZoneId.of("Asia/Kolkata");
+        LocalDate today = LocalDate.now(kolkataZone);
 
-        Instant startOfDay = today.atStartOfDay(ZoneOffset.UTC).toInstant();
-        Instant endOfDay = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant().minusNanos(1);
+        Instant startOfDay = today
+                .atStartOfDay(kolkataZone)
+                .toInstant();
+
+        Instant endOfDay = today
+                .plusDays(1)
+                .atStartOfDay(kolkataZone)
+                .toInstant()
+                .minusNanos(1);
 
         if (filter.getStartDate()==null) {
             filter.setStartDate(startOfDay);
