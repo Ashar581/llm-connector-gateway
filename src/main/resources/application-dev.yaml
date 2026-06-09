@@ -104,7 +104,7 @@ llm:
           model-name: Qwen_Qwen2.5-VL-7B-Instruct-Q5_K_M.gguf
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
           context: 65536
-          parallelExecution: 4
+          parallelExecution: 1
           active: true
 
         - id: nu-extractor

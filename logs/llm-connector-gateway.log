@@ -1,0 +1,554 @@
+2026-06-09 11:11:42 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-06-09 11:11:42 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 89786 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-06-09 11:11:42 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "local"
+2026-06-09 11:11:45 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09 11:11:45 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 163 ms. Found 3 JPA repository interfaces.
+2026-06-09 11:11:46 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=77de16e0-0820-3a2b-88c0-143238d8c6b0
+2026-06-09 11:11:47 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-06-09 11:11:47 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:11:47 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-09 11:11:47 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-09 11:11:47 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 4587 ms
+2026-06-09 11:11:48 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-06-09 11:11:48 [main] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-09 11:11:48 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-09 11:11:48 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09 11:11:48 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-09 11:11:48 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1ae26c59
+2026-06-09 11:11:48 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-09 11:11:49 [main] WARN  org.hibernate.orm.core - HHH000511: The 12.4.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 13.0.0. Check the community dialects project for available legacy versions.
+2026-06-09 11:11:49 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 12.4
+	Default catalog/schema: ds-llm-connector-gateway/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09 11:11:50 [main] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09 11:11:51 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=true), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation, rag], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=true), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision, classification], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=8192, parallelExecution=2, active=false), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false), qwen-sml=ModelConfig(id=qwen-sml, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=Qwen3.5-4B-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=2, active=false), nu-extractor=ModelConfig(id=nu-extractor, type=[vision, classification], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=NuExtract-2.0-8B-Q4_K_S.gguf, mmProj=mmproj-BF16.gguf, context=16384, parallelExecution=1, active=false)}}
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: nu-extractor
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-sml
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-06-09 11:11:51 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-06-09 11:11:52 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09 11:11:55 [main] WARN  org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'jsonExtractionVisionStrategyV3' defined in file [/Users/macbook/Downloads/llm-connector-gateway/target/classes/com/an/llm/connector/gateway/controller/v3/JsonExtractionVisionStrategyV3.class]: Unsatisfied dependency expressed through constructor parameter 2: No qualifying bean of type 'com.fasterxml.jackson.databind.ObjectMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-06-09 11:11:55 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:11:55 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-06-09 11:11:55 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-06-09 11:12:34 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-06-09 11:12:34 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 89867 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-06-09 11:12:34 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "local"
+2026-06-09 11:12:37 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09 11:12:37 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 157 ms. Found 3 JPA repository interfaces.
+2026-06-09 11:12:38 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=77de16e0-0820-3a2b-88c0-143238d8c6b0
+2026-06-09 11:12:39 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-06-09 11:12:39 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:12:39 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-09 11:12:39 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-09 11:12:39 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 4569 ms
+2026-06-09 11:12:40 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-06-09 11:12:40 [main] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-09 11:12:40 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-09 11:12:40 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09 11:12:40 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-09 11:12:41 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@73973e77
+2026-06-09 11:12:41 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-09 11:12:41 [main] WARN  org.hibernate.orm.core - HHH000511: The 12.4.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 13.0.0. Check the community dialects project for available legacy versions.
+2026-06-09 11:12:41 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 12.4
+	Default catalog/schema: ds-llm-connector-gateway/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09 11:12:43 [main] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09 11:12:43 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation, rag], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision, classification], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=16384, parallelExecution=1, active=false), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false), qwen-sml=ModelConfig(id=qwen-sml, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=Qwen3.5-4B-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=2, active=false), nu-extractor=ModelConfig(id=nu-extractor, type=[vision, classification], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=NuExtract-2.0-8B-Q4_K_S.gguf, mmProj=mmproj-BF16.gguf, context=16384, parallelExecution=1, active=false)}}
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: nu-extractor
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-sml
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-06-09 11:12:44 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-06-09 11:12:44 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09 11:12:47 [main] WARN  org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'jsonExtractionVisionStrategyV3' defined in file [/Users/macbook/Downloads/llm-connector-gateway/target/classes/com/an/llm/connector/gateway/controller/v3/JsonExtractionVisionStrategyV3.class]: Unsatisfied dependency expressed through constructor parameter 2: No qualifying bean of type 'com.fasterxml.jackson.databind.ObjectMapper' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2026-06-09 11:12:47 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:12:47 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-06-09 11:12:47 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-06-09 11:12:47 [main] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2026-06-09 11:12:48 [main] INFO  org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-06-09 11:12:48 [main] ERROR org.springframework.boot.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 2 of constructor in com.an.llm.connector.gateway.controller.v3.JsonExtractionVisionStrategyV3 required a bean of type 'com.fasterxml.jackson.databind.ObjectMapper' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'com.fasterxml.jackson.databind.ObjectMapper' in your configuration.
+
+2026-06-09 11:13:24 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-06-09 11:13:24 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 89925 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-06-09 11:13:24 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "local"
+2026-06-09 11:13:26 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09 11:13:26 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 174 ms. Found 3 JPA repository interfaces.
+2026-06-09 11:13:28 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=77de16e0-0820-3a2b-88c0-143238d8c6b0
+2026-06-09 11:13:29 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-06-09 11:13:29 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:13:29 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-09 11:13:29 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-09 11:13:29 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 5375 ms
+2026-06-09 11:13:30 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-06-09 11:13:30 [main] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-09 11:13:30 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-09 11:13:31 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09 11:13:31 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-09 11:13:31 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5cb64b9c
+2026-06-09 11:13:31 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-09 11:13:31 [main] WARN  org.hibernate.orm.core - HHH000511: The 12.4.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 13.0.0. Check the community dialects project for available legacy versions.
+2026-06-09 11:13:31 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 12.4
+	Default catalog/schema: ds-llm-connector-gateway/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09 11:13:33 [main] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09 11:13:33 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation, rag], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision, classification], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=16384, parallelExecution=1, active=false), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false), qwen-sml=ModelConfig(id=qwen-sml, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=Qwen3.5-4B-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=2, active=false), nu-extractor=ModelConfig(id=nu-extractor, type=[vision, classification], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=NuExtract-2.0-8B-Q4_K_S.gguf, mmProj=mmproj-BF16.gguf, context=16384, parallelExecution=1, active=false)}}
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: nu-extractor
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-sml
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-06-09 11:13:33 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-06-09 11:13:34 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09 11:13:37 [main] WARN  org.springframework.boot.jpa.autoconfigure.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-09 11:13:37 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 9d74db7f-9607-47ee-b3ad-a12d9ffc1d9e
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-09 11:13:37 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-09 11:13:41 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-06-09 11:13:41 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:13:41 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 18.519 seconds (process running for 19.939)
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf will not run since it was disable.
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: NuExtract-2.0-8B-Q4_K_S.gguf will not run since it was disable.
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3.5-4B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-06-09 11:13:41 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-06-09 11:14:11 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 11:14:16 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-09 11:14:16 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-06-09 11:14:16 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 7 ms
+2026-06-09 11:14:19 [http-nio-6969-exec-2] INFO  com.an.llm.connector.gateway.controller.v3.VisionServiceV3 - V3 vision plan selected. taskType=JSON_EXTRACTION, outputFormat=JSON, strategy=CANDIDATE_JSON_MERGE, pages=2/2
+2026-06-09 11:15:05 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-09 11:15:05 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-06-09 11:15:05 [SpringApplicationShutdownHook] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:15:05 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-06-09 11:15:05 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-06-09 11:15:12 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-06-09 11:15:13 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 90005 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-06-09 11:15:13 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "local"
+2026-06-09 11:15:15 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09 11:15:15 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 150 ms. Found 3 JPA repository interfaces.
+2026-06-09 11:15:16 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=77de16e0-0820-3a2b-88c0-143238d8c6b0
+2026-06-09 11:15:17 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-06-09 11:15:17 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:15:17 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-09 11:15:17 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-09 11:15:17 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 4537 ms
+2026-06-09 11:15:18 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-06-09 11:15:18 [main] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-09 11:15:18 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-09 11:15:18 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09 11:15:18 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-09 11:15:18 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1d82d35c
+2026-06-09 11:15:18 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-09 11:15:19 [main] WARN  org.hibernate.orm.core - HHH000511: The 12.4.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 13.0.0. Check the community dialects project for available legacy versions.
+2026-06-09 11:15:19 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 12.4
+	Default catalog/schema: ds-llm-connector-gateway/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09 11:15:20 [main] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09 11:15:20 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation, rag], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision, classification], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=16384, parallelExecution=1, active=false), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false), qwen-sml=ModelConfig(id=qwen-sml, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=Qwen3.5-4B-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=2, active=false), nu-extractor=ModelConfig(id=nu-extractor, type=[vision, classification], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=NuExtract-2.0-8B-Q4_K_S.gguf, mmProj=mmproj-BF16.gguf, context=16384, parallelExecution=1, active=false)}}
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: nu-extractor
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-sml
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-06-09 11:15:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-06-09 11:15:21 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09 11:15:24 [main] WARN  org.springframework.boot.jpa.autoconfigure.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-09 11:15:24 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: f605e120-f923-4caf-a947-80f213a97476
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-09 11:15:24 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-09 11:15:28 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-06-09 11:15:28 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:15:28 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 16.365 seconds (process running for 17.44)
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf will not run since it was disable.
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: NuExtract-2.0-8B-Q4_K_S.gguf will not run since it was disable.
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3.5-4B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-06-09 11:15:28 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-06-09 11:15:57 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-09 11:15:57 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-06-09 11:15:57 [SpringApplicationShutdownHook] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:15:57 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-06-09 11:15:57 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-06-09 11:16:04 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-06-09 11:16:04 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 90031 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-06-09 11:16:04 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "local"
+2026-06-09 11:16:06 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09 11:16:07 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 146 ms. Found 3 JPA repository interfaces.
+2026-06-09 11:16:07 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=77de16e0-0820-3a2b-88c0-143238d8c6b0
+2026-06-09 11:16:09 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-06-09 11:16:09 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:16:09 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-09 11:16:09 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-09 11:16:09 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 4427 ms
+2026-06-09 11:16:09 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-06-09 11:16:10 [main] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-09 11:16:10 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-09 11:16:10 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09 11:16:10 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-09 11:16:10 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1ae26c59
+2026-06-09 11:16:10 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-09 11:16:10 [main] WARN  org.hibernate.orm.core - HHH000511: The 12.4.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 13.0.0. Check the community dialects project for available legacy versions.
+2026-06-09 11:16:10 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 12.4
+	Default catalog/schema: ds-llm-connector-gateway/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09 11:16:12 [main] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09 11:16:13 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation, rag], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision, classification], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=16384, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false), qwen-sml=ModelConfig(id=qwen-sml, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=Qwen3.5-4B-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=2, active=false), nu-extractor=ModelConfig(id=nu-extractor, type=[vision, classification], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=NuExtract-2.0-8B-Q4_K_S.gguf, mmProj=mmproj-BF16.gguf, context=16384, parallelExecution=1, active=false)}}
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: nu-extractor
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-sml
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-06-09 11:16:13 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-06-09 11:16:13 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09 11:16:16 [main] WARN  org.springframework.boot.jpa.autoconfigure.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-09 11:16:17 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: fd01d0d4-fb6e-4001-a6ac-bc3743cfedcb
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-09 11:16:17 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-09 11:16:20 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-06-09 11:16:20 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:16:20 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-06-09 11:16:20 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 16.921 seconds (process running for 18.205)
+2026-06-09 11:16:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-06-09 11:16:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-06-09 11:16:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-06-09 11:16:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-06-09 11:16:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf. Listening on port: 8084. Adjusted context: 16384. Allowed parallel: 1
+2026-06-09 11:16:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-06-09 11:16:47 [http-nio-6969-exec-2] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-09 11:16:47 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-06-09 11:16:47 [http-nio-6969-exec-2] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 7 ms
+2026-06-09 11:16:49 [http-nio-6969-exec-2] INFO  com.an.llm.connector.gateway.controller.v3.VisionServiceV3 - V3 vision plan selected. taskType=JSON_EXTRACTION, outputFormat=JSON, strategy=CANDIDATE_JSON_MERGE, pages=2/2
+2026-06-09 11:16:50 [http-nio-6969-exec-2] WARN  org.springframework.ai.openai.OpenAiChatModel - Removing streamOptions from the request as it is not a streaming request!
+2026-06-09 11:16:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: NuExtract-2.0-8B-Q4_K_S.gguf will not run since it was disable.
+2026-06-09 11:16:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3.5-4B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 11:16:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-06-09 11:16:50 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-06-09 11:17:20 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 11:21:18 [http-nio-6969-exec-3] INFO  com.an.llm.connector.gateway.service.ai.VisionServiceV2 - Selecting single vision mode.
+2026-06-09 11:21:18 [http-nio-6969-exec-3] WARN  org.springframework.ai.openai.OpenAiChatModel - Removing streamOptions from the request as it is not a streaming request!
+2026-06-09 11:24:40 [task-1] INFO  com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc - Token Consumption Stats: SystemConsumptionStatsEntity(id=null, modelName=QWEN_VL, agentName=null, type=VISION, source=FREE, promptTokens=8793, completionTokens=589, totalTokens=9382, responseTimeInMs=201308, createdAt=null, server=local)
+2026-06-09 11:29:59 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-09 11:29:59 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-06-09 11:29:59 [SpringApplicationShutdownHook] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:29:59 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-06-09 11:29:59 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-06-09 11:30:06 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-06-09 11:30:06 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 90451 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-06-09 11:30:06 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "local"
+2026-06-09 11:30:09 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09 11:30:09 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 152 ms. Found 3 JPA repository interfaces.
+2026-06-09 11:30:10 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=77de16e0-0820-3a2b-88c0-143238d8c6b0
+2026-06-09 11:30:11 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-06-09 11:30:11 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:30:11 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-09 11:30:11 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-09 11:30:11 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 4525 ms
+2026-06-09 11:30:12 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-06-09 11:30:12 [main] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-09 11:30:12 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-09 11:30:12 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09 11:30:12 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-09 11:30:13 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@73973e77
+2026-06-09 11:30:13 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-09 11:30:13 [main] WARN  org.hibernate.orm.core - HHH000511: The 12.4.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 13.0.0. Check the community dialects project for available legacy versions.
+2026-06-09 11:30:13 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 12.4
+	Default catalog/schema: ds-llm-connector-gateway/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09 11:30:14 [main] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09 11:30:15 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation, rag], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision, classification], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=16384, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false), qwen-sml=ModelConfig(id=qwen-sml, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=Qwen3.5-4B-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=2, active=false), nu-extractor=ModelConfig(id=nu-extractor, type=[vision, classification], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=NuExtract-2.0-8B-Q4_K_S.gguf, mmProj=mmproj-BF16.gguf, context=16384, parallelExecution=1, active=false)}}
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: nu-extractor
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-sml
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-06-09 11:30:15 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-06-09 11:30:15 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09 11:30:19 [main] WARN  org.springframework.boot.jpa.autoconfigure.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-09 11:30:19 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 008861d8-a684-4808-986b-0b268ce0a2db
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-09 11:30:19 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-09 11:30:22 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-06-09 11:30:22 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:30:22 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-06-09 11:30:22 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 16.337 seconds (process running for 17.466)
+2026-06-09 11:30:22 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-06-09 11:30:22 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-06-09 11:30:22 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-06-09 11:30:22 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-06-09 11:30:22 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf. Listening on port: 8084. Adjusted context: 16384. Allowed parallel: 1
+2026-06-09 11:30:22 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-06-09 11:30:50 [http-nio-6969-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-09 11:30:50 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-06-09 11:30:50 [http-nio-6969-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 6 ms
+2026-06-09 11:30:52 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: NuExtract-2.0-8B-Q4_K_S.gguf will not run since it was disable.
+2026-06-09 11:30:52 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3.5-4B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 11:30:52 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-06-09 11:30:52 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-06-09 11:30:54 [http-nio-6969-exec-1] INFO  com.an.llm.connector.gateway.controller.v3.VisionServiceV3 - V3 vision plan selected. taskType=JSON_EXTRACTION, outputFormat=JSON, strategy=CANDIDATE_JSON_MERGE, pages=2/2
+2026-06-09 11:30:54 [http-nio-6969-exec-1] WARN  org.springframework.ai.openai.OpenAiChatModel - Removing streamOptions from the request as it is not a streaming request!
+2026-06-09 11:31:22 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 11:34:21 [http-nio-6969-exec-1] INFO  com.an.llm.connector.gateway.controller.v3.JsonExtractionVisionStrategyV3 - Chunk: ```json
+{
+  "fields": [
+    {
+      "path": "$.poDate",
+      "value": "25.07.2025",
+      "confidence": "high",
+      "page": 1,
+      "evidence": "PO Date 25.07.2025"
+    },
+    {
+      "path": "$.poNumber",
+      "value": "5002392585",
+      "confidence": "high",
+      "page": 1,
+      "evidence": "PO # 5002392585"
+    },
+    {
+      "path": "$.deliveryDt",
+      "value": "24.08.2025",
+      "confidence": "high",
+      "page": 1,
+      "evidence": "Delivery Dt. 24.08.2025"
+    },
+    {
+      "path": "$.currency",
+      "value": "Rs",
+      "confidence": "high",
+      "page": 1,
+      "evidence": "Rs"
+    },
+    {
+      "path": "$.ourCompanyAddress",
+      "value": "VILLA",
+      "confidence": "high",
+      "page": 1,
+      "evidence": "VILLA"
+    },
+    {
+      "path": "$.items",
+      "page": 1,
+      "confidence": "high",
+      "values": {
+        "customerItemCode": "1",
+        "itemName": "HOME SQU BUCKET 19",
+        "ean": "8904098915777",
+        "articleNumber": "PL JOYO BETTER",
+        "orderQty": "18",
+        "totalQty": "112",
+        "basicRate": "168.78",
+        "baseCost": "168.78",
+        "scheduleDate": "24.08.2025",
+        "poDate": "25.07.2025",
+        "poNumber": "5002392585",
+        "soldToName": "Avenue Supermarts Ltd.",
+        "soldToGST": "06AACCA8432H2ZT",
+        "soldToAddress": "ASL WM DC Graas Kulana Haryana 27/1,2,3, 26/1/1,3/1/2 Village Kulana, NH 352, Jhajjar 124108",
+        "shipToName": "JOYO PLASTICS",
+        "shipToGST": "24AAAFJ0286B1ZZ",
+        "shipToAddress": "VILLA",
+        "currency": "Rs",
+        "ourCompanyAddress": "VILLA"
+      },
+      "evidence": "Line item details"
+    }
+  ],
+  "arrayItems": [],
+  "warnings": []
+}
+```
+2026-06-09 11:37:10 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-09 11:37:10 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-06-09 11:37:10 [SpringApplicationShutdownHook] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:37:10 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-06-09 11:37:10 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-06-09 11:37:15 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-06-09 11:37:15 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 22.0.1 with PID 90845 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-06-09 11:37:15 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "local"
+2026-06-09 11:37:17 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-09 11:37:17 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 182 ms. Found 3 JPA repository interfaces.
+2026-06-09 11:37:18 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=be9acc9c-6e65-3f82-9f06-49db89da4d05
+2026-06-09 11:37:20 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-06-09 11:37:20 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:37:20 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-06-09 11:37:20 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-06-09 11:37:20 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 4812 ms
+2026-06-09 11:37:20 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-06-09 11:37:20 [main] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-09 11:37:21 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-06-09 11:37:21 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-09 11:37:21 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-06-09 11:37:21 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@c10f7a8
+2026-06-09 11:37:21 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-06-09 11:37:21 [main] WARN  org.hibernate.orm.core - HHH000511: The 12.4.0 version for [org.hibernate.dialect.PostgreSQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 13.0.0. Check the community dialects project for available legacy versions.
+2026-06-09 11:37:21 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://122.185.239.46:5432/ds-llm-connector-gateway?useSSL=false&stringtype=unspecified]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 12.4
+	Default catalog/schema: ds-llm-connector-gateway/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-09 11:37:23 [main] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-09 11:37:23 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16000, parallelExecution=4, active=false), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation, rag], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=4, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision, classification], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=16384, parallelExecution=1, active=true), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, active=false), qwen-sml=ModelConfig(id=qwen-sml, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=Qwen3.5-4B-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=2, active=false), nu-extractor=ModelConfig(id=nu-extractor, type=[vision, classification], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=NuExtract-2.0-8B-Q4_K_S.gguf, mmProj=mmproj-BF16.gguf, context=16384, parallelExecution=1, active=false)}}
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: nu-extractor
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-sml
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-06-09 11:37:24 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-06-09 11:37:24 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-09 11:37:27 [main] WARN  org.springframework.boot.jpa.autoconfigure.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-09 11:37:27 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 67f835ef-f186-4cc6-8cf0-70cb9781abaf
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-09 11:37:27 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-09 11:37:30 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-06-09 11:37:30 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-06-09 11:37:30 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-06-09 11:37:30 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 16.801 seconds (process running for 18.183)
+2026-06-09 11:37:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-06-09 11:37:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf will not run since it was disable.
+2026-06-09 11:37:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-06-09 11:37:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-06-09 11:37:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf. Listening on port: 8084. Adjusted context: 16384. Allowed parallel: 1
+2026-06-09 11:37:30 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 8084
+2026-06-09 11:38:01 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: NuExtract-2.0-8B-Q4_K_S.gguf will not run since it was disable.
+2026-06-09 11:38:01 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3.5-4B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 11:38:01 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 4
+2026-06-09 11:38:01 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-06-09 11:38:31 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3-Embedding-8B-Q4_K_M.gguf will not run since it was disable.
+2026-06-09 12:05:24 [HikariPool-1:housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=5m2s425ms).
+2026-06-09 12:33:12 [HikariPool-1:housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=27m48s579ms).
+2026-06-09 12:43:09 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-09 12:43:09 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-06-09 12:43:09 [SpringApplicationShutdownHook] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-09 12:43:09 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-06-09 12:43:09 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
