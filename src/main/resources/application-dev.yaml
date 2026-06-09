@@ -121,6 +121,20 @@ llm:
           parallelExecution: 1
           active: false
 
+        - id: vision-v3
+          type:
+            - vision
+            - classification
+          base-url: http://localhost:7076
+          api-path: /v1/chat/completions
+          api-key: ashar581
+          port: 7076
+          model-name: Qwen3VL-8B-Instruct-Q4_K_M.gguf
+          mm-proj : mmproj-Qwen3VL-8B-Instruct-F16.gguf
+          context: 8192
+          parallelExecution: 2
+          active: false
+
         - id: qwen-sml
           type:
             - chat
