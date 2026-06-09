@@ -9,6 +9,7 @@ public enum LlmModels {
     BONSAI("bonsai"),
     QWEN_CODE("qwen-coder"),
     QWEN_VL("qwen-vl"),
+    VISION_V3("vision-v3"),
     NU_EXTRACTOR("nu-extractor"),
     BGE_LARGE_EMBED("bge-large-embed"),
     QWEN3_EMBED("qwen-3-embed"),
