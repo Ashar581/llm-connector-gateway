@@ -105,7 +105,7 @@ llm:
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
           context: 80000
           parallelExecution: 4
-          active: true
+          active: false
 
         - id: nu-extractor
           type:
@@ -120,6 +120,20 @@ llm:
           context: 16384
           parallelExecution: 1
           active: false
+
+        - id: vision-v3
+          type:
+            - vision
+            - classification
+          base-url: http://localhost:7076
+          api-path: /v1/chat/completions
+          api-key: ashar581
+          port: 7076
+          model-name: Qwen3VL-8B-Instruct-Q4_K_M.gguf
+          mm-proj : mmproj-Qwen3VL-8B-Instruct-F16.gguf
+          context: 80000
+          parallelExecution: 4
+          active: true
 
         - id: qwen-sml
           type:
