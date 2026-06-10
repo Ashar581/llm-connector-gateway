@@ -5,6 +5,7 @@ import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.VisionInternalStatsAndResponse;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
+import com.an.llm.connector.gateway.util.PageChunker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -20,7 +21,7 @@ public class VisionAggregationService {
     private final AiBeanFactory aiBeanFactory;
     private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
 
-    public VisionInternalStatsAndResponse aggregate(String originalPrompt, List<String> chunkResponses, LlmConnectorRequest request) {
+    public VisionInternalStatsAndResponse aggregate(String originalPrompt, List<String> chunkResponses, int totalPages,LlmConnectorRequest request) {
         StringBuilder aggregationPrompt = new StringBuilder();
 
         aggregationPrompt.append("""
@@ -35,36 +36,61 @@ public class VisionAggregationService {
         aggregationPrompt.append("\n\n");
 
         for (int i = 0; i < chunkResponses.size(); i++) {
-            aggregationPrompt.append("\nCHUNK ").append(i + 1).append(":\n");
+            int startPage = (i * PageChunker.PAGES_PER_CHUNK) + 1;
+            int endPage = Math.min(startPage + PageChunker.PAGES_PER_CHUNK - 1, totalPages);
+
+            aggregationPrompt.append("\nCHUNK ").append(i + 1)
+                    .append(" | PAGES ").append(startPage).append("-").append(endPage).append(":\n");
             aggregationPrompt.append(chunkResponses.get(i));
             aggregationPrompt.append("\n");
         }
 
         aggregationPrompt.append("""
-        You are consolidating responses generated from different page groups of the SAME document.
+            You are consolidating candidate responses generated from different page groups of the SAME document.
 
-        Rules:
+            Important:
+            - Chunk responses may contain mistakes.
+            - Treat every chunk response as a candidate, not as guaranteed truth.
+            - Do not invent values.
+            - Do not infer missing values from document patterns.
+            - Use only information present in the chunk responses.
+            - Preserve the output format requested by the original instruction.
+            - Return only the final answer.
 
-        - Preserve the format requested by the original instruction.
-        - Do not change the output format.
-        - Do not introduce a new format.
-        - Remove duplicate information.
-        - Preserve all useful information.
-        - Never replace a non-null value with null.
-        - If multiple values exist for the same field, prefer the most complete non-null value.
-        - Merge information from all chunk responses.
-        - Do not lose information present in any chunk.
-        - Return a single consolidated response that follows the original instruction exactly.
+            Conflict rules:
+            - If the same field appears with the same value in multiple chunks, prefer that value.
+            - If the same field has conflicting values, prefer the value with clearer surrounding context.
+            - For document-level header fields, prefer earlier pages unless a later chunk clearly corrects it.
+            - For totals, taxes, grand totals, and final amounts, prefer later summary/total pages.
+            - For line items, append rows from all chunks and remove exact duplicates.
+            - Never merge two different line items into one unless they are clearly identical.
+            - Never replace a concrete value with null.
+            - If a field is missing from all chunks, use null only if the requested format requires the field.
 
-        Examples:
+            JSON-specific rules:
+            - If the original instruction requests JSON, return valid JSON only.
+            - Do not include markdown fences.
+            - Do not add fields that are not requested by the original instruction.
+            - Preserve the requested JSON structure.
+            - Use null for unavailable scalar fields.
+            - Use [] for unavailable arrays.
+            - For arrays such as line items, include all non-duplicate items from all chunks.
+            - Preserve numbers, dates, IDs, PO numbers, invoice numbers, GST/VAT numbers exactly as written.
+            - Do not normalize, round, or reformat identifiers.
 
-        - If the original instruction requests JSON, return JSON.
-        - If the original instruction requests a summary, return a summary.
-        - If the original instruction requests plain text, return plain text.
-        - If the original instruction requests a list, return a list.
+            Summary/plain-text rules:
+            - If the original instruction requests a summary or paragraph, synthesize the chunk responses into one coherent answer.
+            - Do not mention internal chunk numbers unless useful to explain uncertainty.
+            - If important information conflicts, state the uncertainty briefly.
 
-        Return only the final consolidated result.
-        """);
+            Final validation before answering:
+            - Check that the answer follows the original instruction.
+            - Check that JSON is valid if JSON was requested.
+            - Check that no unsupported value was introduced.
+            - Check that no line items from chunks were silently dropped.
+
+            Return only the final consolidated result.
+            """);
 
         ChatClient chatClient = aiBeanFactory.getChatClient(
                 request.getSource(),

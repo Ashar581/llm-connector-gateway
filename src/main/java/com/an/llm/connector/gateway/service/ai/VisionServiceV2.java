@@ -54,7 +54,7 @@ public class VisionServiceV2 {
             }
 
             VisionInternalStatsAndResponse visionInternalStatsAndResponseForAggregate = 
-                    visionAggregationService.aggregate(instructions, chunkResponses, request);
+                    visionAggregationService.aggregate(instructions, chunkResponses, pages.size(),request);
 
             //code block to populate the final token stats
             long completionTimeMs = System.currentTimeMillis() - start;
