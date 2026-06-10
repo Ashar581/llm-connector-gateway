@@ -203,6 +203,14 @@ public class AgentConfigurationService {
             entity.setDescription(updateRequested.getDescription());
         }
 
+        if (updateRequested.getClassificationMode() != null) {
+            entity.setClassificationMode(updateRequested.getClassificationMode());
+        }
+
+        if (updateRequested.getDocumentTypes() != null && !updateRequested.getDocumentTypes().isEmpty()) {
+            entity.setDocumentTypes(updateRequested.getDocumentTypes());
+        }
+
         verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue(), entity.getMaxTokens());
         verifyAdditionalConfigurations(entity.getClassificationMode(),entity.getType().getValue());
 
