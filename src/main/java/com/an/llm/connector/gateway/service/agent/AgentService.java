@@ -1,6 +1,5 @@
 package com.an.llm.connector.gateway.service.agent;
 
-import com.an.llm.connector.gateway.controller.v3.VisionServiceV3;
 import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.exception.NotAllowedException;
@@ -36,7 +35,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class AgentService {
     private final AgentConfigurationRepository agentConfigurationRepository;
     private final VisionServiceV2 visionServiceV2;
-    private final VisionServiceV3 visionServiceV3;
     private final ClassificationOrchestrator classificationOrchestrator;
     private final EmbeddingServiceV2 embeddingServiceV2;
     private final AiBeanFactory aiBeanFactory;
@@ -184,8 +182,7 @@ public class AgentService {
         //setting agent name for stats
         request.setAgentName(aiRequest.getAgent());
 
-//        return visionServiceV2.visionPrompt(request);
-        return visionServiceV3.visionPrompt(request);
+        return visionServiceV2.visionPrompt(request);
     }
 
     private ClassificationResponse generateClassificationResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
