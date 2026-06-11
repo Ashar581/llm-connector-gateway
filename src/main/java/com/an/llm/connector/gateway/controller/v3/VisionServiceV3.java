@@ -64,12 +64,10 @@ public class VisionServiceV3 {
             for (int pageIndex = 0; pageIndex < pages.size(); pageIndex++) {
                 int primaryPage = pageIndex + 1;
 
-                byte[] previousPage = pageIndex > 0 ? pages.get(pageIndex - 1) : null;
                 byte[] currentPage = pages.get(pageIndex);
 
                 VisionInternalStatsAndResponse chunkResponse =
-                        chunkingVisionServiceV3.executePrimaryPageWithPreviousContext(
-                                previousPage,
+                        chunkingVisionServiceV3.executePrimaryPageOnly(
                                 currentPage,
                                 primaryPage,
                                 instructions,

@@ -94,6 +94,74 @@ public class ChunkingVisionServiceV3 {
         return new VisionInternalStatsAndResponse(serializedResponse, stats);
     }
 
+    public VisionInternalStatsAndResponse executePrimaryPageOnly(
+            byte[] primaryPage,
+            int primaryPageNumber,
+            String instructions,
+            LlmConnectorRequest request
+    ) {
+        List<Media> mediaList = List.of(toPngMedia(primaryPage));
+
+        UserMessage message = UserMessage.builder()
+                .text(buildPrimaryPageOnlyPrompt(request, primaryPageNumber))
+                .media(mediaList)
+                .build();
+
+        ChatClient chatClient = aiBeanFactory.getChatClient(
+                request.getSource(),
+                request.getType(),
+                request.getModel()
+        );
+
+        ChatResponse response = chatClient.prompt(new Prompt(message))
+                .system(buildSystemPrompt(instructions))
+                .options(buildChatOptions(request))
+                .call()
+                .chatResponse();
+
+        Objects.requireNonNull(response, "ChatResponse cannot be null");
+
+        String serializedResponse = Objects.requireNonNull(response.getResult())
+                .getOutput()
+                .getText();
+
+        SystemConsumptionStatsEntity stats = null;
+
+        try {
+            stats = systemConsumptionStatsSvc.generateStatsEntityWithoutPersisting(response, request);
+        } catch (Exception ignored) {}
+
+        return new VisionInternalStatsAndResponse(serializedResponse, stats);
+    }
+
+    private String buildPrimaryPageOnlyPrompt(
+            LlmConnectorRequest request,
+            int primaryPageNumber
+    ) {
+        String userQuery = request.getQuery() != null && !request.getQuery().isBlank()
+                ? request.getQuery()
+                : "Follow the system instructions.";
+
+        return """
+            %s
+
+            You are processing PAGE %d only.
+
+            Critical extraction rules:
+            - Extract only information visible on this page.
+            - Do not assume values from previous or next pages.
+            - For purchase order line items, preserve the Sno/serial number if visible.
+            - Do not confuse Case, Lot, Boxes, Qty, Rate, MRP, and Total Value.
+            - Ordered quantity must come from the Qty column, not Case/Lot/Boxes.
+            - Basic rate must come from B.Price Rs.
+            - Basic cost must come from T.Value Rs.
+            - HSN must come from the HSN Code shown inside the item description.
+            - If a table row is incomplete, include only visible values and do not guess.
+            - If JSON was requested, return JSON only.
+            """.formatted(userQuery, primaryPageNumber);
+    }
+
+
     private Media toPngMedia(byte[] bytes) {
         return Media.builder()
                 .mimeType(MediaType.IMAGE_PNG)
