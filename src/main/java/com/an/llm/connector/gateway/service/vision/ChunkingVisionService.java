@@ -61,6 +61,8 @@ public class ChunkingVisionService {
         assert response != null;
         String serializedResponse = Objects.requireNonNull(response.getResult()).getOutput().getText();
 
+        log.info("Chunk: {}",serializedResponse);
+
         //block for retaining the token consumption stats.
         SystemConsumptionStatsEntity stats = null;
         try {
