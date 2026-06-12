@@ -21,7 +21,7 @@ public class VisionAggregationService {
     private final AiBeanFactory aiBeanFactory;
     private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
 
-    public VisionInternalStatsAndResponse aggregate(String originalPrompt, List<String> chunkResponses, int totalPages,LlmConnectorRequest request) {
+    public VisionInternalStatsAndResponse aggregate(String originalPrompt, List<String> chunkResponses, int totalPages, LlmConnectorRequest request) {
         StringBuilder aggregationPrompt = new StringBuilder();
 
         aggregationPrompt.append("""
@@ -59,13 +59,35 @@ public class VisionAggregationService {
 
             Conflict rules:
             - If the same field appears with the same value in multiple chunks, prefer that value.
-            - If the same field has conflicting values, prefer the value with clearer surrounding context.
-            - For document-level header fields, prefer earlier pages unless a later chunk clearly corrects it.
-            - For totals, taxes, grand totals, and final amounts, prefer later summary/total pages.
+
+            - MAJORITY VOTE RULE:
+              If 2 or more chunks agree on the same value for a field, use that value
+              regardless of which page it came from. Page order does NOT determine
+              correctness for header fields such as buyer name, seller name, GST numbers,
+              PO number, dates, and addresses.
+              Example: If chunk 1 says buyerName = "ABC Corp" but chunks 2 and 3 say
+              buyerName = "XYZ Ltd", use "XYZ Ltd" because the majority agrees on it.
+
+            - If all chunks have different values with no majority, prefer the value
+              that appears alongside the most supporting context, such as a GST number,
+              address, or an explicit label like "Bill To", "Buyer", or "Purchaser"
+              near the name.
+
+            - For document-level header fields (buyer, seller, GST numbers, PO number,
+              dates, addresses), DO NOT automatically prefer earlier pages. The first
+              page often displays the supplier or vendor address block prominently at
+              the top-left, which can cause confusion between buyer and supplier roles.
+              A later page that shows the same field with a clear label is equally or
+              more trustworthy.
+
+            - For totals, taxes, grand totals, and final amounts, prefer later
+              summary/total pages.
+
             - For line items, append rows from all chunks and remove exact duplicates.
             - Never merge two different line items into one unless they are clearly identical.
             - Never replace a concrete value with null.
-            - If a field is missing from all chunks, use null only if the requested format requires the field.
+            - If a field is missing from all chunks, use null only if the requested
+              format requires the field.
 
             JSON-specific rules:
             - If the original instruction requests JSON, return valid JSON only.
@@ -88,6 +110,9 @@ public class VisionAggregationService {
             - Check that JSON is valid if JSON was requested.
             - Check that no unsupported value was introduced.
             - Check that no line items from chunks were silently dropped.
+            - For buyer and seller fields specifically, verify that the majority vote
+              rule was applied and that the top-left company from page 1 was not
+              blindly assumed to be the buyer without label evidence.
 
             Return only the final consolidated result.
             """);
@@ -98,22 +123,20 @@ public class VisionAggregationService {
                 request.getModel()
         );
 
-        ChatResponse response =  chatClient.prompt()
+        ChatResponse response = chatClient.prompt()
                 .user(aggregationPrompt.toString())
                 .options(ChatOptions.builder().temperature(0D).build())
                 .call()
                 .chatResponse();
 
-        //code block for computing the tokens stats.
         assert response != null;
         String serializedResponse = Objects.requireNonNull(response.getResult()).getOutput().getText();
 
-        //block for retaining the token consumption stats.
         SystemConsumptionStatsEntity stats = null;
         try {
             stats = systemConsumptionStatsSvc.generateStatsEntityWithoutPersisting(response, request);
         } catch (Exception ignore) {}
 
-        return new VisionInternalStatsAndResponse(serializedResponse,stats);
+        return new VisionInternalStatsAndResponse(serializedResponse, stats);
     }
 }
