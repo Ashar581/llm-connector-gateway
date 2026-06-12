@@ -9,8 +9,8 @@ public class ProcessBuilderUtils {
                 "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
                         "-c %s -np %s -t 8 -cb -ngl 999 " +
-                        "--batch-size 3072 " +
-                        "--ubatch-size 768 " +
+                        "--batch-size 1536 " +
+                        "--ubatch-size 512 " +
                         "--cache-type-k q8_0 " +
                         "--cache-type-v q8_0 " +
                         "--flash-attn on " +
@@ -24,8 +24,8 @@ public class ProcessBuilderUtils {
                 "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
                         "-c %s -np %s -t 8 -cb -ngl 999 " +
-                        "--batch-size 3072 " +
-                        "--ubatch-size 768 " +
+                        "--batch-size 1536 " +
+                        "--ubatch-size 512 " +
                         "--cache-type-k q8_0 " +
                         "--cache-type-v q8_0 " +
                         "--flash-attn auto " +
@@ -43,8 +43,8 @@ public class ProcessBuilderUtils {
                         "-c %s -np %s -t 8 -cb -ngl 999 " +
                         "--cache-type-k q8_0 " +
                         "--cache-type-v q8_0 " +
-                        "--batch-size 3072 " +
-                        "--ubatch-size 768 " +
+                        "--batch-size 1536 " +
+                        "--ubatch-size 512 " +
                         "--flash-attn auto " +
                         "--cache-ram 0 " +
                         "--host 0.0.0.0 --port %s",
