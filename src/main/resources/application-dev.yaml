@@ -60,7 +60,7 @@ llm:
           model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
           mm-proj :
           context: 20480
-          parallelExecution: 4
+          parallelExecution: 5
           active: true
 
         - id: bonsai
