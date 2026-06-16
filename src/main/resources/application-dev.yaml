@@ -59,8 +59,8 @@ llm:
           port: 7070
           model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
           mm-proj :
-          context: 32768
-          parallelExecution: 8
+          context: 20480
+          parallelExecution: 4
           active: true
 
         - id: bonsai
