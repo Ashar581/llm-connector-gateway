@@ -179,6 +179,7 @@ public class AgentService {
         request.setTemperature(agentConfiguration.getTemperature());
         request.setMaxTokens(agentConfiguration.getMaxTokens());
         request.setInstructions(agentConfiguration.getInstructions());
+        request.setPageChunk(agentConfiguration.getPageChunk());
         //setting agent name for stats
         request.setAgentName(aiRequest.getAgent());
 
