@@ -133,8 +133,8 @@ llm:
           port: 7076
           model-name: Qwen3VL-8B-Instruct-Q4_K_M.gguf
           mm-proj : mmproj-Qwen3VL-8B-Instruct-F16.gguf
-          context: 122880
-          parallelExecution: 8
+          context: 92160
+          parallelExecution: 6
           active: true
 
         - id: qwen-sml
