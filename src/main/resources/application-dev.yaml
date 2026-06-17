@@ -134,7 +134,7 @@ llm:
           model-name: Qwen3VL-8B-Instruct-Q4_K_M.gguf
           mm-proj : mmproj-Qwen3VL-8B-Instruct-F16.gguf
           context: 76800
-          parallelExecution: 5
+          parallelExecution: 4
           active: true
 
         - id: qwen-sml
