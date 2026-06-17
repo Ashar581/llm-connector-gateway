@@ -103,8 +103,8 @@ llm:
           port: 7074
           model-name: Qwen_Qwen2.5-VL-7B-Instruct-Q5_K_M.gguf
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
-          context: 80000
-          parallelExecution: 4
+          context: 160000
+          parallelExecution: 8
           active: false
 
         - id: nu-extractor
@@ -131,8 +131,8 @@ llm:
           port: 7076
           model-name: Qwen3VL-8B-Instruct-Q4_K_M.gguf
           mm-proj : mmproj-Qwen3VL-8B-Instruct-F16.gguf
-          context: 80000
-          parallelExecution: 4
+          context: 160000
+          parallelExecution: 8
           active: true
 
         - id: qwen-sml
