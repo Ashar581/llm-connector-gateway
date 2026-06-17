@@ -15,7 +15,6 @@ import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.filter.TokenStatsFilterRequest;
 import com.an.llm.connector.gateway.model.filter.TokenStatsFilterResponse;
 import com.an.llm.connector.gateway.repository.SystemConsumptionStatsRepo;
-import com.an.llm.connector.gateway.repository.filter.SystemConsumptionStatsSpecification;
 import com.an.llm.connector.gateway.service.agent.AgentConfigurationService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +23,11 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.embedding.EmbeddingResponse;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Slf4j
@@ -64,6 +63,7 @@ public class SystemConsumptionStatsSvc {
         }
     }
 
+    @Transactional(readOnly = true)
     public TokenStatsFilterResponse getStatsForTheDay(){
         ZoneId kolkataZone = ZoneId.of("Asia/Kolkata");
         LocalDate today = LocalDate.now(kolkataZone);
@@ -118,6 +118,7 @@ public class SystemConsumptionStatsSvc {
         return filteredResponse;
     }
 
+    @Transactional(readOnly = true)
     public TokenStatsFilterResponse filter(TokenStatsFilterRequest filter){
         ZoneId kolkataZone = ZoneId.of("Asia/Kolkata");
         LocalDate today = LocalDate.now(kolkataZone);
@@ -140,7 +141,13 @@ public class SystemConsumptionStatsSvc {
         }
 
         List<SystemConsumptionStatsDto> stats = mapper.toDtoList(
-                systemConsumptionStatsRepo.findAll(SystemConsumptionStatsSpecification.filter(filter))
+                systemConsumptionStatsRepo.filter(
+                        filter.getAgentName() ,
+                        ((filter.getModelName() != null && !filter.getModelName().isBlank()) ? LlmModels.getFromValue(filter.getModelName()).name() :  filter.getModelName()),
+                        filter.getServer(),
+                        filter.getStartDate(),
+                        filter.getEndDate()
+                )
         );
 
         int totalTokens = 0;

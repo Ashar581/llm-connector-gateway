@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class SystemConsumptionStatsSpecification {
 
     public static Specification<@NonNull SystemConsumptionStatsEntity> filter(TokenStatsFilterRequest filter) {
