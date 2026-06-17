@@ -1,4 +1,6 @@
 server:
+  tomcat:
+    connection-timeout: 10m
   port: 6969
   threads:
     virtual:
