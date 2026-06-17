@@ -66,6 +66,7 @@ public class AgentConfigurationEntity implements TimeUtils {
     private ClassificationMode classificationMode;
     @JdbcTypeCode(SqlTypes.JSON)
     private List<DocumentTypeDefinition> documentTypes;
+    private Integer pageChunk;
 
     private String createdBy;
 
