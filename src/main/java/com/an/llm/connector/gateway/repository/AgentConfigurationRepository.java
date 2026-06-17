@@ -41,6 +41,7 @@ public interface AgentConfigurationRepository extends JpaRepository<@NonNull Age
     FROM AgentConfigurationEntity a
     LEFT JOIN AgentFileEntity f
         ON f.agentConfiguration = a
+    ORDER BY a.id DESC
     """)
     List<AgentConfigWithFilesView> fetchAllAgentsWithFiles();
 }
