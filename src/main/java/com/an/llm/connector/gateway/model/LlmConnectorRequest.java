@@ -33,4 +33,5 @@ public class LlmConnectorRequest {
     private List<ChatHistory> chatHistory;
     //just added it for internal usages. Not exposable.
     private String agentName;
+    private Integer pageChunk;
 }

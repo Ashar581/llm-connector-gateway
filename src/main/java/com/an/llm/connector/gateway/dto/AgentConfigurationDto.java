@@ -47,6 +47,7 @@ public class AgentConfigurationDto {
     private Boolean isPrivate;
     private ClassificationMode classificationMode;
     private List<DocumentTypeDefinition> documentTypes;
+    private Integer pageChunk;
     private String createdBy;
     private Instant createdAt;
     private String updatedBy;

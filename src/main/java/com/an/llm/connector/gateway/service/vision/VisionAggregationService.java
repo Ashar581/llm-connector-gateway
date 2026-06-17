@@ -36,8 +36,8 @@ public class VisionAggregationService {
         aggregationPrompt.append("\n\n");
 
         for (int i = 0; i < chunkResponses.size(); i++) {
-            int startPage = (i * PageChunker.PAGES_PER_CHUNK) + 1;
-            int endPage = Math.min(startPage + PageChunker.PAGES_PER_CHUNK - 1, totalPages);
+            int startPage = (i * (request.getPageChunk() == null ? PageChunker.DEFAULT_PAGES_PER_CHUNK : request.getPageChunk())) + 1;
+            int endPage = Math.min(startPage + (request.getPageChunk() == null ? PageChunker.DEFAULT_PAGES_PER_CHUNK : request.getPageChunk()) - 1, totalPages);
 
             aggregationPrompt.append("\nCHUNK ").append(i + 1)
                     .append(" | PAGES ").append(startPage).append("-").append(endPage).append(":\n");

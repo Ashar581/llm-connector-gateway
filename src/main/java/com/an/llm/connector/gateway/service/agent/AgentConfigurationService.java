@@ -64,6 +64,9 @@ public class AgentConfigurationService {
             dto.setClassificationMode(null);
         }
 
+        //page chunk can be max of 4
+        if (dto.getPageChunk() != null && (dto.getPageChunk()>4 || dto.getPageChunk()<1)) throw new NotAllowedException("Page chunk can only be a between 1 to 4.");
+
         AgentConfigurationEntity entity = agentConfigurationMapper.toEntity(dto);
 
         if (files != null && !files.isEmpty()) {
@@ -144,6 +147,7 @@ public class AgentConfigurationService {
                         dto.setUniqueId(row.getUniqueId());
                         dto.setClassificationMode(row.getClassificationMode());
                         dto.setDocumentTypes(row.getDocumentTypes());
+                        dto.setPageChunk(row.getPageChunk());
                         dto.setCreatedAt(row.getCreatedAt());
                         dto.setCreatedBy(row.getCreatedBy());
                         dto.setUpdatedBy(row.getUpdatedBy());
@@ -210,6 +214,11 @@ public class AgentConfigurationService {
         if (updateRequested.getDocumentTypes() != null && !updateRequested.getDocumentTypes().isEmpty()) {
             entity.setDocumentTypes(updateRequested.getDocumentTypes());
         }
+
+        //simple page chunk verification.
+        if (updateRequested.getPageChunk() != null && (updateRequested.getPageChunk()>4 || updateRequested.getPageChunk()<1)) throw new NotAllowedException("Page chunk can only be a between 1 to 4.");
+
+        entity.setPageChunk(updateRequested.getPageChunk());
 
         verifyLlmAccessibility(entity.getSource().getValue(),entity.getModel().getValue(),entity.getType().getValue(), entity.getMaxTokens());
         verifyAdditionalConfigurations(entity.getClassificationMode(),entity.getType().getValue());

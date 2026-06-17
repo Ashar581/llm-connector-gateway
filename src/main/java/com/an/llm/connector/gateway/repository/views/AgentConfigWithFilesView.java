@@ -26,6 +26,7 @@ public interface AgentConfigWithFilesView {
     Boolean getIsPrivate();
     ClassificationMode getClassificationMode();
     List<DocumentTypeDefinition> getDocumentTypes();
+    Integer getPageChunk();
     String getCreatedBy();
     Instant getCreatedAt();
     String getUpdatedBy();
