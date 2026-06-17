@@ -36,13 +36,13 @@ public class VisionServiceV2 {
 
             String instructions = request.getInstructions() != null ? request.getInstructions() : LlmInstructions.INVOICE_OCR_INSTRUCTIONS;
 
-            if (pages.size() <= PageChunker.PAGES_PER_CHUNK) {
+            if (pages.size() <= (request.getPageChunk() == null ? PageChunker.DEFAULT_PAGES_PER_CHUNK : request.getPageChunk())) {
                 log.info("Selecting single vision mode.");
                 return chunkingVisionService.executeVisionWithinSingleRange(pages, instructions, request);
             }
 
             log.info("Selecting aggregation vision mode.");
-            List<List<byte[]>> chunks = PageChunker.chunk(pages);
+            List<List<byte[]>> chunks = PageChunker.chunk(pages,request.getPageChunk() == null ? PageChunker.DEFAULT_PAGES_PER_CHUNK : request.getPageChunk());
             List<String> chunkResponses = new ArrayList<>();
 
             long start = System.currentTimeMillis();

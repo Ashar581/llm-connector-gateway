@@ -30,6 +30,7 @@ public interface AgentConfigurationRepository extends JpaRepository<@NonNull Age
            a.isPrivate as isPrivate,
            a.classificationMode as classificationMode,
            a.documentTypes as documentTypes,
+           a.pageChunk as pageChunk,
            a.createdBy as createdBy,
            a.createdAt as createdAt,
            a.updatedBy as updatedBy,
