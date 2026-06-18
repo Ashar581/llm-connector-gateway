@@ -129,8 +129,8 @@ llm:
           api-path: /v1/chat/completions
           api-key: ashar581
           port: 7076
-          model-name: ZwZ-8B.Q4_K_M.gguf
-          mm-proj : ZwZ-8B.mmproj-f16.gguf
+          model-name: Qwen3VL-8B-Instruct-Q4_K_M.gguf
+          mm-proj : mmproj-Qwen3VL-8B-Instruct-F16.gguf
           context: 80000
           parallelExecution: 4
           active: true
