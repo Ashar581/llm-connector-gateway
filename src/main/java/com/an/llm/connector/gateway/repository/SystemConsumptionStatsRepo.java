@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.List;
 
 public interface SystemConsumptionStatsRepo extends JpaRepository<@NonNull SystemConsumptionStatsEntity,@NonNull Long> {
-    List<SystemConsumptionStatsEntity> findByCreatedAtBetween(Instant start, Instant end);
+    List<SystemConsumptionStatsEntity> findByCreatedAtBetweenOrderByIdDesc(Instant start, Instant end);
 
     @Query(value = """
     SELECT *
@@ -21,6 +21,7 @@ public interface SystemConsumptionStatsRepo extends JpaRepository<@NonNull Syste
     AND (NULLIF(:server, '') IS NULL OR server = :server)
     AND (CAST(:startDate AS timestamptz) IS NULL OR created_at >= :startDate)
     AND (CAST(:endDate AS timestamptz) IS NULL OR created_at <= :endDate)
+    ORDER BY id DESC
     """, nativeQuery = true)
     List<SystemConsumptionStatsEntity> filter(
             @Param("agentName") String agentName,
