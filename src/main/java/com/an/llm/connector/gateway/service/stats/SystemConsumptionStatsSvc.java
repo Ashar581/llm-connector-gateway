@@ -78,7 +78,7 @@ public class SystemConsumptionStatsSvc {
                 .toInstant()
                 .minusNanos(1);
 
-        List<SystemConsumptionStatsDto> stats =  mapper.toDtoList(systemConsumptionStatsRepo.findByCreatedAtBetween(startOfDay,endOfDay));
+        List<SystemConsumptionStatsDto> stats =  mapper.toDtoList(systemConsumptionStatsRepo.findByCreatedAtBetweenOrderByIdDesc(startOfDay,endOfDay));
 
         int totalTokens = 0;
         int totalTimeInMs = 0;
