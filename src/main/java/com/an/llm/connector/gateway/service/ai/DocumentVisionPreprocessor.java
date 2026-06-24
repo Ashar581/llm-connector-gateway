@@ -19,7 +19,7 @@ import java.util.Objects;
 
 @Service
 public class DocumentVisionPreprocessor {
-    private static final int IMAGE_MAX_SIZE = 1400;
+    private static final int IMAGE_MAX_SIZE = 1800;
     private static final int PDF_MAX_SIZE = 2400;
 
     private static final int PDF_DPI = 300;
