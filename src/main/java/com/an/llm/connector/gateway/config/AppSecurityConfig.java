@@ -61,12 +61,12 @@ public class AppSecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(authorization -> authorization
-                        .requestMatchers("api/llm/v2/ask").permitAll()
-                        .requestMatchers("api/llm/v2/stream/ask").permitAll()
-                        .requestMatchers("api/llm/v2/embed/**").permitAll()
-                        .requestMatchers("api/llm/v2/rag/**").permitAll()
-                        .requestMatchers("api/llm/v2/vl/**").permitAll()
-                        .requestMatchers("api/llm/v1/agent/**").permitAll()
+                        .requestMatchers("/api/llm/v2/ask").permitAll()
+                        .requestMatchers("/api/llm/v2/stream/ask").permitAll()
+                        .requestMatchers("/api/llm/v2/embed/**").permitAll()
+                        .requestMatchers("/api/llm/v2/rag/**").permitAll()
+                        .requestMatchers("/api/llm/v2/vl/**").permitAll()
+                        .requestMatchers("/api/llm/v1/agent/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtValidatorFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
