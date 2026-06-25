@@ -196,3 +196,5 @@ llm:
           provider: openai
           api-key: ashar581
           model-name: text-embedding-3-large
+
+api-key : DS-AN581-SS018-2904-1911
