@@ -61,6 +61,7 @@ public class AppSecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(authorization -> authorization
+                        .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtValidatorFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
