@@ -28,7 +28,6 @@ public class AgentFileEntity {
     private byte [] data;
 
     private String createdBy;
-    @Column(nullable = false)
     private String hashKey;
 
     @Column(nullable = false)
