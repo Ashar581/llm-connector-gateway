@@ -3,7 +3,7 @@ package com.an.llm.connector.gateway.controller.ai;
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
 import com.an.llm.connector.gateway.service.ai.DocumentIngestionService;
-import com.an.llm.connector.gateway.service.ai.SimpleRagService;
+import com.an.llm.connector.gateway.service.ai.RagService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("api/llm/v1/rag")
 public class RagController  extends BaseApiDelegate {
     private final DocumentIngestionService documentIngestionService;
-    private final SimpleRagService simpleRagService;
+    private final RagService ragService;
 
     @PostMapping("ingest/file")
     public ResponseEntity<@NonNull ApiResponseBody<String>> ingestDocument(@RequestParam("file")MultipartFile file){
@@ -25,7 +25,7 @@ public class RagController  extends BaseApiDelegate {
 
     @GetMapping("simple/ask")
     public ResponseEntity<@NonNull ApiResponseBody<String>> simpleRagAsk(@RequestParam("query")String query){
-        return sendSuccessfulApiResponse(simpleRagService.ask(query),"Data retrieved successfully.");
+        return sendSuccessfulApiResponse(ragService.ask(query),"Data retrieved successfully.");
 
     }
 }

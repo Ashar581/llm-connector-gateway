@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Deprecated
 @Service
 //@RequiredArgsConstructor
-public class SimpleRagService {
+public class RagService {
 
     private final RetrievalService retrievalService;
     private final ConfidenceService confidenceService;
@@ -23,7 +23,7 @@ public class SimpleRagService {
     private ChatClient chatClient;
 
     //just for quick testing.
-    SimpleRagService(RetrievalService retrievalService, ConfidenceService confidenceService){
+    RagService(RetrievalService retrievalService, ConfidenceService confidenceService){
         this.confidenceService = confidenceService;
         this.retrievalService = retrievalService;
     }

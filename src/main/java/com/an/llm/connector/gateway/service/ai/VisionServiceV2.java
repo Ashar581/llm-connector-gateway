@@ -34,7 +34,7 @@ public class VisionServiceV2 {
         try {
             List<byte[]> pages = documentVisionPreprocessor.preprocess(request.getFiles().getFirst());
 
-            String instructions = request.getInstructions() != null ? request.getInstructions() : LlmInstructions.INVOICE_OCR_INSTRUCTIONS;
+            String instructions = request.getInstructions() != null ? request.getInstructions() : LlmInstructions.DEFAULT_VL_INSTRUCTION;
 
             if (pages.size() <= (request.getPageChunk() == null ? PageChunker.DEFAULT_PAGES_PER_CHUNK : request.getPageChunk())) {
                 log.info("Selecting single vision mode.");

@@ -1,6 +1,7 @@
 package com.an.llm.connector.gateway.entity;
 
 import com.an.llm.connector.gateway.util.AppUtils;
+import com.an.llm.connector.gateway.util.FileHashGenerator;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,6 +28,8 @@ public class AgentFileEntity {
     private byte [] data;
 
     private String createdBy;
+    @Column(nullable = false)
+    private String hashKey;
 
     @Column(nullable = false)
     private Instant createdAt;

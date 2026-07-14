@@ -5,6 +5,7 @@ import com.an.llm.connector.gateway.enums.Source;
 import com.an.llm.connector.gateway.model.config.ModelConfig;
 import com.an.llm.connector.gateway.model.config.SourceConfig;
 import com.an.llm.connector.gateway.service.LlmConfigService;
+import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,8 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.vectorstore.SimpleVectorStore;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -50,6 +53,18 @@ public class GenericBeanConfig {
                         config.getId(),
                         OpenAiEmbeddingModel.class,
                         () -> new OpenAiEmbeddingModel(buildEmbeddingOpenAiApi(config))
+                );
+
+                //since its embedding also create a vector store bean
+                genericApplicationContext.registerBean(
+                        "vector-"+config.getId(),
+                        VectorStore.class,
+                        () -> SimpleVectorStore.builder(
+                                genericApplicationContext.getBean(
+                                        config.getId(),
+                                        OpenAiEmbeddingModel.class
+                                )
+                        ).build()
                 );
             } else {
                 log.info("Creating bean for ChatClient with name: {}",config.getId());
