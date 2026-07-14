@@ -12,6 +12,7 @@ public class AgentFileDto {
     private String contentType;
     private Map<String, Object> metadata;
 //    private byte [] data;
+    private String hashKey;
     private AgentConfigurationDto agentConfiguration;
     private String createdBy;
     private Instant createdAt;

@@ -68,6 +68,20 @@ public class AgentConfigurationEntity implements TimeUtils {
     private List<DocumentTypeDefinition> documentTypes;
     private Integer pageChunk;
 
+    //RAG based keys.
+    private String vectorStore;
+    private String encodingType;
+    private Integer chunkSize;
+    private Integer minChunkLengthToEmbed;
+    private Integer minChunkSizeChars;
+    private Integer maxNumChunks;
+    private Boolean separator;
+
+    private Integer topK;
+    private Double similarityThreshold;
+
+    private Boolean enablePrivateMode;
+
     private String createdBy;
 
     @Column(nullable = false)
