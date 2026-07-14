@@ -2,14 +2,17 @@ package com.an.llm.connector.gateway.model;
 
 import com.an.llm.connector.gateway.enums.ClassificationMode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.knuddels.jtokkit.api.EncodingType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Data
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LlmConnectorRequest {
     @NotBlank(message = "Model source is mandatory.")
@@ -34,4 +37,18 @@ public class LlmConnectorRequest {
     //just added it for internal usages. Not exposable.
     private String agentName;
     private Integer pageChunk;
+
+    //RAG based keys.
+    private String vectorStore;
+    private String encodingType;
+    private Integer chunkSize;
+    private Integer minChunkLengthToEmbed;
+    private Integer minChunkSizeChars;
+    private Integer maxNumChunks;
+    private Boolean separator;
+
+    private Integer topK;
+    private Double similarityThreshold;
+
+    private Boolean enablePrivateMode;
 }

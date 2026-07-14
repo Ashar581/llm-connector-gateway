@@ -6,6 +6,7 @@ import com.an.llm.connector.gateway.util.TimeUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -19,11 +20,12 @@ import java.io.IOException;
 @Component
 public class LlmJwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, @NonNull AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
 
         ApiExceptionBody error = new ApiExceptionBody();
+        error.setStatus(false);
         error.setMessage("Authentication failed.");
         error.setCode(HttpStatus.UNAUTHORIZED.value());
         error.setTimestamp(TimeUtils.EXCEPTION_RESPONSE_FORMAT);

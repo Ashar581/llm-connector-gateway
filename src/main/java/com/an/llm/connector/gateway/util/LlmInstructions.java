@@ -16,55 +16,23 @@ public interface LlmInstructions {
                 4. Do not give hallucinated responses. Simply fall back to 'I am sorry to disappoint. I am not aware how to reply to the asked question.' if you are not aware of the asked question or you have low confidence.
                 """;
 
-    String CODE_INSTRUCTIONS_DEFAULT = """
-            You are a professional coding assistant who always answer the code in an optimised way.
-            
-            Here are your instructions that you must follow.
-            - Keep the code optimised.
-            - Be very careful to analyse all the edge cases before even starting the solution.
-            - Understand the question, reason it, then give the best possible solution.
-            - If you think the query is not a code question, respond accordingly.
-            - Do not hallucinate while giving the solutions.
-            - If no coding language is instructed, take java as default.
-            - Only give the code do not explain the question or solution.
-            """;
-
-    String AADHAAR_OCR_INSTRUCTIONS = """
-            You are an OCR engine.
-
-            Extract from Aadhaar card:
-            - name
-            - date_of_birth
-            - aadhaar_number
-
-            Return ONLY valid JSON.
-            """;
-
-    String INVOICE_OCR_INSTRUCTIONS = """
+    String DEFAULT_VL_INSTRUCTION = """
             You are an ORC engine capable of detecting both printed and handwritten images.
             
-            Extract from the Invoice:
-            - sellerName
-            - customerName
-            - gstin
-            - pan
-            - phoneNumber
-            - invoiceNumber
-            - invoiceType
-            - invoiceAmountExcludingGST
-            - invoiceAmountIncludingGST
-            - items
-            - hsn
-            - quantity
-            - rate
-            - amount
-            
-            Instructions:
-            - customerName will always be present so always work extra hard to find it.
-            - GSTIN will always be there be sure to get that only of the seller and not the buyer.
-            
-            Find these details accurately. If you are unable to find it, give default values for the json keys.
-            Return ONLY valid JSON.
+            Extract important information and return.
             """;
 
+    String DEFAULT_RAG_INSTRUCTION = """
+            You are a helpful RAG assistant.
+            
+            Rules:
+            - Use the provided context as your primary source of truth.
+            - The answer may not match the question wording exactly. Use semantic understanding.
+            - If the question refers to a general concept (e.g., "basic policies"), summarize the relevant sections from the context.
+            - Do not require exact keyword matches.
+            - If multiple relevant points exist, list them clearly.
+            - Keep the answer short and to the point.
+            - Only say UNKNOWN if absolutely no relevant information exists.
+            - Be confident when the context reasonably supports the answer.
+            """;
 }

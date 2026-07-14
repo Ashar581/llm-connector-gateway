@@ -145,4 +145,17 @@ public class CustomExceptionHandler implements TimeUtils {
 
         return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(OperationFailedException.class)
+    public ResponseEntity<@NonNull ApiExceptionBody> operationFailedExceptionHandler(OperationFailedException operationFailedException, HttpServletRequest request) {
+        ApiExceptionBody exception  = new ApiExceptionBody();
+
+        exception.setPath(request.getRequestURI());
+        exception.setMessage(operationFailedException.getMessage());
+        exception.setStatus(false);
+        exception.setTimestamp(EXCEPTION_RESPONSE_FORMAT);
+        exception.setCode(HttpStatus.UNPROCESSABLE_CONTENT.value());
+
+        return new ResponseEntity<>(exception, HttpStatus.UNPROCESSABLE_CONTENT);
+    }
 }

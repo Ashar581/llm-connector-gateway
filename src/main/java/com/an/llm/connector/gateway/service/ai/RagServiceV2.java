@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SimpleRagServiceV2 {
+public class RagServiceV2 {
     private final RetrievalService retrievalService;
     private final ConfidenceService confidenceService;
     private final AiBeanFactory aiBeanFactory;
@@ -44,26 +44,14 @@ public class SimpleRagServiceV2 {
 
         System.out.println("Context: \n"+context);
 
-        String instructions = (request.getInstructions() !=null &&  !request.getInstructions().isBlank())? request.getInstructions() : LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL;
+        String instructions = (request.getInstructions() !=null &&  !request.getInstructions().isBlank())? request.getInstructions() : LlmInstructions.DEFAULT_RAG_INSTRUCTION;
 
         long start = System.currentTimeMillis();
 
         ChatResponse response = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
                 .prompt()
                 .options(buildChatOptions(request))
-                .system("""
-                        You are a helpful RAG assistant.
-                        
-                        Rules:
-                        - Use the provided context as your primary source of truth.
-                        - The answer may not match the question wording exactly. Use semantic understanding.
-                        - If the question refers to a general concept (e.g., "basic policies"), summarize the relevant sections from the context.
-                        - Do not require exact keyword matches.
-                        - If multiple relevant points exist, list them clearly.
-                        - Keep the answer short and to the point.
-                        - Only say UNKNOWN if absolutely no relevant information exists.
-                        - Be confident when the context reasonably supports the answer.
-                        """)
+                .system(instructions)
                 .user("""
                         QUESTION:
                         %s
