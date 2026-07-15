@@ -79,6 +79,17 @@ public class AgentService {
 
         verifyAgentRequest(agentConfiguration);
 
+        switch (agentConfiguration.getType()) {
+            case RAG -> {
+                return generateStreamRagResponse(agentConfiguration,aiRequest);
+            }
+            default ->  {
+                return streamChat(aiRequest,agentConfiguration);
+            }
+        }
+    }
+
+    private Flux<@NonNull String> streamChat(AiRequest aiRequest, AgentConfigurationEntity agentConfiguration) {
         long start = System.currentTimeMillis();
 
         AtomicReference<ChatResponse> lastResponse = new AtomicReference<>();
@@ -237,6 +248,32 @@ public class AgentService {
         request.setAgentName(aiRequest.getAgent());
 
         return ragServiceV3.chat(request, IngestionMode.AGENT);
+    }
+
+    private Flux<@NonNull String> generateStreamRagResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+        LlmConnectorRequest request = new LlmConnectorRequest();
+
+        request.setSource(agentConfiguration.getSource().getValue());
+        request.setType(agentConfiguration.getType().getValue());
+        request.setModel(agentConfiguration.getModel().getValue());
+        request.setInstructions((agentConfiguration.getInstructions() == null || agentConfiguration.getInstructions().isBlank()) ? LlmInstructions.DEFAULT_RAG_INSTRUCTION : agentConfiguration.getInstructions());
+        request.setQuery(aiRequest.getQuery());
+        request.setFiles(aiRequest.getFiles());
+        request.setTemperature(agentConfiguration.getTemperature());
+        request.setMaxTokens(agentConfiguration.getMaxTokens());
+        request.setVectorStore(agentConfiguration.getVectorStore());
+        request.setEncodingType(agentConfiguration.getEncodingType());
+        request.setChunkSize(agentConfiguration.getChunkSize());
+        request.setMinChunkLengthToEmbed(agentConfiguration.getMinChunkLengthToEmbed());
+        request.setMinChunkSizeChars(agentConfiguration.getMinChunkSizeChars());
+        request.setSeparator(agentConfiguration.getSeparator());
+        request.setTopK(agentConfiguration.getTopK());
+        request.setSimilarityThreshold(agentConfiguration.getSimilarityThreshold());
+        request.setEnablePrivateMode(agentConfiguration.getEnablePrivateMode());
+        //setting agent name for stats
+        request.setAgentName(aiRequest.getAgent());
+
+        return ragServiceV3.chatStream(request, IngestionMode.AGENT);
     }
 
 

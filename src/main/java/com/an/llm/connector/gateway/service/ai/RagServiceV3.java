@@ -158,15 +158,26 @@ public class RagServiceV3 {
         VectorStore vectorStore = vectorStoreBeanFactory.getVectorStore(request.getVectorStore());
         TokenTextSplitter tokenTextSplitter = tokenTextSplitterBuilder(request);
 
-        if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            for (MultipartFile file : request.getFiles()) {
-                documentIngestionServiceV2.ingest(
-                        mode,
-                        file,
-                        vectorStore,
-                        tokenTextSplitter,
-                        request.getAgentName()
-                );
+        switch (mode) {
+            case AGENT -> documentIngestionServiceV2.ingest(
+                    mode,
+                    null,
+                    vectorStore,
+                    tokenTextSplitter,
+                    request.getAgentName()
+            );
+            case CHAT -> {
+                if (request.getFiles() != null && !request.getFiles().isEmpty()) {
+                    for (MultipartFile file : request.getFiles()) {
+                        documentIngestionServiceV2.ingest(
+                                mode,
+                                file,
+                                vectorStore,
+                                tokenTextSplitter,
+                                request.getAgentName()
+                        );
+                    }
+                }
             }
         }
 
