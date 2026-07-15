@@ -1,6 +1,7 @@
 package com.an.llm.connector.gateway.service.agent;
 
 import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
+import com.an.llm.connector.gateway.enums.IngestionMode;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.exception.NotAllowedException;
 import com.an.llm.connector.gateway.exception.NotFoundException;
@@ -10,11 +11,13 @@ import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.classification.ClassificationResponse;
 import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
 import com.an.llm.connector.gateway.service.ai.EmbeddingServiceV2;
+import com.an.llm.connector.gateway.service.ai.RagServiceV3;
 import com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.service.ai.VisionServiceV2;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.util.JsonUtils;
+import com.an.llm.connector.gateway.util.LlmInstructions;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,7 @@ public class AgentService {
     private final EmbeddingServiceV2 embeddingServiceV2;
     private final AiBeanFactory aiBeanFactory;
     private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
+    private final RagServiceV3 ragServiceV3;
 
     public Object generate(@NonNull AiRequest aiRequest){
         AgentConfigurationEntity agentConfiguration = agentConfigurationRepository.findByName(aiRequest.getAgent())
@@ -55,6 +59,9 @@ public class AgentService {
             }
             case EMBEDDING -> {
                 return generateEmbeddingResponse(agentConfiguration,aiRequest);
+            }
+            case RAG -> {
+                return generateRagResponse(agentConfiguration,aiRequest);
             }
             default -> {
                 return generateChatClientResponse(agentConfiguration,aiRequest);
@@ -204,6 +211,32 @@ public class AgentService {
         } catch (Exception e){
             throw new ApiFallbackException(e.getMessage());
         }
+    }
+
+    private String generateRagResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+        LlmConnectorRequest request = new LlmConnectorRequest();
+
+        request.setSource(agentConfiguration.getSource().getValue());
+        request.setType(agentConfiguration.getType().getValue());
+        request.setModel(agentConfiguration.getModel().getValue());
+        request.setInstructions((agentConfiguration.getInstructions() == null || agentConfiguration.getInstructions().isBlank()) ? LlmInstructions.DEFAULT_RAG_INSTRUCTION : agentConfiguration.getInstructions());
+        request.setQuery(aiRequest.getQuery());
+        request.setFiles(aiRequest.getFiles());
+        request.setTemperature(agentConfiguration.getTemperature());
+        request.setMaxTokens(agentConfiguration.getMaxTokens());
+        request.setVectorStore(agentConfiguration.getVectorStore());
+        request.setEncodingType(agentConfiguration.getEncodingType());
+        request.setChunkSize(agentConfiguration.getChunkSize());
+        request.setMinChunkLengthToEmbed(agentConfiguration.getMinChunkLengthToEmbed());
+        request.setMinChunkSizeChars(agentConfiguration.getMinChunkSizeChars());
+        request.setSeparator(agentConfiguration.getSeparator());
+        request.setTopK(agentConfiguration.getTopK());
+        request.setSimilarityThreshold(agentConfiguration.getSimilarityThreshold());
+        request.setEnablePrivateMode(agentConfiguration.getEnablePrivateMode());
+        //setting agent name for stats
+        request.setAgentName(aiRequest.getAgent());
+
+        return ragServiceV3.chat(request, IngestionMode.AGENT);
     }
 
 

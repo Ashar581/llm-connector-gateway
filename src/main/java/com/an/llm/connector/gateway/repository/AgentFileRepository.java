@@ -19,4 +19,12 @@ public interface AgentFileRepository extends JpaRepository<@NonNull AgentFileEnt
     WHERE f.agentConfiguration.name = :name
     """)
     List<AgentFileMetadataView> findByAgentConfiguration_Name(@NonNull @Param("name") String name);
+
+    @Query("""
+    SELECT f.hashKey
+    FROM AgentFileEntity f
+    WHERE f.agentConfiguration.name = :name
+    """)
+    List<String> findAllHashKeyByAgentName(@NonNull @Param("name") String name);
+    List<AgentFileEntity> findAllByHashKeyIn(List<String> hashKeys);
 }
