@@ -24,7 +24,7 @@ public class AgentFileEntity {
     private String contentType;
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> metadata;
-    @Lob
+    @Column(columnDefinition = "bytea")
     private byte [] data;
 
     private String createdBy;

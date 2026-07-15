@@ -1,5 +1,6 @@
 package com.an.llm.connector.gateway.service.ai;
 
+import com.an.llm.connector.gateway.enums.IngestionMode;
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
@@ -33,6 +34,7 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -54,16 +56,35 @@ public class RagServiceV3 {
     private final ContextBudgetService contextBudgetService;
     private final HistoryTokenTrimmer historyTokenTrimmer;
     
-    public String chat(@NonNull LlmConnectorRequest request){
-        validateAllowedType(request);
+    public String chat(@NonNull LlmConnectorRequest request, IngestionMode mode){
+        validateAllowedType(request, mode);
 
         VectorStore vectorStore = vectorStoreBeanFactory.getVectorStore(request.getVectorStore());
         TokenTextSplitter tokenTextSplitter = tokenTextSplitterBuilder(request);
 
         //ingest the file if available.
         //only ingest if the file is non-existing in that vector store.
-        if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            documentIngestionServiceV2.ingest(request.getFiles().getFirst(), vectorStore, tokenTextSplitter, request.getAgentName());
+        switch (mode) {
+            case AGENT -> documentIngestionServiceV2.ingest(
+                    mode,
+                    null,
+                    vectorStore,
+                    tokenTextSplitter,
+                    request.getAgentName()
+            );
+            case CHAT -> {
+                if (request.getFiles() != null && !request.getFiles().isEmpty()) {
+                    for (MultipartFile file : request.getFiles()) {
+                        documentIngestionServiceV2.ingest(
+                                mode,
+                                file,
+                                vectorStore,
+                                tokenTextSplitter,
+                                request.getAgentName()
+                        );
+                    }
+                }
+            }
         }
         //retrieve the context from vector store.
         List<Document> retrievedChunks = retrievalServiceV2.retrieve(vectorStore,request);
@@ -131,19 +152,22 @@ public class RagServiceV3 {
         return serialisedResponse;
     }
 
-    public Flux<@NonNull String> chatStream(@NonNull LlmConnectorRequest request) {
-        validateAllowedType(request);
+    public Flux<@NonNull String> chatStream(@NonNull LlmConnectorRequest request, IngestionMode mode) {
+        validateAllowedType(request, mode);
 
         VectorStore vectorStore = vectorStoreBeanFactory.getVectorStore(request.getVectorStore());
         TokenTextSplitter tokenTextSplitter = tokenTextSplitterBuilder(request);
 
         if (request.getFiles() != null && !request.getFiles().isEmpty()) {
-            documentIngestionServiceV2.ingest(
-                    request.getFiles().getFirst(),
-                    vectorStore,
-                    tokenTextSplitter,
-                    request.getAgentName()
-            );
+            for (MultipartFile file : request.getFiles()) {
+                documentIngestionServiceV2.ingest(
+                        mode,
+                        file,
+                        vectorStore,
+                        tokenTextSplitter,
+                        request.getAgentName()
+                );
+            }
         }
 
         List<Document> retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
@@ -338,18 +362,18 @@ public class RagServiceV3 {
         return new Prompt(finalMessages, buildChatOptions(request, budget));
     }
 
-    private void validateAllowedType(LlmConnectorRequest request){
+    private void validateAllowedType(LlmConnectorRequest request, IngestionMode mode){
         LlmCapability type = LlmCapability.getFromValue(request.getType());
 
         if (!type.equals(LlmCapability.RAG)) throw new ApiFallbackException("The requested type is not supported by this endpoint.");
 
-        validateRequest(request);
+        validateRequest(request, mode);
     }
 
-    private void validateRequest(LlmConnectorRequest request) {
+    private void validateRequest(LlmConnectorRequest request, IngestionMode mode) {
         if (request.getVectorStore() == null || request.getVectorStore().isBlank()) throw new NullException("Selecting a vector storage is mandatory.");
         if (request.getEnablePrivateMode() == null) throw new NullException("Selecting a RAG mode is mandatory.");
-        if (request.getEnablePrivateMode() && (request.getFiles() == null || request.getFiles().isEmpty())) throw new NotAllowedException("Attaching a knowledge base with private mode enabled is mandatory.");
+        if (mode.equals(IngestionMode.CHAT) && request.getEnablePrivateMode() && (request.getFiles() == null || request.getFiles().isEmpty())) throw new NotAllowedException("Attaching a knowledge base with private mode enabled is mandatory.");
         if (request.getChunkSize() != null && request.getChunkSize() <= 0) throw new NotAllowedException("Chunk size cannot be less than 1.");
         if (request.getMinChunkLengthToEmbed() != null && request.getMinChunkLengthToEmbed() <= 0) throw new NotAllowedException("Minimum chunking length to embed cannot be less than 1.");
         if (request.getMinChunkSizeChars() !=null && request.getMinChunkSizeChars() <= 0) throw new NotAllowedException("Minimum character chunk size cannot be less than 1.");
