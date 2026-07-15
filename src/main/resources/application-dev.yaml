@@ -163,7 +163,7 @@ llm:
           model-name: bge-large-en-v1.5-q4_k_m.gguf
           mm-proj :
           context: 8192
-          parallelExecution: 4
+          parallelExecution: 16
           active: true
 
         - id: qwen3-embed
