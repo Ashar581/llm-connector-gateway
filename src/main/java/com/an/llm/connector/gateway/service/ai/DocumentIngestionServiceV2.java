@@ -1,7 +1,12 @@
 package com.an.llm.connector.gateway.service.ai;
 
+import com.an.llm.connector.gateway.entity.AgentFileEntity;
+import com.an.llm.connector.gateway.enums.IngestionMode;
+import com.an.llm.connector.gateway.exception.NotFoundException;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.exception.OperationFailedException;
+import com.an.llm.connector.gateway.repository.AgentFileRepository;
+import com.an.llm.connector.gateway.service.agent.AgentFileService;
 import com.an.llm.connector.gateway.util.FileHashGenerator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -12,20 +17,27 @@ import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DocumentIngestionServiceV2 {
     private final RetrievalServiceV2 retrievalServiceV2;
+    private final AgentFileRepository agentFileRepository;
 
-    public void ingest(@NonNull MultipartFile file, @NonNull VectorStore vectorStore, @NonNull TokenTextSplitter tokenTextSplitter, String agent) {
+    public void ingest(@NonNull IngestionMode mode, MultipartFile file, @NonNull VectorStore vectorStore, @NonNull TokenTextSplitter tokenTextSplitter, String agent) {
+        switch (mode) {
+            case CHAT -> ingestForChat(file, vectorStore, tokenTextSplitter);
+            case AGENT -> ingestForAgentChat(vectorStore, tokenTextSplitter, agent);
+            case null, default -> throw new NotFoundException("Invalid ingestion mode selected.");
+        }
+    }
+
+    private void ingestForChat(@NonNull MultipartFile file, @NonNull VectorStore vectorStore, @NonNull TokenTextSplitter tokenTextSplitter) {
         if (file.isEmpty()) throw new NullException("Invalid file contents found.");
         try {
             String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "rag-file";
@@ -35,10 +47,6 @@ public class DocumentIngestionServiceV2 {
             //find if the file is already ingested or not
             if (retrievalServiceV2.documentExists(vectorStore,hashKey)) {
                 log.info("Document already existing. Stopped file ingestion.");
-                if (agent != null && !agent.isBlank()) {
-                    log.info("Updating the existing document's metadata with the agent-id {}",agent);
-                    retrievalServiceV2.addAgentToDocument(vectorStore,hashKey,agent);
-                }
                 return;
             }
 
@@ -84,8 +92,86 @@ public class DocumentIngestionServiceV2 {
             log.error("Error while ingesting the file for knowledge-base.");
             throw new OperationFailedException("Unable to ingest the file.");
         }
-
     }
+
+    @Transactional
+    private void ingestForAgentChat(@NonNull VectorStore vectorStore, @NonNull TokenTextSplitter tokenTextSplitter, @NonNull String agent) {
+        //find if the file is already ingested or not
+        List<String> hashKeys = agentFileRepository.findAllHashKeyByAgentName(agent);
+
+        List<String> agentsHavingNoDataInVectorStore = new ArrayList<>();
+
+        if (hashKeys != null && !hashKeys.isEmpty()) {
+            for (String hashKey : hashKeys) {
+                if (retrievalServiceV2.documentExists(vectorStore, hashKey)) {
+                    System.out.println("Document exists.");
+                    if (!agent.isBlank()) {
+                        log.info("Updating the existing document's metadata with the agent-id {}", agent);
+                        retrievalServiceV2.addAgentToDocument(vectorStore, hashKey, agent);
+                    }
+                } else {
+                    agentsHavingNoDataInVectorStore.add(hashKey);
+                }
+            }
+        }
+
+        if (agentsHavingNoDataInVectorStore.isEmpty()) {
+            log.info("All documents existing. Stopping ingestion for agent {}", agent);
+            return;
+        }
+
+        List<AgentFileEntity> agentFilesToBeAddedToVectorStore = agentFileRepository.findAllByHashKeyIn(
+                hashKeys.stream()
+                        .filter(Objects::nonNull)
+                        .toList()
+        );
+
+        for (AgentFileEntity file : agentFilesToBeAddedToVectorStore) {
+            try {
+                ByteArrayResource resource = new ByteArrayResource(file.getData()) {
+                    @Override
+                    public String getFilename() {
+                        return file.getFileName();
+                    }
+                };
+
+                TikaDocumentReader reader = new TikaDocumentReader(resource);
+                List<Document> documents = reader.get();
+
+                List<Document> cleanedDocs = documents.stream()
+                        .map(doc -> new Document(
+                                cleanText(doc.getText()),
+                                mergeMetadata(doc.getMetadata(), file.getFileName(), file.getHashKey())
+                        ))
+                        .toList();
+
+                List<Document> paragraphDocs = new ArrayList<>();
+                for (Document document : cleanedDocs) {
+                    paragraphDocs.addAll(splitByParagraphBlocks(document));
+                }
+
+                List<Document> finalChunks = new ArrayList<>();
+                int chunkIndex = 0;
+
+                for (Document document : paragraphDocs) {
+                    List<Document> splitDocs = tokenTextSplitter.split(document);
+
+                    for (Document splitDoc : splitDocs) {
+                        Map<String, Object> metadata = new HashMap<>(splitDoc.getMetadata());
+                        metadata.put("chunkIndex", chunkIndex++);
+                        metadata.put("sourceFile", file.getFileName());
+
+                        finalChunks.add(new Document(splitDoc.getText(), metadata));
+                    }
+                }
+
+                vectorStore.add(finalChunks);
+            } catch (Exception e) {
+                log.error("Error while ingesting the file for knowledge-base for file {} and agent {}.",file.getFileName(),agent);
+            }
+        }
+    }
+
     private List<Document> splitByParagraphBlocks(Document sourceDoc) {
         List<Document> docs = new ArrayList<>();
 

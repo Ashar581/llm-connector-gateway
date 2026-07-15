@@ -4,10 +4,7 @@ import com.an.llm.connector.gateway.dto.AgentConfigurationDto;
 import com.an.llm.connector.gateway.dto.AgentFileDto;
 import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.entity.AgentFileEntity;
-import com.an.llm.connector.gateway.enums.ClassificationMode;
-import com.an.llm.connector.gateway.enums.LlmCapability;
-import com.an.llm.connector.gateway.enums.LlmModels;
-import com.an.llm.connector.gateway.enums.Source;
+import com.an.llm.connector.gateway.enums.*;
 import com.an.llm.connector.gateway.exception.*;
 import com.an.llm.connector.gateway.mapper.AgentConfigurationMapper;
 import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;
@@ -18,11 +15,17 @@ import com.an.llm.connector.gateway.repository.views.AgentConfigWithFilesView;
 import com.an.llm.connector.gateway.repository.views.AgentFileMetadataView;
 import com.an.llm.connector.gateway.repository.AgentFileRepository;
 import com.an.llm.connector.gateway.service.LlmConfigService;
+import com.an.llm.connector.gateway.service.ai.DocumentIngestionServiceV2;
+import com.an.llm.connector.gateway.service.factory.VectorStoreBeanFactory;
+import com.an.llm.connector.gateway.util.FileHashGenerator;
 import com.an.llm.connector.gateway.util.JsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.knuddels.jtokkit.api.EncodingType;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.transformer.splitter.TokenTextSplitter;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +40,8 @@ public class AgentConfigurationService {
     private final AgentConfigurationMapper agentConfigurationMapper;
     private final AgentConfigurationRepository agentConfigurationRepository;
     private final AgentFileRepository agentFileRepository;
+    private final DocumentIngestionServiceV2 documentIngestionServiceV2;
+    private final VectorStoreBeanFactory vectorStoreBeanFactory;
 
     public AgentConfigurationDto add(AgentConfigurationDto dto, List<MultipartFile> files, String documentTypeDefinitions){
         if (dto.getName()!=null && !dto.getName().isBlank()) {
@@ -69,6 +74,13 @@ public class AgentConfigurationService {
 
         AgentConfigurationEntity entity = agentConfigurationMapper.toEntity(dto);
 
+        //RAG configurations validation
+        VectorStore vectorStore = null;
+        if (dto.getType().equalsIgnoreCase(LlmCapability.RAG.getValue())) {
+            validateRagConfigurations(dto,files);
+            vectorStore = vectorStoreBeanFactory.getVectorStore(dto.getVectorStore());
+        }
+
         if (files != null && !files.isEmpty()) {
             if (!dto.getType().equalsIgnoreCase(LlmCapability.RAG.getValue())) {
                 throw new NotAllowedException("Only RAG based configurations allows files ingestion.");
@@ -84,19 +96,38 @@ public class AgentConfigurationService {
                     log.error("Error getting file bytes.",e);
                 }
                 agentFileEntity.setMetadata(populateMetadata(file));
-
+                try {
+                    agentFileEntity.setHashKey(FileHashGenerator.generateSHA256(file));
+                } catch (Exception e){
+                    log.error("Error while generating hash of file {}",agentFileEntity.getFileName());
+                    throw new OperationFailedException("Unable to generate the hash of the attached file.");
+                }
                 agentFileEntity.setAgentConfiguration(entity);
 
                 agentFileEntities.add(agentFileEntity);
             }
             entity.setFiles(agentFileEntities);
-
-            /**
-              since file is added we need to add RAG based functionality too.
-             */
         }
 
-        return agentConfigurationMapper.toDto(agentConfigurationRepository.save(entity));
+        AgentConfigurationEntity savedAgent = agentConfigurationRepository.save(entity);
+
+        //if rag based then ingest the file as well
+        if (dto.getType().equalsIgnoreCase(LlmCapability.RAG.getValue())) {
+            if (vectorStore == null) throw new NotFoundException("Invalid vector store detected.");
+            if (files!=null && !files.isEmpty()) {
+                for (MultipartFile file : files) {
+                    documentIngestionServiceV2.ingest(
+                            IngestionMode.AGENT,
+                            file,
+                            vectorStore,
+                            tokenTextSplitterBuilder(dto),
+                            entity.getName()
+                    );
+                }
+            }
+        }
+
+        return agentConfigurationMapper.toDto(savedAgent);
     }
 
     @Transactional(readOnly = true)
@@ -322,6 +353,53 @@ public class AgentConfigurationService {
             //make sure to have the classificationMode populated.
             if (classificationMode == null) throw new NotAllowedException("Document classification mode is mandatory.");
         }
+    }
+
+    private void validateRagConfigurations(AgentConfigurationDto dto, List<MultipartFile> files) {
+        if (dto.getVectorStore() == null || dto.getVectorStore().isBlank()) throw new NullException("Selecting a vector storage is mandatory.");
+        if (dto.getEnablePrivateMode() == null) throw new NullException("Selecting a RAG mode is mandatory.");
+        if (dto.getEnablePrivateMode() && (files == null || files.isEmpty())) throw new NotAllowedException("Attaching a knowledge base with private mode enabled is mandatory.");
+        if (dto.getChunkSize() != null && dto.getChunkSize() <= 0) throw new NotAllowedException("Chunk size cannot be less than 1.");
+        if (dto.getMinChunkLengthToEmbed() != null && dto.getMinChunkLengthToEmbed() <= 0) throw new NotAllowedException("Minimum chunking length to embed cannot be less than 1.");
+        if (dto.getMinChunkSizeChars() !=null && dto.getMinChunkSizeChars() <= 0) throw new NotAllowedException("Minimum character chunk size cannot be less than 1.");
+        if (dto.getMaxNumChunks() != null && dto.getMaxNumChunks() <= 0) throw new NotAllowedException("Maximum number chunks cannot be less than 1.");
+
+        //also verify the Embedding Model for vector store because vector store is attached with embedding model.
+        LlmModels.getFromValue(dto.getVectorStore());
+    }
+
+    private TokenTextSplitter tokenTextSplitterBuilder(AgentConfigurationDto dto) {
+        TokenTextSplitter.Builder splitter = TokenTextSplitter.builder();
+
+        if (dto.getEncodingType() !=null && !dto.getEncodingType().isBlank()) {
+            splitter.withEncodingType(EncodingType.fromName(dto.getEncodingType()).orElseThrow(()-> new OperationFailedException("Invalid encoding type.")));
+        } else {
+            splitter.withEncodingType(EncodingType.CL100K_BASE);
+        }
+        if (dto.getChunkSize() != null) {
+            splitter.withChunkSize(dto.getChunkSize());
+        } else {
+            splitter.withChunkSize(200);
+        }
+        if (dto.getMinChunkLengthToEmbed() != null) {
+            splitter.withMinChunkLengthToEmbed(dto.getMinChunkLengthToEmbed());
+        } else {
+            splitter.withMinChunkLengthToEmbed(100);
+        }
+        if (dto.getMinChunkSizeChars() != null) {
+            splitter.withMinChunkSizeChars(dto.getMinChunkSizeChars());
+        } else {
+            splitter.withMinChunkSizeChars(100);
+        }
+        if (dto.getMaxNumChunks() != null) {
+            splitter.withMaxNumChunks(dto.getMaxNumChunks());
+        } else {
+            splitter.withMaxNumChunks(100);
+        }
+        if (dto.getSeparator() != null) {
+            splitter.withKeepSeparator(dto.getSeparator());
+        }
+        return splitter.build();
     }
 
 }
