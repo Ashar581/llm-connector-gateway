@@ -166,19 +166,6 @@ llm:
           parallelExecution: 8
           active: true
 
-        - id: qwen3-embed
-          type:
-            - embedding
-          base-url: http://localhost:9091
-          api-path: /v1/embeddings
-          api-key: ashar581
-          port: 9091
-          model-name: Qwen3-Embedding-8B-Q4_K_M.gguf
-          mm-proj :
-          context: 8192
-          parallelExecution: 2
-          active: false
-
         - id: embed-v2
           type:
             - embedding
@@ -191,6 +178,19 @@ llm:
           context: 2048
           parallelExecution: 4
           active: true
+
+        - id: qwen3-embed
+          type:
+            - embedding
+          base-url: http://localhost:9091
+          api-path: /v1/embeddings
+          api-key: ashar581
+          port: 9091
+          model-name: Qwen3-Embedding-8B-Q4_K_M.gguf
+          mm-proj :
+          context: 8192
+          parallelExecution: 2
+          active: false
     paid:
       models:
         - id: openai-gpt4
