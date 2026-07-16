@@ -59,8 +59,8 @@ llm:
           port: 7070
           model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
           mm-proj :
-          context: 16384
-          parallelExecution: 4
+          context: 20480
+          parallelExecution: 5
           active: true
 
         - id: bonsai
@@ -153,19 +153,6 @@ llm:
           parallelExecution: 2
           active: false
 
-        - id: embed-v2
-          type:
-            - embedding
-          base-url: http://localhost:9092
-          api-path: /v1/embeddings
-          api-key: ashar581
-          port: 9092
-          model-name: Qwen3-Embedding-4B-Q4_K_M.gguf
-          mm-proj :
-          context: 2048
-          parallelExecution: 4
-          active: true
-
         - id: bge-large-embed
           type:
             - embedding
@@ -190,6 +177,19 @@ llm:
           mm-proj :
           context: 8192
           parallelExecution: 2
+          active: false
+
+        - id: embed-v2
+          type:
+            - embedding
+          base-url: http://localhost:9092
+          api-path: /v1/embeddings
+          api-key: ashar581
+          port: 9092
+          model-name: Qwen3-Embedding-4B-Q4_K_M.gguf
+          mm-proj :
+          context: 2048
+          parallelExecution: 4
           active: false
     paid:
       models:
