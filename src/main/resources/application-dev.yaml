@@ -188,7 +188,7 @@ llm:
           port: 9092
           model-name: Qwen3-Embedding-4B-Q4_K_M.gguf
           mm-proj :
-          context: 8192
+          context: 4096
           parallelExecution: 8
           active: true
     paid:
