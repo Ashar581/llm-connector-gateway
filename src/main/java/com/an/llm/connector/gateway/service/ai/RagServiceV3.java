@@ -8,6 +8,7 @@ import com.an.llm.connector.gateway.exception.NotAllowedException;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.exception.OperationFailedException;
 import com.an.llm.connector.gateway.model.ContextBudget;
+import com.an.llm.connector.gateway.model.ConversationIntelligence;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.config.ModelConfig;
 import com.an.llm.connector.gateway.service.LlmConfigService;
@@ -33,6 +34,7 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
@@ -55,6 +57,7 @@ public class RagServiceV3 {
     private final LlmConfigService llmConfigService;
     private final ContextBudgetService contextBudgetService;
     private final HistoryTokenTrimmer historyTokenTrimmer;
+    private final ConversationIntelligenceService conversationIntelligenceService;
     
     public String chat(@NonNull LlmConnectorRequest request, IngestionMode mode){
         validateAllowedType(request, mode);
@@ -87,7 +90,23 @@ public class RagServiceV3 {
             }
         }
         //retrieve the context from vector store.
-        List<Document> retrievedChunks = retrievalServiceV2.retrieve(vectorStore,request);
+//        List<Document> retrievedChunks = retrievalServiceV2.retrieve(vectorStore,request);
+        List<Document> retrievedChunks;
+
+        if (!request.isChatHistoryEnabled() || request.getChatHistory() == null || request.getChatHistory().isEmpty()) {
+            retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
+        } else {
+            ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
+            if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
+                retrievedChunks = List.of();
+
+            } else {
+                LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
+                BeanUtils.copyProperties(request, retrievalRequest);
+                retrievalRequest.setQuery(intelligence.getRewrittenQuery());
+                retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
+            }
+        }
 
         if (!confidenceService.hasUsableContext(retrievedChunks) && !request.isChatHistoryEnabled()) {
             return "I am afraid I don't know how to answer that.";
@@ -181,7 +200,27 @@ public class RagServiceV3 {
             }
         }
 
-        List<Document> retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
+//        List<Document> retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
+        List<Document> retrievedChunks;
+
+        if (!request.isChatHistoryEnabled() || request.getChatHistory() == null || request.getChatHistory().isEmpty()) {
+            retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
+        } else {
+            ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
+            System.out.println(intelligence.getRewrittenQuery());
+            if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
+                retrievedChunks = List.of();
+
+            } else {
+                System.out.println("REWRITTEN: "+intelligence.getRewrittenQuery());
+                LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
+                BeanUtils.copyProperties(request, retrievalRequest);
+                retrievalRequest.setQuery(intelligence.getRewrittenQuery());
+                retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
+            }
+        }
+
+        System.out.println("RECEIVED CHUNKS: "+retrievedChunks);
 
         if (!confidenceService.hasUsableContext(retrievedChunks) && !request.isChatHistoryEnabled()) {
             return Flux.just("I am afraid I don't know how to answer that.");

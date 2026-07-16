@@ -1,7 +1,9 @@
 package com.an.llm.connector.gateway.model;
 
 import com.an.llm.connector.gateway.enums.ClassificationMode;
+import com.an.llm.connector.gateway.util.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.knuddels.jtokkit.api.EncodingType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,6 +36,8 @@ public class LlmConnectorRequest {
     private String documentTypes;
     private boolean chatHistoryEnabled;
     private List<ChatHistory> chatHistory;
+    //only for handling forms.
+    private String chatHistoryForForm;
     //just added it for internal usages. Not exposable.
     private String agentName;
     private Integer pageChunk;
@@ -51,4 +55,15 @@ public class LlmConnectorRequest {
     private Double similarityThreshold;
 
     private Boolean enablePrivateMode;
+
+    public void setChatHistoryForForm(String chatHistoryForForm) {
+        this.chatHistoryForForm = chatHistoryForForm;
+
+        if (chatHistoryForForm != null && !chatHistoryForForm.isBlank()) {
+            this.chatHistory = JsonUtils.deserializeString(
+                    chatHistoryForForm,
+                    new TypeReference<List<ChatHistory>>() {}
+            );
+        }
+    }
 }
