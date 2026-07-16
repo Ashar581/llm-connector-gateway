@@ -162,8 +162,8 @@ llm:
           port: 9090
           model-name: bge-large-en-v1.5-q4_k_m.gguf
           mm-proj :
-          context: 8192
-          parallelExecution: 16
+          context: 4096
+          parallelExecution: 8
           active: true
 
         - id: qwen3-embed
