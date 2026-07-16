@@ -178,6 +178,19 @@ llm:
           context: 8192
           parallelExecution: 2
           active: false
+
+        - id: embed-v2
+          type:
+            - embedding
+          base-url: http://localhost:9092
+          api-path: /v1/embeddings
+          api-key: ashar581
+          port: 9092
+          model-name: Qwen3-Embedding-4B-Q4_K_M.gguf
+          mm-proj :
+          context: 8192
+          parallelExecution: 8
+          active: true
     paid:
       models:
         - id: openai-gpt4

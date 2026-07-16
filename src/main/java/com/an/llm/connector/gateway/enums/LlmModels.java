@@ -13,6 +13,7 @@ public enum LlmModels {
     NU_EXTRACTOR("nu-extractor"),
     BGE_LARGE_EMBED("bge-large-embed"),
     QWEN3_EMBED("qwen-3-embed"),
+    EMBED_V3("embed-v2"),
     GEMMA_4("gemma-4");
 
     private final String id;
