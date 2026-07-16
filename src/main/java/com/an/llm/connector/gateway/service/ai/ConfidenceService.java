@@ -9,7 +9,7 @@ import java.util.List;
 public class ConfidenceService {
 
     public boolean hasUsableContext(List<Document> documents) {
-        return documents != null && !documents.isEmpty();
+        return documents != null;
     }
 
     public boolean isAnswerUnknown(String answer) {
