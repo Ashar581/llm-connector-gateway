@@ -153,19 +153,6 @@ llm:
           parallelExecution: 2
           active: false
 
-        - id: bge-large-embed
-          type:
-            - embedding
-          base-url: http://localhost:9090
-          api-path: /v1/embeddings
-          api-key: ashar581
-          port: 9090
-          model-name: bge-large-en-v1.5-q4_k_m.gguf
-          mm-proj :
-          context: 4096
-          parallelExecution: 8
-          active: true
-
         - id: embed-v2
           type:
             - embedding
@@ -177,6 +164,19 @@ llm:
           mm-proj :
           context: 2048
           parallelExecution: 4
+          active: true
+
+        - id: bge-large-embed
+          type:
+            - embedding
+          base-url: http://localhost:9090
+          api-path: /v1/embeddings
+          api-key: ashar581
+          port: 9090
+          model-name: bge-large-en-v1.5-q4_k_m.gguf
+          mm-proj :
+          context: 4096
+          parallelExecution: 8
           active: true
 
         - id: qwen3-embed
