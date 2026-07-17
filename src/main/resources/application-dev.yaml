@@ -186,11 +186,11 @@ llm:
           api-path: /v1/embeddings
           api-key: ashar581
           port: 9092
-          model-name: Qwen3-Embedding-4B-Q4_K_M.gguf
+          model-name: Qwen3-Embedding-4B-q2_k_s.gguf
           mm-proj :
           context: 2048
           parallelExecution: 4
-          active: false
+          active: true
     paid:
       models:
         - id: openai-gpt4
