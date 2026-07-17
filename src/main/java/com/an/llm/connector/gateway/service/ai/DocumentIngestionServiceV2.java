@@ -89,7 +89,7 @@ public class DocumentIngestionServiceV2 {
 
             vectorStore.add(finalChunks);
         } catch (Exception e) {
-            log.error("Error while ingesting the file for knowledge-base.");
+            log.error("Error while ingesting the file for knowledge-base.",e);
             throw new OperationFailedException("Unable to ingest the file.");
         }
     }
