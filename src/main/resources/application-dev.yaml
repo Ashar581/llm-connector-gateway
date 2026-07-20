@@ -195,7 +195,7 @@ llm:
           api-path: /v1/embeddings
           api-key: ashar581
           port: 9092
-          model-name: Qwen3-Embedding-4B-q2_k_s.gguf
+          model-name: Qwen3-Embedding-4B-Q4_K_M.gguf
           mm-proj :
           context: 2048
           parallelExecution: 4
