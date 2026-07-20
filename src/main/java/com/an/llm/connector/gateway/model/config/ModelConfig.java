@@ -17,5 +17,6 @@ public class ModelConfig {
     private String mmProj;
     private Integer context;
     private Integer parallelExecution;
+    private Boolean gpu;
     private Boolean active;
 }

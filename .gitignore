@@ -35,3 +35,6 @@ build/
 # Local Spring configs
 application-local.yaml
 application-*.local.yaml
+
+# Logs
+logs/
