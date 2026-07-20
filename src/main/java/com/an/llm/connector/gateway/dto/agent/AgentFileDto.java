@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.dto;
+package com.an.llm.connector.gateway.dto.agent;
 
 import lombok.Data;
 

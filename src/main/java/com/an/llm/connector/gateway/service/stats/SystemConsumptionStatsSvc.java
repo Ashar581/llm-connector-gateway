@@ -1,7 +1,7 @@
 package com.an.llm.connector.gateway.service.stats;
 
-import com.an.llm.connector.gateway.dto.AgentConfigurationDto;
-import com.an.llm.connector.gateway.dto.SystemConsumptionStatsDto;
+import com.an.llm.connector.gateway.dto.agent.AgentConfigurationDto;
+import com.an.llm.connector.gateway.dto.agent.SystemConsumptionStatsDto;
 import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
