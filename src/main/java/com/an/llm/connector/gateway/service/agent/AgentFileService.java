@@ -1,6 +1,6 @@
 package com.an.llm.connector.gateway.service.agent;
 
-import com.an.llm.connector.gateway.dto.AgentFileDto;
+import com.an.llm.connector.gateway.dto.agent.AgentFileDto;
 import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.entity.AgentFileEntity;
 import com.an.llm.connector.gateway.exception.NotFoundException;

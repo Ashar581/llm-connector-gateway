@@ -2,7 +2,7 @@ package com.an.llm.connector.gateway.controller.agent;
 
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
-import com.an.llm.connector.gateway.dto.AgentConfigurationDto;
+import com.an.llm.connector.gateway.dto.agent.AgentConfigurationDto;
 import com.an.llm.connector.gateway.service.agent.AgentConfigurationService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
