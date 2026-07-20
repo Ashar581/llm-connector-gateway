@@ -90,7 +90,6 @@ public class RagServiceV3 {
             }
         }
         //retrieve the context from vector store.
-//        List<Document> retrievedChunks = retrievalServiceV2.retrieve(vectorStore,request);
         List<Document> retrievedChunks;
 
         if (!request.isChatHistoryEnabled() || request.getChatHistory() == null || request.getChatHistory().isEmpty()) {
