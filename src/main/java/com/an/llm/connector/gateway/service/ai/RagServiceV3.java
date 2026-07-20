@@ -97,14 +97,18 @@ public class RagServiceV3 {
             retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
         } else {
             ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
+            log.info("Rewritten Query for RAG: {}",intelligence.getRewrittenQuery());
             if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
+                log.info("Not using Vector Store to get chunks since it was detected that the question can be answered using knowledge-base.");
                 retrievedChunks = List.of();
 
             } else {
                 LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
                 BeanUtils.copyProperties(request, retrievalRequest);
                 retrievalRequest.setQuery(intelligence.getRewrittenQuery());
+                log.info("Retrieving chunks with rewritten query.");
                 retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
+                log.info("Chunks received: {}",retrievedChunks.size());
             }
         }
 
@@ -200,27 +204,26 @@ public class RagServiceV3 {
             }
         }
 
-//        List<Document> retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
         List<Document> retrievedChunks;
 
         if (!request.isChatHistoryEnabled() || request.getChatHistory() == null || request.getChatHistory().isEmpty()) {
             retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
         } else {
             ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
-            System.out.println(intelligence.getRewrittenQuery());
+            log.info("Rewritten Query for stream-RAG: {}",intelligence.getRewrittenQuery());
             if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
+                log.info("Not using Vector Store to get chunks since it was detected that the question can be answered using knowledge-base. (stream-RAG)");
                 retrievedChunks = List.of();
 
             } else {
-                System.out.println("REWRITTEN: "+intelligence.getRewrittenQuery());
                 LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
                 BeanUtils.copyProperties(request, retrievalRequest);
                 retrievalRequest.setQuery(intelligence.getRewrittenQuery());
+                log.info("Retrieving chunks with rewritten query.(stream-RAG)");
                 retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
+                log.info("Chunks received (stream-RAG): {}",retrievedChunks.size());
             }
         }
-
-        System.out.println("RECEIVED CHUNKS: "+retrievedChunks);
 
         if (!confidenceService.hasUsableContext(retrievedChunks) && !request.isChatHistoryEnabled()) {
             return Flux.just("I am afraid I don't know how to answer that.");

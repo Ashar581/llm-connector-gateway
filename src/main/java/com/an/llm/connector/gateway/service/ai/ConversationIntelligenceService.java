@@ -31,8 +31,6 @@ public class ConversationIntelligenceService {
     public ConversationIntelligence analyse(LlmConnectorRequest request) {
         String history = buildHistory(buildTrimmedHistory(request));
 
-        System.out.println("HISTORY: "+history);
-
         ChatClient client = aiBeanFactory.getChatClient(
                 request.getSource(),
                 request.getType(),
