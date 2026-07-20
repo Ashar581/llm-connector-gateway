@@ -200,6 +200,20 @@ llm:
           context: 8192
           parallelExecution: 8
           gpu : true
+          active: false
+
+        - id: embed-m3
+          type:
+            - embedding
+          base-url: http://localhost:9093
+          api-path: /v1/embeddings
+          api-key: ashar581
+          port: 9093
+          model-name: bge-m3-Q4_K_M.gguf
+          mm-proj :
+          context: 4096
+          parallelExecution: 8
+          gpu : true
           active: true
     paid:
       models:
