@@ -171,7 +171,7 @@ llm:
           mm-proj :
           context: 4096
           parallelExecution: 8
-          gpu : false
+          gpu : true
           active: true
 
         - id: qwen3-embed
