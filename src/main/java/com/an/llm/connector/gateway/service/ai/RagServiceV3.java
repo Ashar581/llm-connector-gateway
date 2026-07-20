@@ -207,7 +207,8 @@ public class RagServiceV3 {
             retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
         } else {
             ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
-            System.out.println(intelligence.getRewrittenQuery());
+            System.out.println("Conversation Intent JSON: "+intelligence);
+            System.out.println("Rewritten 1: "+intelligence.getRewrittenQuery());
             if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
                 retrievedChunks = List.of();
 
