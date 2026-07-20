@@ -61,6 +61,7 @@ llm:
           mm-proj :
           context: 20480
           parallelExecution: 5
+          gpu : true
           active: true
 
         - id: bonsai
@@ -78,6 +79,7 @@ llm:
           mm-proj :
           context: 16384
           parallelExecution: 8
+          gpu : true
           active: true
 
         - id: qwen-coder
@@ -91,6 +93,7 @@ llm:
           mm-proj :
           context: 8192
           parallelExecution: 1
+          gpu : true
           active: false
 
         - id: qwen-vl
@@ -105,6 +108,7 @@ llm:
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
           context: 80000
           parallelExecution: 4
+          gpu : true
           active: false
 
         - id: nu-extractor
@@ -119,6 +123,7 @@ llm:
           mm-proj : mmproj-BF16.gguf
           context: 16384
           parallelExecution: 1
+          gpu : true
           active: false
 
         - id: vision-v3
@@ -133,6 +138,7 @@ llm:
           mm-proj : mmproj-Qwen3VL-8B-Instruct-F16.gguf
           context: 80000
           parallelExecution: 4
+          gpu : true
           active: true
 
         - id: qwen-sml
@@ -151,6 +157,7 @@ llm:
           mm-proj :
           context: 4096
           parallelExecution: 2
+          gpu : true
           active: false
 
         - id: bge-large-embed
@@ -164,6 +171,7 @@ llm:
           mm-proj :
           context: 4096
           parallelExecution: 8
+          gpu : false
           active: true
 
         - id: qwen3-embed
@@ -177,6 +185,7 @@ llm:
           mm-proj :
           context: 8192
           parallelExecution: 2
+          gpu : true
           active: false
 
         - id: embed-v2
@@ -190,7 +199,8 @@ llm:
           mm-proj :
           context: 2048
           parallelExecution: 4
-          active: false
+          gpu : true
+          active: true
     paid:
       models:
         - id: openai-gpt4

@@ -31,4 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local Spring configs
 application-local.yaml
+application-*.local.yaml
+
+# Logs
+logs/

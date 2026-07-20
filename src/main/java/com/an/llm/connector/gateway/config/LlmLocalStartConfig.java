@@ -39,26 +39,6 @@ public class LlmLocalStartConfig {
 
                                 ProcessBuilder modelBuilder;
 
-//                                ProcessBuilder modelBuilder = new ProcessBuilder(
-//                                        "bash",
-//                                        "-c",
-//                                        isEmbedding
-//                                                ?
-//                                                ProcessBuilderUtils.generateProcessBuilderEmbedScript(
-//                                                        config.getModelName(),
-//                                                        config.getContext(),
-//                                                        config.getParallelExecution(),
-//                                                        config.getPort()
-//                                                )
-//                                                :
-//                                                ProcessBuilderUtils.generateProcessBuilderScript(
-//                                                        config.getModelName(),
-//                                                        config.getContext(),
-//                                                        config.getParallelExecution(),
-//                                                        config.getPort()
-//                                                )
-//                                );
-
                                 if (isVision){
                                     modelBuilder = new ProcessBuilder(
                                             "bash",
@@ -68,6 +48,7 @@ public class LlmLocalStartConfig {
                                                     config.getMmProj(),
                                                     config.getContext(),
                                                     config.getParallelExecution(),
+                                                    config.getGpu(),
                                                     config.getPort()
                                             )
                                     );
@@ -79,6 +60,7 @@ public class LlmLocalStartConfig {
                                                     config.getModelName(),
                                                     config.getContext(),
                                                     config.getParallelExecution(),
+                                                    config.getGpu(),
                                                     config.getPort()
                                             )
                                     );
@@ -90,6 +72,7 @@ public class LlmLocalStartConfig {
                                                     config.getModelName(),
                                                     config.getContext(),
                                                     config.getParallelExecution(),
+                                                    config.getGpu(),
                                                     config.getPort()
                                             )
                                     );
