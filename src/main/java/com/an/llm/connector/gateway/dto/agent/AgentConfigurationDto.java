@@ -1,9 +1,6 @@
-package com.an.llm.connector.gateway.dto;
+package com.an.llm.connector.gateway.dto.agent;
 
 import com.an.llm.connector.gateway.enums.ClassificationMode;
-import com.an.llm.connector.gateway.enums.LlmCapability;
-import com.an.llm.connector.gateway.enums.LlmModels;
-import com.an.llm.connector.gateway.enums.Source;
 import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;

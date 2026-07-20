@@ -158,4 +158,17 @@ public class CustomExceptionHandler implements TimeUtils {
 
         return new ResponseEntity<>(exception, HttpStatus.UNPROCESSABLE_CONTENT);
     }
+
+    @ExceptionHandler(WebSearchException.class)
+    public ResponseEntity<@NonNull ApiExceptionBody> webSearchExceptionHandler(WebSearchException webSearchException, HttpServletRequest request) {
+        ApiExceptionBody exception  = new ApiExceptionBody();
+
+        exception.setPath(request.getRequestURI());
+        exception.setMessage(webSearchException.getMessage());
+        exception.setStatus(false);
+        exception.setTimestamp(EXCEPTION_RESPONSE_FORMAT);
+        exception.setCode(HttpStatus.BAD_GATEWAY.value());
+
+        return new ResponseEntity<>(exception, HttpStatus.BAD_GATEWAY);
+    }
 }

@@ -2,7 +2,6 @@ package com.an.llm.connector.gateway.controller.stats;
 
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
-import com.an.llm.connector.gateway.dto.SystemConsumptionStatsDto;
 import com.an.llm.connector.gateway.model.filter.TokenStatsFilterRequest;
 import com.an.llm.connector.gateway.model.filter.TokenStatsFilterResponse;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
@@ -13,8 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

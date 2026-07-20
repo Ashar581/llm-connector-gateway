@@ -1,6 +1,6 @@
 package com.an.llm.connector.gateway.model.filter;
 
-import com.an.llm.connector.gateway.dto.SystemConsumptionStatsDto;
+import com.an.llm.connector.gateway.dto.agent.SystemConsumptionStatsDto;
 import lombok.Data;
 
 import java.util.List;
