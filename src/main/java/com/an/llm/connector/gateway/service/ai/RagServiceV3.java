@@ -11,12 +11,15 @@ import com.an.llm.connector.gateway.model.ContextBudget;
 import com.an.llm.connector.gateway.model.ConversationIntelligence;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.config.ModelConfig;
+import com.an.llm.connector.gateway.model.web.SearchRequest;
+import com.an.llm.connector.gateway.model.web.WebDocument;
 import com.an.llm.connector.gateway.service.LlmConfigService;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.service.factory.VectorStoreBeanFactory;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.service.tokenize.ContextBudgetService;
 import com.an.llm.connector.gateway.service.tokenize.HistoryTokenTrimmer;
+import com.an.llm.connector.gateway.service.web.WebSearchService;
 import com.an.llm.connector.gateway.util.ChatMessageContextUtils;
 import com.an.llm.connector.gateway.util.LlmInstructions;
 import com.knuddels.jtokkit.api.EncodingType;
@@ -39,6 +42,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -58,6 +63,7 @@ public class RagServiceV3 {
     private final ContextBudgetService contextBudgetService;
     private final HistoryTokenTrimmer historyTokenTrimmer;
     private final ConversationIntelligenceService conversationIntelligenceService;
+    private final WebSearchService webSearchService;
     
     public String chat(@NonNull LlmConnectorRequest request, IngestionMode mode){
         validateAllowedType(request, mode);
@@ -89,35 +95,41 @@ public class RagServiceV3 {
                 }
             }
         }
-        //retrieve the context from vector store.
+
+        //testing
+        ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
+        log.info("Conversation Intelligence: {}", intelligence);
         List<Document> retrievedChunks;
 
-        if (!request.isChatHistoryEnabled() || request.getChatHistory() == null || request.getChatHistory().isEmpty()) {
-            retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
+        if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
+            log.info("Skipping vector retrieval as no knowledge retrieval is required.");
+            retrievedChunks = List.of();
         } else {
-            ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
-            log.info("Rewritten Query for RAG: {}",intelligence.getRewrittenQuery());
-            if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
-                log.info("Not using Vector Store to get chunks since it was detected that the question can be answered using knowledge-base.");
-                retrievedChunks = List.of();
-
-            } else {
-                LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
-                BeanUtils.copyProperties(request, retrievalRequest);
-                retrievalRequest.setQuery(intelligence.getRewrittenQuery());
-                log.info("Retrieving chunks with rewritten query.");
-                retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
-                log.info("Chunks received: {}",retrievedChunks.size());
-            }
-        }
-
-        if (!confidenceService.hasUsableContext(retrievedChunks) && !request.isChatHistoryEnabled()) {
-            return "I am afraid I don't know how to answer that.";
+            LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
+            BeanUtils.copyProperties(request, retrievalRequest);
+            retrievalRequest.setQuery(intelligence.getRewrittenQuery());
+            log.info("Retrieving chunks with rewritten query.");
+            retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
+            log.info("Chunks received: {}", retrievedChunks.size());
         }
 
         String context = retrievedChunks.stream()
                 .map(Document::getText)
                 .collect(Collectors.joining("\n\n"));
+
+        //testing
+        boolean shouldSearchInternet = Boolean.TRUE.equals(intelligence.getInternetMayBeHelpful()) && Boolean.FALSE.equals(request.getEnablePrivateMode());
+
+        if (shouldSearchInternet && (retrievedChunks.isEmpty() || !confidenceService.hasUsableContext(retrievedChunks))) {
+            String webResultsSummarized = webSearchService.search(
+                    new SearchRequest(intelligence.getRewrittenQuery(),3, Duration.of(10000, ChronoUnit.SECONDS)),
+                    request
+            );
+            if (!webResultsSummarized.isBlank()) {
+                context += "Data From Internet: " + webResultsSummarized;
+            }
+        }
+
         //give it to the LLM to generate structured answers.
         String instructions = (request.getInstructions() == null || request.getInstructions().isBlank()) ? LlmInstructions.DEFAULT_RAG_INSTRUCTION : request.getInstructions();
 
@@ -203,34 +215,43 @@ public class RagServiceV3 {
             }
         }
 
+        ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
+        log.info("Conversation Intelligence: {}", intelligence);
         List<Document> retrievedChunks;
 
-        if (!request.isChatHistoryEnabled() || request.getChatHistory() == null || request.getChatHistory().isEmpty()) {
-            retrievedChunks = retrievalServiceV2.retrieve(vectorStore, request);
+        if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
+            log.info("Skipping vector retrieval as no knowledge retrieval is required.");
+            retrievedChunks = List.of();
         } else {
-            ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
-            log.info("Rewritten Query for stream-RAG: {}",intelligence.getRewrittenQuery());
-            if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
-                log.info("Not using Vector Store to get chunks since it was detected that the question can be answered using knowledge-base. (stream-RAG)");
-                retrievedChunks = List.of();
-
-            } else {
-                LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
-                BeanUtils.copyProperties(request, retrievalRequest);
-                retrievalRequest.setQuery(intelligence.getRewrittenQuery());
-                log.info("Retrieving chunks with rewritten query.(stream-RAG)");
-                retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
-                log.info("Chunks received (stream-RAG): {}",retrievedChunks.size());
-            }
-        }
-
-        if (!confidenceService.hasUsableContext(retrievedChunks) && !request.isChatHistoryEnabled()) {
-            return Flux.just("I am afraid I don't know how to answer that.");
+            LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
+            BeanUtils.copyProperties(request, retrievalRequest);
+            retrievalRequest.setQuery(intelligence.getRewrittenQuery());
+            log.info("Retrieving chunks with rewritten query.");
+            retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
+            log.info("Chunks received: {}", retrievedChunks.size());
         }
 
         String context = retrievedChunks.stream()
                 .map(Document::getText)
                 .collect(Collectors.joining("\n\n"));
+
+        //testing
+        boolean shouldSearchInternet = Boolean.TRUE.equals(intelligence.getInternetMayBeHelpful()) && Boolean.FALSE.equals(request.getEnablePrivateMode());
+
+        if (shouldSearchInternet && (retrievedChunks.isEmpty() || !confidenceService.hasUsableContext(retrievedChunks))) {
+            String webResultsSummarized = webSearchService.search(
+                    new SearchRequest(intelligence.getRewrittenQuery(),3, Duration.of(10000, ChronoUnit.SECONDS)),
+                    request
+            );
+            if (!webResultsSummarized.isBlank()) {
+                context += "Data From Internet: " + webResultsSummarized;
+            }
+        }
+
+
+        if (!confidenceService.hasUsableContext(retrievedChunks) && !request.isChatHistoryEnabled()) {
+            return Flux.just("I am afraid I don't know how to answer that.");
+        }
 
         String instructions = (request.getInstructions() == null || request.getInstructions().isBlank())
                 ? LlmInstructions.DEFAULT_RAG_INSTRUCTION
