@@ -216,19 +216,19 @@ public class RagServiceV3 {
         }
 
         ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
-        log.info("Conversation Intelligence: {}", intelligence);
+        log.info("Conversation Intelligence (stream): {}", intelligence);
         List<Document> retrievedChunks;
 
         if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
-            log.info("Skipping vector retrieval as no knowledge retrieval is required.");
+            log.info("Skipping vector retrieval as no knowledge retrieval is required (stream).");
             retrievedChunks = List.of();
         } else {
             LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
             BeanUtils.copyProperties(request, retrievalRequest);
             retrievalRequest.setQuery(intelligence.getRewrittenQuery());
-            log.info("Retrieving chunks with rewritten query.");
+            log.info("Retrieving chunks with rewritten query (stream).");
             retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
-            log.info("Chunks received: {}", retrievedChunks.size());
+            log.info("Chunks received (stream): {}", retrievedChunks.size());
         }
 
         String context = retrievedChunks.stream()
@@ -244,7 +244,7 @@ public class RagServiceV3 {
                     request
             );
             if (!webResultsSummarized.isBlank()) {
-                context += "Data From Internet: " + webResultsSummarized;
+                context += "DATA FROM INTERNET: \n" + webResultsSummarized;
             }
         }
 
