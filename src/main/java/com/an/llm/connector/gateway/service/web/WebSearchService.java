@@ -86,12 +86,20 @@ public class WebSearchService {
                     long llmStart = System.currentTimeMillis();
 
                     ChatResponse llmResponse = client.prompt()
-                            .user("""
-                                    Summarize the following content while preserving
+                            .system("""
+                                    1. Summarize the following content while preserving
                                     all important facts.
                                     
+                                    2. Always keep the user query in mind while summarizing the requested information.
+                                    """)
+                            .user("""
+                                    USER QUERY:
                                     %s
-                                    """.formatted(chunk))
+                                    
+                                    WEBSITE SCRAPED DATA
+                                    
+                                    %s
+                                    """.formatted(request.getQuery(),chunk))
                             .call()
                             .chatResponse();
 
