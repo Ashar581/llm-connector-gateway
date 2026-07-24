@@ -96,6 +96,9 @@ public class RagServiceV3 {
             }
         }
 
+        //give it to the LLM to generate structured answers.
+        String instructions = (request.getInstructions() == null || request.getInstructions().isBlank()) ? LlmInstructions.DEFAULT_RAG_INSTRUCTION : request.getInstructions();
+
         //testing
         ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
         log.info("Conversation Intelligence: {}", intelligence);
@@ -120,18 +123,16 @@ public class RagServiceV3 {
         //testing
         boolean shouldSearchInternet = Boolean.TRUE.equals(intelligence.getInternetMayBeHelpful()) && Boolean.FALSE.equals(request.getEnablePrivateMode());
 
-        if (shouldSearchInternet && (retrievedChunks.isEmpty() || !confidenceService.hasUsableContext(retrievedChunks))) {
+        if (shouldSearchInternet && !confidenceService.hasUsableContext(retrievedChunks)) {
             String webResultsSummarized = webSearchService.search(
                     new SearchRequest(intelligence.getRewrittenQuery(),3, Duration.of(10000, ChronoUnit.SECONDS)),
                     request
             );
             if (!webResultsSummarized.isBlank()) {
+                instructions+="\n-DATA FROM INTERNET - Should only be used as context if you think it needed. Prefer the RAG context but if needed then add the web data too.";
                 context += "DATA FROM INTERNET: \n" + webResultsSummarized;
             }
         }
-
-        //give it to the LLM to generate structured answers.
-        String instructions = (request.getInstructions() == null || request.getInstructions().isBlank()) ? LlmInstructions.DEFAULT_RAG_INSTRUCTION : request.getInstructions();
 
         long start = System.currentTimeMillis();
 
