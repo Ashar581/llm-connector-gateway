@@ -27,6 +27,20 @@ public interface AgentConfigWithFilesView {
     ClassificationMode getClassificationMode();
     List<DocumentTypeDefinition> getDocumentTypes();
     Integer getPageChunk();
+
+    String getVectorStore();
+    String getEncodingType();
+    Integer getChunkSize();
+    Integer getMinChunkLengthToEmbed();
+    Integer getMinChunkSizeChars();
+    Integer getMaxNumChunks();
+    Boolean getSeparator();
+
+    Integer getTopK();
+    Double getSimilarityThreshold();
+
+    Boolean getEnablePrivateMode();
+
     String getCreatedBy();
     Instant getCreatedAt();
     String getUpdatedBy();
