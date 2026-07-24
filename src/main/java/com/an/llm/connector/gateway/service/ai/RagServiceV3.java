@@ -102,37 +102,58 @@ public class RagServiceV3 {
         //testing
         ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
         log.info("Conversation Intelligence: {}", intelligence);
-        List<Document> retrievedChunks;
 
-        if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
-            log.info("Skipping vector retrieval as no knowledge retrieval is required.");
-            retrievedChunks = List.of();
-        } else {
+        StringBuilder contextBuilder = new StringBuilder();
+
+        // RAG Retrieval
+        List<Document> retrievedChunks = List.of();
+
+        if (Boolean.TRUE.equals(intelligence.getRequiresRag())) {
             LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
             BeanUtils.copyProperties(request, retrievalRequest);
-            retrievalRequest.setQuery(intelligence.getRewrittenQuery());
-            log.info("Retrieving chunks with rewritten query.");
+            retrievalRequest.setQuery(intelligence.getRagQuery());
+            log.info("Retrieving RAG context using query: {}", intelligence.getRagQuery());
             retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
-            log.info("Chunks received: {}", retrievedChunks.size());
-        }
+            log.info("Retrieved {} chunks.", retrievedChunks.size());
 
-        String context = retrievedChunks.stream()
-                .map(Document::getText)
-                .collect(Collectors.joining("\n\n"));
-
-        //testing
-        boolean shouldSearchInternet = Boolean.TRUE.equals(intelligence.getInternetMayBeHelpful()) && Boolean.FALSE.equals(request.getEnablePrivateMode());
-
-        if (shouldSearchInternet) {
-            String webResultsSummarized = webSearchService.search(
-                    new SearchRequest(intelligence.getRewrittenQuery(),3, Duration.of(10000, ChronoUnit.SECONDS)),
-                    request
-            );
-            if (!webResultsSummarized.isBlank()) {
-                instructions+="\n-DATA FROM INTERNET - Should only be used as context if you think it needed. Prefer the RAG context but if needed then add the web data too.";
-                context += "DATA FROM INTERNET: \n" + webResultsSummarized;
+            if (!retrievedChunks.isEmpty()) {
+                contextBuilder.append("PRIVATE KNOWLEDGE BASE:\n")
+                        .append(
+                                retrievedChunks.stream()
+                                        .map(Document::getText)
+                                        .collect(Collectors.joining("\n\n"))
+                        )
+                        .append("\n\n");
             }
         }
+
+        // Internet Search
+        boolean internetAllowed = Boolean.FALSE.equals(request.getEnablePrivateMode());
+
+        if (internetAllowed && Boolean.TRUE.equals(intelligence.getRequiresInternet())) {
+            log.info("Searching Internet using query: {}", intelligence.getInternetQuery());
+            String webResults = webSearchService.search(
+                    new SearchRequest(
+                            intelligence.getInternetQuery(),
+                            3,
+                            Duration.ofSeconds(10)
+                    ),
+                    request
+            );
+            if (!webResults.isBlank()) {
+                instructions += """
+                        INTERNET CONTEXT:
+                        - Use this only when relevant.
+                        - If both private knowledge and Internet provide information, prefer the private knowledge base when they conflict unless the user explicitly requests current/public information.
+                        """;
+
+                contextBuilder.append("INTERNET:\n")
+                        .append(webResults)
+                        .append("\n\n");
+            }
+        }
+
+        String context = contextBuilder.toString();
 
         long start = System.currentTimeMillis();
 
@@ -222,37 +243,57 @@ public class RagServiceV3 {
 
         ConversationIntelligence intelligence = conversationIntelligenceService.analyse(request);
         log.info("Conversation Intelligence (stream): {}", intelligence);
-        List<Document> retrievedChunks;
 
-        if (Boolean.FALSE.equals(intelligence.getRequiresRetrieval())) {
-            log.info("Skipping vector retrieval as no knowledge retrieval is required (stream).");
-            retrievedChunks = List.of();
-        } else {
+        StringBuilder contextBuilder = new StringBuilder();
+
+        // RAG Retrieval
+        List<Document> retrievedChunks = List.of();
+
+        if (Boolean.TRUE.equals(intelligence.getRequiresRag())) {
             LlmConnectorRequest retrievalRequest = new LlmConnectorRequest();
             BeanUtils.copyProperties(request, retrievalRequest);
-            retrievalRequest.setQuery(intelligence.getRewrittenQuery());
-            log.info("Retrieving chunks with rewritten query (stream).");
+            retrievalRequest.setQuery(intelligence.getRagQuery());
+            log.info("Retrieving RAG context using query (stream): {}", intelligence.getRagQuery());
             retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
-            log.info("Chunks received (stream): {}", retrievedChunks.size());
-        }
+            log.info("Retrieved {} chunks.", retrievedChunks.size());
 
-        String context = retrievedChunks.stream()
-                .map(Document::getText)
-                .collect(Collectors.joining("\n\n"));
-
-        //testing
-        boolean shouldSearchInternet = Boolean.TRUE.equals(intelligence.getInternetMayBeHelpful()) && Boolean.FALSE.equals(request.getEnablePrivateMode());
-
-        if (shouldSearchInternet) {
-            String webResultsSummarized = webSearchService.search(
-                    new SearchRequest(intelligence.getRewrittenQuery(),3, Duration.of(10000, ChronoUnit.SECONDS)),
-                    request
-            );
-            if (!webResultsSummarized.isBlank()) {
-                instructions+="\n-DATA FROM INTERNET - Should only be used as context if you think it needed. Prefer the RAG context but if needed then add the web data too.";
-                context += "DATA FROM INTERNET: \n" + webResultsSummarized;
+            if (!retrievedChunks.isEmpty()) {
+                contextBuilder.append("PRIVATE KNOWLEDGE BASE:\n")
+                        .append(
+                                retrievedChunks.stream()
+                                        .map(Document::getText)
+                                        .collect(Collectors.joining("\n\n"))
+                        )
+                        .append("\n\n");
             }
         }
+
+        // Internet Search
+        boolean internetAllowed = Boolean.FALSE.equals(request.getEnablePrivateMode());
+
+        if (internetAllowed && Boolean.TRUE.equals(intelligence.getRequiresInternet())) {
+            log.info("Searching Internet using query (stream): {}", intelligence.getInternetQuery());
+            String webResults = webSearchService.search(
+                    new SearchRequest(
+                            intelligence.getInternetQuery(),
+                            3,
+                            Duration.ofSeconds(10)
+                    ),
+                    request
+            );
+            if (!webResults.isBlank()) {
+                instructions += """
+                        INTERNET CONTEXT:
+                        - Use this only when relevant.
+                        - If both private knowledge and Internet provide information, prefer the private knowledge base when they conflict unless the user explicitly requests current/public information.
+                        """;
+
+                contextBuilder.append("INTERNET:\n")
+                        .append(webResults)
+                        .append("\n\n");
+            }
+        }
+        String context = contextBuilder.toString();
 
         long start = System.currentTimeMillis();
 
