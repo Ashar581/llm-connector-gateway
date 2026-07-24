@@ -123,7 +123,7 @@ public class RagServiceV3 {
         //testing
         boolean shouldSearchInternet = Boolean.TRUE.equals(intelligence.getInternetMayBeHelpful()) && Boolean.FALSE.equals(request.getEnablePrivateMode());
 
-        if (shouldSearchInternet && !confidenceService.hasUsableContext(retrievedChunks)) {
+        if (shouldSearchInternet) {
             String webResultsSummarized = webSearchService.search(
                     new SearchRequest(intelligence.getRewrittenQuery(),3, Duration.of(10000, ChronoUnit.SECONDS)),
                     request
@@ -243,7 +243,7 @@ public class RagServiceV3 {
         //testing
         boolean shouldSearchInternet = Boolean.TRUE.equals(intelligence.getInternetMayBeHelpful()) && Boolean.FALSE.equals(request.getEnablePrivateMode());
 
-        if (shouldSearchInternet && !confidenceService.hasUsableContext(retrievedChunks)) {
+        if (shouldSearchInternet) {
             String webResultsSummarized = webSearchService.search(
                     new SearchRequest(intelligence.getRewrittenQuery(),3, Duration.of(10000, ChronoUnit.SECONDS)),
                     request
