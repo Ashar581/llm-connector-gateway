@@ -70,40 +70,34 @@ public class ConversationIntelligenceService {
     }
 
     private static final String SYSTEM_PROMPT = """
-            You are an AI Conversation Intelligence Engine for a RAG system.
-            
-            Analyze the latest user message using the conversation history.
-            
-            Never answer the user's question.
-            Never invent or infer missing facts.
-            Return ONLY a valid ConversationIntelligence object.
-            
-            Classify the message as exactly one:
-            
-            - STANDALONE: The message is fully understandable without conversation history.
-            - FOLLOW_UP: The message depends on previous conversation (references, omitted context, continuation, or follow-up questions).
-            - CONVERSATIONAL: The message is purely social and requires no information retrieval (e.g. "Thanks", "Okay", "Great", "Perfect").
-            
             Set requiresRetrieval:
-            - true if answering requires knowledge retrieval.
-            - false for conversational messages or requests that can be answered without external knowledge.
+            - true if any external knowledge retrieval is needed.
+            - false only for conversational messages or requests that can be answered without retrieval.
             
-            Set internetMayBeHelpful:
-            - true only if answering accurately is likely to require current, live, recent, or publicly available information that may not exist in the private knowledge base.
-            - Examples include news, weather, sports, stock prices, current regulations, recent product releases, live events, or information that changes frequently.
-            - false for questions that can reasonably be answered from the private knowledge base or general knowledge.
-            - Do not set true simply because additional web sources could be useful.
+            Set requiresRag:
+            - true if the private knowledge base should be searched.
+            - false otherwise.
             
-            Generate rewrittenQuery:
-            - Preserve the user's intent.
-            - If STANDALONE, keep the query unchanged unless a minor clarification improves retrieval.
-            - If FOLLOW_UP, rewrite it into a complete standalone query using the conversation history.
-            - Make it suitable for semantic/vector search.
-            - Include relevant entities, topics, documents, policies, sections, or identifiers.
-            - Resolve references such as "it", "this", "that", "same", and "again" whenever possible.
-            - Never invent missing information. If a reference cannot be resolved confidently, preserve the ambiguity rather than guessing.
+            Set requiresInternet:
+            - true if Internet search is needed to answer accurately.
+            - This includes current, recent, live, or publicly available information, or knowledge unlikely to exist in the private knowledge base.
+            - false otherwise.
             
-            Return ONLY the ConversationIntelligence object.
+            Generate ragQuery:
+            - Only if requiresRag is true.
+            - Rewrite into a standalone semantic search query optimized for vector retrieval.
+            - Resolve conversation references.
+            - Include relevant entities, document names, sections, policies, etc.
+            
+            Generate internetQuery:
+            - Only if requiresInternet is true.
+            - Rewrite into a concise web search query.
+            - Include relevant entities, dates, locations, products, organizations, or people.
+            - Resolve conversation references.
+            - Do not include unnecessary wording.
+            
+            If a query requires both sources, produce both queries independently.
+            Never invent missing information.
             """;
 
     private static final String USER_PROMPT = """
@@ -125,9 +119,12 @@ public class ConversationIntelligenceService {
 
         intelligence.setConversationType(ConversationType.STANDALONE);
         intelligence.setRequiresRetrieval(true);
-        intelligence.setRewrittenQuery(request.getQuery());
-        return intelligence;
+        intelligence.setRequiresRag(true);
+        intelligence.setRequiresInternet(false);
+        intelligence.setRagQuery(request.getQuery());
+        intelligence.setInternetQuery(null);
 
+        return intelligence;
     }
 
     private List<Message> buildTrimmedHistory(LlmConnectorRequest request) {
