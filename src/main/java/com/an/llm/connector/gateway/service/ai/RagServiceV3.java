@@ -154,6 +154,7 @@ public class RagServiceV3 {
         }
 
         String context = contextBuilder.toString();
+        log.info("Final Context: \n{}",context);
 
         long start = System.currentTimeMillis();
 
@@ -255,8 +256,7 @@ public class RagServiceV3 {
             retrievalRequest.setQuery(intelligence.getRagQuery());
             log.info("Retrieving RAG context using query (stream): {}", intelligence.getRagQuery());
             retrievedChunks = retrievalServiceV2.retrieve(vectorStore, retrievalRequest);
-            log.info("Retrieved {} chunks.", retrievedChunks.size());
-
+            log.info("Retrieved {} chunks. (stream)", retrievedChunks.size());
             if (!retrievedChunks.isEmpty()) {
                 contextBuilder.append("PRIVATE KNOWLEDGE BASE:\n")
                         .append(
@@ -294,6 +294,8 @@ public class RagServiceV3 {
             }
         }
         String context = contextBuilder.toString();
+
+        log.info("Final Context: \n{}",context);
 
         long start = System.currentTimeMillis();
 
