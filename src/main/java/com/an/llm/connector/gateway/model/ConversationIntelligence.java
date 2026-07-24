@@ -11,6 +11,8 @@ import lombok.ToString;
 public class ConversationIntelligence {
     private ConversationType conversationType;
     private Boolean requiresRetrieval;
-    private Boolean internetMayBeHelpful;
-    private String rewrittenQuery;
+    private Boolean requiresRag;
+    private Boolean requiresInternet;
+    private String ragQuery;
+    private String internetQuery;
 }
