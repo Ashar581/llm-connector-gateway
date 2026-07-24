@@ -126,7 +126,7 @@ public class RagServiceV3 {
                     request
             );
             if (!webResultsSummarized.isBlank()) {
-                context += "Data From Internet: " + webResultsSummarized;
+                context += "DATA FROM INTERNET: \n" + webResultsSummarized;
             }
         }
 
