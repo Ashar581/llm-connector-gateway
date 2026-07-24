@@ -87,19 +87,14 @@ public class WebSearchService {
 
                     ChatResponse llmResponse = client.prompt()
                             .system("""
-                                    1. Summarize the following content while preserving
+                                    Summarize the following content while preserving
                                     all important facts.
-                                    
-                                    2. Always keep the user query in mind while summarizing the requested information.
                                     """)
                             .user("""
-                                    USER QUERY:
-                                    %s
-                                    
                                     WEBSITE SCRAPED DATA
                                     
                                     %s
-                                    """.formatted(request.getQuery(),chunk))
+                                    """.formatted(chunk))
                             .call()
                             .chatResponse();
 
