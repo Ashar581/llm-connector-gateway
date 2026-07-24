@@ -179,6 +179,16 @@ public class AgentConfigurationService {
                         dto.setClassificationMode(row.getClassificationMode());
                         dto.setDocumentTypes(row.getDocumentTypes());
                         dto.setPageChunk(row.getPageChunk());
+                        dto.setVectorStore(row.getVectorStore());
+                        dto.setEncodingType(row.getEncodingType());
+                        dto.setChunkSize(row.getChunkSize());
+                        dto.setMinChunkLengthToEmbed(row.getMinChunkLengthToEmbed());
+                        dto.setMinChunkSizeChars(row.getMinChunkSizeChars());
+                        dto.setMaxNumChunks(row.getMaxNumChunks());
+                        dto.setSeparator(row.getSeparator());
+                        dto.setTopK(row.getTopK());
+                        dto.setSimilarityThreshold(row.getSimilarityThreshold());
+                        dto.setEnablePrivateMode(row.getEnablePrivateMode());
                         dto.setCreatedAt(row.getCreatedAt());
                         dto.setCreatedBy(row.getCreatedBy());
                         dto.setUpdatedBy(row.getUpdatedBy());
