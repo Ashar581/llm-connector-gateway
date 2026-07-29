@@ -115,4 +115,76 @@ public class WebSearchService {
                 .map(CompletableFuture::join)
                 .collect(Collectors.joining("\n\n"));
     }
+
+    public String search(String internetQuery,SearchRequest searchRequest, LlmConnectorRequest request) {
+        if (request.getEnablePrivateMode()) return "";
+
+        SearchResponse response = searXNGSearch.search(internetQuery);
+
+        List<String> urls = response.results()
+                .stream()
+                .limit(searchRequest.maxResults()==null? 5 : searchRequest.maxResults())
+                .map(SearchResult::url)
+                .toList();
+
+        List<WebDocument> webDocuments = webPageDownloader.download(urls);
+
+        if (webDocuments == null || webDocuments.isEmpty()) {
+            return "";
+        }
+
+        ModelConfig modelConfig = llmConfigService.getModelConfig(
+                request.getSource(),
+                request.getType(),
+                request.getModel()
+        );
+
+        ChatClient client = aiBeanFactory.getChatClient(
+                request.getSource(),
+                request.getType(),
+                request.getModel()
+        );
+
+        int allowedTokensPerSlot = (int)(((double) modelConfig.getContext() / modelConfig.getParallelExecution()) * 0.85);
+
+        List<String> chunkedTokens = tokenChunkService.chunk(
+                webDocuments.getFirst().text(),
+                modelConfig.getBaseUrl(),
+                allowedTokensPerSlot
+        );
+
+        List<CompletableFuture<String>> futures = chunkedTokens.stream()
+                .map(chunk -> CompletableFuture.supplyAsync(() -> {
+                    long llmStart = System.currentTimeMillis();
+
+                    ChatResponse llmResponse = client.prompt()
+                            .system("""
+                                    Summarize the following content while preserving
+                                    all important facts.
+                                    """)
+                            .user("""
+                                    WEBSITE SCRAPED DATA
+                                    
+                                    %s
+                                    """.formatted(chunk))
+                            .call()
+                            .chatResponse();
+
+                    long llmCompletionTimeMs = System.currentTimeMillis() - llmStart;
+
+                    try {
+                        assert llmResponse != null;
+                        systemConsumptionStatsSvc.add(llmResponse, request, llmCompletionTimeMs);
+                    } catch (Exception e) {
+                        log.error("Error recording chunk consumption stats.", e);
+                    }
+
+                    return Objects.requireNonNull(llmResponse.getResult()).getOutput().getText();
+
+                })).toList();
+
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.joining("\n\n"));
+    }
 }

@@ -12,6 +12,7 @@ import com.an.llm.connector.gateway.model.classification.ClassificationResponse;
 import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
 import com.an.llm.connector.gateway.service.ai.EmbeddingServiceV2;
 import com.an.llm.connector.gateway.service.ai.RagServiceV3;
+import com.an.llm.connector.gateway.service.ai.RagServiceV4;
 import com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.service.ai.VisionServiceV2;
@@ -43,6 +44,7 @@ public class AgentService {
     private final AiBeanFactory aiBeanFactory;
     private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
     private final RagServiceV3 ragServiceV3;
+    private final RagServiceV4 ragServiceV4;
 
     public Object generate(@NonNull AiRequest aiRequest){
         AgentConfigurationEntity agentConfiguration = agentConfigurationRepository.findByName(aiRequest.getAgent())
@@ -247,7 +249,7 @@ public class AgentService {
         //setting agent name for stats
         request.setAgentName(aiRequest.getAgent());
 
-        return ragServiceV3.chat(request, IngestionMode.AGENT);
+        return ragServiceV4.chat(request, IngestionMode.AGENT);
     }
 
     private Flux<@NonNull String> generateStreamRagResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
@@ -273,7 +275,7 @@ public class AgentService {
         //setting agent name for stats
         request.setAgentName(aiRequest.getAgent());
 
-        return ragServiceV3.chatStream(request, IngestionMode.AGENT);
+        return ragServiceV4.chatStream(request, IngestionMode.AGENT);
     }
 
 
