@@ -42,4 +42,29 @@ public class SearXNGSearch {
 
     }
 
+    public SearchResponse search(String request) {
+        try {
+            log.info("Searching web browser");
+            SearXNGResponse response = restClient
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .scheme("http")
+                            .host("localhost")
+                            .port(8888)
+                            .path("/search")
+                            .queryParam("q", request)
+                            .queryParam("format", "json")
+                            .build())
+                    .retrieve()
+                    .body(SearXNGResponse.class);
+
+            return searXNGMapper.toSearchResponse(response);
+
+        } catch (Exception e) {
+            log.error("Error while using SearXNG for web search.",e);
+            throw new WebSearchException("Unable to search using SearXNG");
+        }
+
+    }
+
 }
