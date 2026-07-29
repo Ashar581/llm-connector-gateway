@@ -18,12 +18,12 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     url: ${DB_URL}
-  hikari:
-    maximum-pool-size: 30
-    minimum-idle: 10
-    connection-timeout: 30000
-    idle-timeout: 600000
-    max-lifetime: 1800000
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   servlet:
     multipart:
       max-file-size: 10MB
