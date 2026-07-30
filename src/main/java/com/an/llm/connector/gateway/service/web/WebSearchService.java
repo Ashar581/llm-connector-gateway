@@ -117,7 +117,7 @@ public class WebSearchService {
     }
 
     public String search(String internetQuery,SearchRequest searchRequest, LlmConnectorRequest request) {
-        if (request.getEnablePrivateMode()) return "";
+        if (request.getEnablePrivateMode()) return "Internet access permission was switched off.";
 
         SearchResponse response = searXNGSearch.search(internetQuery);
 
