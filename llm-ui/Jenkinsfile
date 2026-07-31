@@ -1,0 +1,104 @@
+pipeline {
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '7', daysToKeepStr: '10'))
+    }
+    
+    agent any
+
+    environment {
+        PROJECT = "llm-ui"
+        USER = "ubuntu"
+        MS_DOMAIN = "reca.ai"
+    }
+
+    stages {
+        stage('Init AWS ENV') {
+            steps {
+                script {
+                    env.AWS_ACCOUNT = sh(script: 'aws sts get-caller-identity --query Account --output text', returnStdout: true).trim()
+                    env.AWS_REGION = sh(script: 'aws configure get region', returnStdout: true).trim()
+                    env.REPO = "${env.AWS_ACCOUNT}.dkr.ecr.${env.AWS_REGION}.amazonaws.com/${env.PROJECT}"
+
+                    // Secure ECR login
+                    sh """
+                        aws ecr get-login-password --region ${env.AWS_REGION} | \
+                        docker login --username AWS --password-stdin ${env.REPO}
+                    """
+                }
+            }
+        }
+
+        stage('Build') {
+            when {
+                anyOf {
+                    expression { env.GIT_BRANCH == env.BRANCH_ONE_LT }
+                    expression { env.GIT_BRANCH == env.BRANCH_TWO_TE }
+                    expression { env.GIT_BRANCH == env.BRANCH_THREE_PE }
+                }
+            }
+            steps {
+                sh 'echo $GIT_BRANCH'
+                sh 'echo $REPO'
+            //   sh 'mv .env.$GIT_BRANCH .env'
+                sh "docker build -t ${PROJECT}:${GIT_BRANCH} ."
+            }
+        }
+
+        stage('Push to ECR') {
+            when {
+                anyOf {
+                    expression { env.GIT_BRANCH == env.BRANCH_ONE_LT }
+                    expression { env.GIT_BRANCH == env.BRANCH_TWO_TE }
+                    expression { env.GIT_BRANCH == env.BRANCH_THREE_PE }
+                }
+            }
+            steps {
+                sh "docker tag ${PROJECT}:${GIT_BRANCH} ${REPO}:${GIT_BRANCH}"
+                sh "docker push ${REPO}:${GIT_BRANCH}"
+            }
+        }
+
+        stage('Pull from ECR') {
+            when {
+                anyOf {
+                    expression { env.GIT_BRANCH == env.BRANCH_ONE_LT }
+                    expression { env.GIT_BRANCH == env.BRANCH_TWO_TE }
+                    expression { env.GIT_BRANCH == env.BRANCH_THREE_PE }
+                }
+            }
+            steps {
+                sh "echo docker pull ${REPO}:${GIT_BRANCH} > ${GIT_BRANCH}.sh"
+            }
+        }
+
+        stage('Run ECR Container') {
+            when {
+                anyOf {
+                    expression { env.GIT_BRANCH == env.BRANCH_ONE_LT }
+                    expression { env.GIT_BRANCH == env.BRANCH_THREE_LT }
+                }
+            }
+            steps {
+                sh "echo docker rm -f ${PROJECT}-${GIT_BRANCH} >> ${GIT_BRANCH}.sh"
+                sh "echo docker run -e TZ=${TIMEZONE} --net=host -d --name ${PROJECT}-${GIT_BRANCH} ${REPO}:${GIT_BRANCH} >> ${GIT_BRANCH}.sh"
+                sh "cat ${GIT_BRANCH}.sh | ssh ${USER}@${GIT_BRANCH}.${MS_DOMAIN}"
+            }
+        }
+
+        stage('Run Container locally') {
+            when {
+                expression { env.GIT_BRANCH == env.BRANCH_THREE_PE  }
+            }
+            steps {
+                sh "docker rm -f ${PROJECT}-${GIT_BRANCH} || true"
+                sh "docker run -e TZ=${TIMEZONE} --network=host -d --name ${PROJECT}-${GIT_BRANCH} ${PROJECT}:${GIT_BRANCH}"
+            }
+        }
+
+        stage('Remove Docker Images') {
+            steps {
+                sh 'docker image prune -f'
+            }
+        }
+    }
+}
