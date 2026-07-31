@@ -53,16 +53,16 @@ public class AppSecurityConfig {
                 )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                        .contentSecurityPolicy(policy -> policy
-                                .policyDirectives("default-src 'self'")
-                        )
+    //                        .contentSecurityPolicy(policy -> policy
+    //                                .policyDirectives("default-src 'self'")
+    //                        )
                         .httpStrictTransportSecurity(transport ->  transport
                                 .includeSubDomains(true)
                         )
                 )
                 .authorizeHttpRequests(authorization -> authorization
                         .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC).permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/","/ui/**", "/index.html", "/assets/**", "/favicon.ico").permitAll()                        .anyRequest().authenticated())
                 .addFilterBefore(jwtValidatorFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
 
