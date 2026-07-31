@@ -1,0 +1,4 @@
+1. The 'ui' folder has the contents of the React UI.
+2. The contents were build in the llm-ui directory using command 'npm run build'
+3. Contents of the created 'dist' folder were pasted inside the 'ui' directory.
+4. Running the spring-boot server will automatically run the index file.
