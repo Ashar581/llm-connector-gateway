@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.entity;
+package com.an.llm.connector.gateway.entity.agent;
 
 import com.an.llm.connector.gateway.enums.ClassificationMode;
 import com.an.llm.connector.gateway.enums.LlmCapability;

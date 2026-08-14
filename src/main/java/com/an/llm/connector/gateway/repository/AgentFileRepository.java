@@ -1,6 +1,6 @@
 package com.an.llm.connector.gateway.repository;
 
-import com.an.llm.connector.gateway.entity.AgentFileEntity;
+import com.an.llm.connector.gateway.entity.agent.AgentFileEntity;
 import com.an.llm.connector.gateway.repository.views.AgentFileMetadataView;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;

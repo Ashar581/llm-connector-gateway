@@ -1,12 +1,25 @@
 package com.an.llm.connector.gateway.util;
 
+import com.an.llm.connector.gateway.exception.OperationFailedException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.InputStream;
 
 @Slf4j
 public class JsonUtils {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    public <T> String serialize(T data){
+        try{
+            return objectMapper.writeValueAsString(data);
+        }catch (Exception e){
+            log.error("Unable to serialize object due to: {}",e.getMessage());
+            throw new OperationFailedException("Serialization failed.");
+        }
+    }
 
     public static <T> String serializeClass(T data){
         if (data==null){
@@ -70,6 +83,15 @@ public class JsonUtils {
         }catch (Exception e){
             log.error("Error deserializing class ",e);
             return null;
+        }
+    }
+
+    public <T> T deserialize(InputStream from, Class<T> to){
+        try{
+            return objectMapper.readValue(from,to);
+        } catch (Exception e){
+            log.error("Unable to deserialize object: {}", e.getMessage());
+            throw new OperationFailedException("Deserialization failure");
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.an.llm.connector.gateway.service.classification;
 
-import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
+import com.an.llm.connector.gateway.entity.system.SystemConsumptionStatsEntity;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;

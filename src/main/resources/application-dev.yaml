@@ -13,6 +13,10 @@ spring:
     show-sql: false
     properties:
       hibernate:
+        jdbc:
+          batch_size: 100
+          order_inserts: true
+          order_updates: true
         format_sql: true
   datasource:
     username: ${DB_USERNAME}
@@ -38,6 +42,17 @@ spring:
         options:
           model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
           temperature: 0.7
+  mail:
+    host: ${EMAIL_HOST}
+    port: ${EMAIL_PORT}
+    username: ${EMAIL_ID}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 app:
   security:
@@ -46,6 +61,10 @@ app:
       key-type: shared
       use-env: false
       key-env-var: secret
+    jwt:
+      issuer: llm-connector-gateway
+      atexpirationtimeinmin: 15
+      rtexpirationtimeinmin: 360
 
 llm:
   sources:
@@ -241,3 +260,15 @@ llm:
           model-name: text-embedding-3-large
 
 api-key : DS-AN581-SS018-2904-1911
+admin:
+  user:
+    firstName: Ashar
+    lastName: Shahab
+    username: ashahab
+    email: demo@ashar.com
+    password: Ashar@581
+    roles:
+      - System Admin
+      - Super Admin
+    groups:
+      - Admin

@@ -26,7 +26,7 @@ public class LlmJwtAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         ApiExceptionBody error = new ApiExceptionBody();
         error.setStatus(false);
-        error.setMessage("Authentication failed.");
+        error.setMessage(authException.getMessage());
         error.setCode(HttpStatus.UNAUTHORIZED.value());
         error.setTimestamp(TimeUtils.EXCEPTION_RESPONSE_FORMAT);
         error.setPath(request.getRequestURI());

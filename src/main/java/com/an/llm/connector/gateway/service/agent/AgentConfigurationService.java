@@ -2,11 +2,11 @@ package com.an.llm.connector.gateway.service.agent;
 
 import com.an.llm.connector.gateway.dto.agent.AgentConfigurationDto;
 import com.an.llm.connector.gateway.dto.agent.AgentFileDto;
-import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
-import com.an.llm.connector.gateway.entity.AgentFileEntity;
+import com.an.llm.connector.gateway.entity.agent.AgentConfigurationEntity;
+import com.an.llm.connector.gateway.entity.agent.AgentFileEntity;
 import com.an.llm.connector.gateway.enums.*;
 import com.an.llm.connector.gateway.exception.*;
-import com.an.llm.connector.gateway.mapper.AgentConfigurationMapper;
+import com.an.llm.connector.gateway.mapper.agent.AgentConfigurationMapper;
 import com.an.llm.connector.gateway.model.classification.DocumentTypeDefinition;
 import com.an.llm.connector.gateway.model.config.ModelConfig;
 import com.an.llm.connector.gateway.model.config.SourceConfig;

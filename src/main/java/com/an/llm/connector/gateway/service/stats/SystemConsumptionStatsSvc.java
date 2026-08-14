@@ -2,14 +2,14 @@ package com.an.llm.connector.gateway.service.stats;
 
 import com.an.llm.connector.gateway.dto.agent.AgentConfigurationDto;
 import com.an.llm.connector.gateway.dto.agent.SystemConsumptionStatsDto;
-import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
+import com.an.llm.connector.gateway.entity.system.SystemConsumptionStatsEntity;
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;
 import com.an.llm.connector.gateway.enums.Source;
 import com.an.llm.connector.gateway.exception.NotAllowedException;
 import com.an.llm.connector.gateway.exception.NotFoundException;
 import com.an.llm.connector.gateway.exception.NullException;
-import com.an.llm.connector.gateway.mapper.SystemConsumptionStatsMapper;
+import com.an.llm.connector.gateway.mapper.system.SystemConsumptionStatsMapper;
 import com.an.llm.connector.gateway.model.AiRequest;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.filter.TokenStatsFilterRequest;
