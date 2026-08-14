@@ -1,6 +1,6 @@
 package com.an.llm.connector.gateway.service.vision;
 
-import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
+import com.an.llm.connector.gateway.entity.system.SystemConsumptionStatsEntity;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.VisionInternalStatsAndResponse;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;

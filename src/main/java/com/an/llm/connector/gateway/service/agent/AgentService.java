@@ -1,6 +1,6 @@
 package com.an.llm.connector.gateway.service.agent;
 
-import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
+import com.an.llm.connector.gateway.entity.agent.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.enums.IngestionMode;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
 import com.an.llm.connector.gateway.exception.NotAllowedException;

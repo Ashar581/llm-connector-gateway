@@ -1,6 +1,6 @@
 package com.an.llm.connector.gateway.repository.filter;
 
-import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
+import com.an.llm.connector.gateway.entity.system.SystemConsumptionStatsEntity;
 import com.an.llm.connector.gateway.enums.LlmModels;
 import com.an.llm.connector.gateway.model.filter.TokenStatsFilterRequest;
 import jakarta.persistence.criteria.Predicate;

@@ -1,6 +1,6 @@
 package com.an.llm.connector.gateway.repository;
 
-import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
+import com.an.llm.connector.gateway.entity.system.SystemConsumptionStatsEntity;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

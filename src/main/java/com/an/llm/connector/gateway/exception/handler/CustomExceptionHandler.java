@@ -171,4 +171,17 @@ public class CustomExceptionHandler implements TimeUtils {
 
         return new ResponseEntity<>(exception, HttpStatus.BAD_GATEWAY);
     }
+
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ResponseEntity<@NonNull ApiExceptionBody> webSearchExceptionHandler(AuthenticationFailedException authenticationFailedException, HttpServletRequest request) {
+        ApiExceptionBody exception  = new ApiExceptionBody();
+
+        exception.setPath(request.getRequestURI());
+        exception.setMessage(authenticationFailedException.getMessage());
+        exception.setStatus(false);
+        exception.setTimestamp(EXCEPTION_RESPONSE_FORMAT);
+        exception.setCode(HttpStatus.UNAUTHORIZED.value());
+
+        return new ResponseEntity<>(exception, HttpStatus.UNAUTHORIZED);
+    }
 }

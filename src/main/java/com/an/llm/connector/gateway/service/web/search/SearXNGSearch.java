@@ -2,7 +2,7 @@ package com.an.llm.connector.gateway.service.web.search;
 
 import com.an.llm.connector.gateway.dto.web.SearXNGResponse;
 import com.an.llm.connector.gateway.exception.WebSearchException;
-import com.an.llm.connector.gateway.mapper.SearXNGMapper;
+import com.an.llm.connector.gateway.mapper.web.SearXNGMapper;
 import com.an.llm.connector.gateway.model.web.SearchRequest;
 import com.an.llm.connector.gateway.model.web.SearchResponse;
 import lombok.RequiredArgsConstructor;

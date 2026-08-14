@@ -2,7 +2,9 @@ package com.an.llm.connector.gateway.util;
 
 import com.an.llm.connector.gateway.security.context.LlmUsernamePasswordAuthToken;
 import com.an.llm.connector.gateway.security.model.JwtUser;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -33,5 +35,25 @@ public class AppUtils {
             log.info("Error getting logged in user : {}",e.getMessage());
             return new JwtUser();
         }
+    }
+
+    public static String generatePassword() {
+        return RandomStringUtils.secure().nextAlphanumeric(6);
+    }
+
+    public static String lemmatizeAndUpperCase(@NonNull String valueToBeLemmatized) {
+        return valueToBeLemmatized
+                .toUpperCase()
+                .replaceAll("[^A-Z0-9\\s]", "")
+                .trim()
+                .replaceAll("\\s+", "_");
+    }
+
+    public static String lemmatizeAndLowercaseCase(@NonNull String valueToBeLemmatized) {
+        return valueToBeLemmatized
+                .toLowerCase()
+                .replaceAll("[^a-z0-9\\s]", "")
+                .trim()
+                .replaceAll("\\s+", "");
     }
 }
