@@ -10,12 +10,12 @@ import java.util.List;
 @Data
 public class JwtUser {
     private String principal;
+    private String fullname;
     private List<String> groups;
     private List<String> authorities;
-    private String fullname;
     private Object data;
 
     public String getPrincipal(){
-        return this.principal != null ? this.principal : "Anonymous";
+        return this.principal != null ? this.principal : "System";
     }
 }

@@ -1,5 +1,6 @@
 package com.an.llm.connector.gateway.base;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data

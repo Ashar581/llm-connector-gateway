@@ -1,12 +1,11 @@
 package com.an.llm.connector.gateway.service.ai;
 
-import com.an.llm.connector.gateway.entity.AgentFileEntity;
+import com.an.llm.connector.gateway.entity.agent.AgentFileEntity;
 import com.an.llm.connector.gateway.enums.IngestionMode;
 import com.an.llm.connector.gateway.exception.NotFoundException;
 import com.an.llm.connector.gateway.exception.NullException;
 import com.an.llm.connector.gateway.exception.OperationFailedException;
 import com.an.llm.connector.gateway.repository.AgentFileRepository;
-import com.an.llm.connector.gateway.service.agent.AgentFileService;
 import com.an.llm.connector.gateway.util.FileHashGenerator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

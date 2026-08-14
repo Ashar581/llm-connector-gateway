@@ -1,7 +1,7 @@
-package com.an.llm.connector.gateway.mapper;
+package com.an.llm.connector.gateway.mapper.agent;
 
 import com.an.llm.connector.gateway.dto.agent.AgentConfigurationDto;
-import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
+import com.an.llm.connector.gateway.entity.agent.AgentConfigurationEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

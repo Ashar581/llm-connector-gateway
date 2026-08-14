@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.mapper;
+package com.an.llm.connector.gateway.mapper.web;
 
 import com.an.llm.connector.gateway.dto.web.SearXNGResponse;
 import com.an.llm.connector.gateway.dto.web.SearXNGResult;

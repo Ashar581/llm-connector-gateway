@@ -1,10 +1,10 @@
 package com.an.llm.connector.gateway.service.agent;
 
 import com.an.llm.connector.gateway.dto.agent.AgentFileDto;
-import com.an.llm.connector.gateway.entity.AgentConfigurationEntity;
-import com.an.llm.connector.gateway.entity.AgentFileEntity;
+import com.an.llm.connector.gateway.entity.agent.AgentConfigurationEntity;
+import com.an.llm.connector.gateway.entity.agent.AgentFileEntity;
 import com.an.llm.connector.gateway.exception.NotFoundException;
-import com.an.llm.connector.gateway.mapper.AgentFileMapper;
+import com.an.llm.connector.gateway.mapper.agent.AgentFileMapper;
 import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
 import com.an.llm.connector.gateway.repository.AgentFileRepository;
 import lombok.NonNull;

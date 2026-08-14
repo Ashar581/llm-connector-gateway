@@ -1,4 +1,4 @@
-package com.an.llm.connector.gateway.entity;
+package com.an.llm.connector.gateway.entity.system;
 
 import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.enums.LlmModels;

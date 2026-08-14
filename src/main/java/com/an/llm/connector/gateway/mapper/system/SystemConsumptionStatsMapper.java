@@ -1,7 +1,7 @@
-package com.an.llm.connector.gateway.mapper;
+package com.an.llm.connector.gateway.mapper.system;
 
 import com.an.llm.connector.gateway.dto.agent.SystemConsumptionStatsDto;
-import com.an.llm.connector.gateway.entity.SystemConsumptionStatsEntity;
+import com.an.llm.connector.gateway.entity.system.SystemConsumptionStatsEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
