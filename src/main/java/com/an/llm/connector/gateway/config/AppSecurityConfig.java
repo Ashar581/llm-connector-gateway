@@ -63,9 +63,9 @@ public class AppSecurityConfig {
                 )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-    //                        .contentSecurityPolicy(policy -> policy
-    //                                .policyDirectives("default-src 'self'")
-    //                        )
+                            .contentSecurityPolicy(policy -> policy
+                                    .policyDirectives("default-src 'self'")
+                            )
                         .httpStrictTransportSecurity(transport ->  transport
                                 .includeSubDomains(true)
                         )
