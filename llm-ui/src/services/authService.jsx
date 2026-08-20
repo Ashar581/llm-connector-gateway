@@ -1,8 +1,8 @@
-import apiSvc from "./apiService";
+import "./apiService";
 import axios from "axios";
 
 const authApi = axios.create({
-    baseURL: "https://auth-dev.ds-iflow.com",
+    baseURL: "http://localhost:6969",
 });
 
 /**
@@ -19,7 +19,7 @@ const authApi = axios.create({
  * Expected response: { access_token, refresh_token?, user: { id, email, name, ... } }
  */
 export const loginRequest = (email, password) =>
-    authApi.post("/api/signin", { userid: email, password: password });
+    authApi.post("/api/llm/v1/users/auth/login", { userid: email, password: password });
 
 /**
  * POST /auth/logout  (optional — call if your backend invalidates tokens)
