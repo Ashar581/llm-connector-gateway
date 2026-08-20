@@ -12,8 +12,7 @@ import java.util.List;
 public interface GroupMapper {
     Group toEntity(GroupDto dto);
     @Mappings({
-            @Mapping(target = "id", ignore = true),
-            @Mapping(target = "roles", ignore = true)
+            @Mapping(target = "id", ignore = true)
     })
     GroupDto toDto(Group entity);
     List<GroupDto> toDtoList(List<Group> entities);

@@ -50,8 +50,13 @@ public class UserService {
 
     @Transactional
     public List<UserDto> all(Boolean active) {
+        if (active==null) {
+            return userMapper.toDtoList(
+                    userRepo.findAll()
+            );
+        }
         return userMapper.toDtoList(
-                userRepo.findAllByActive(active != null && active)
+                userRepo.findAllByActive(active)
         );
     }
 
