@@ -9,6 +9,7 @@ import Login from "../pages/Login";
 import Admin from "../pages/Admin";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AdminRoute from "../components/AdminRoute";
+import RbacRoute from "../components/RbacRoute";
 
 const router = createBrowserRouter([
   // ── Public route ───────────────────────────────────────────────────────
@@ -26,11 +27,11 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <Home /> },
-      { path: "agents", element: <Agents /> },
-      { path: "playground", element: <Playground /> },
+      { index: true, element: <RbacRoute routeKey="dashboard"><Home /></RbacRoute> },
+      { path: "agents", element: <RbacRoute routeKey="agents"><Agents /></RbacRoute> },
+      { path: "playground", element: <RbacRoute routeKey="playground"><Playground /></RbacRoute> },
       { path: "settings", element: <Settings /> },
-      { path: "stats", element: <Stats /> },
+      { path: "stats", element: <RbacRoute routeKey="stats"><Stats /></RbacRoute> },
       {
         path: "admin",
         element: (

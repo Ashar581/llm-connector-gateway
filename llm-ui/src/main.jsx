@@ -4,6 +4,7 @@ import { RouterProvider } from "react-router";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";   // ← NEW
+import { RbacProvider } from "./context/RbacContext";
 import router from "./routers/routes";
 import "./index.css";
 
@@ -16,7 +17,14 @@ createRoot(document.getElementById("root")).render(
         so every route (including the Login page) can call useAuth().
       */}
       <AuthProvider>
-        <RouterProvider router={router} />
+        {/*
+          RbacProvider sits inside AuthProvider so it can be paired with
+          useAuth() wherever route access is checked (RbacRoute, App.jsx
+          nav). It loads the route-access config once on mount — see
+          services/rbacService.jsx for why this is localStorage for now.
+        */}
+        <RbacProvider>
+          <RouterProvider router={router} />
 
         <Toaster
           position="bottom-right"
@@ -63,6 +71,7 @@ createRoot(document.getElementById("root")).render(
             },
           }}
         />
+        </RbacProvider>
       </AuthProvider>
     </ThemeProvider>
   </StrictMode>
