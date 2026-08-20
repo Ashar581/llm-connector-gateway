@@ -9,6 +9,7 @@ import DataTable from "../components/DataTable";
 import UserModal from "../components/UserModal";
 import RoleModal from "../components/RoleModal";
 import GroupModal from "../components/GroupModal";
+import RouteAccessPanel from "../components/RouteAccessPanel";
 import { getAllUsers, getUser, addUser, updateUser } from "../services/userService";
 import { getAllRoles, getRole, addRole, updateRole } from "../services/roleService";
 import { getAllGroups, getGroup, addGroup, updateGroup } from "../services/groupService";
@@ -24,6 +25,7 @@ const TABS = [
   { id: "users", label: "Users" },
   { id: "roles", label: "Roles" },
   { id: "groups", label: "Groups" },
+  { id: "access", label: "Access" },
 ];
 
 function formatDate(value) {
@@ -430,6 +432,8 @@ export default function Admin() {
             )}
           </Card>
         )}
+
+        {activeTab === "access" && <RouteAccessPanel allRoles={roles} />}
       </div>
     </>
   );
