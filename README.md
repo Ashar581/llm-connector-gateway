@@ -41,24 +41,24 @@ The goal is to give enterprise developers greater control, privacy, and cost eff
 ## Architecture
 
 ```
-┌─────────────────────┐        HTTPS / REST         ┌──────────────────────────────┐
-│   llm-ui (React)     │ ───────────────────────────▶ │  llm-connector-gateway (API)  │
-│  Playground / Agents │ ◀─────────────────────────── │  Spring Boot backend          │
-│  Admin / Stats        │                              │                               │
-└─────────────────────┘                              └───────────────┬───────────────┘
+┌─────────────────────┐        HTTPS / REST           ┌──────────────────────────────┐
+│   llm-ui (React)    │ ───────────────────────────▶  │  llm-connector-gateway (API) │
+│  Playground/Agents  │ ◀───────────────────────────  │  Spring Boot backend         │
+│  Admin / Stats      │                               │                              │
+└─────────────────────┘                               └───────────────┬──────────────┘
                                                                       │ spawns & proxies to
                                                                       ▼
                                                        ┌───────────────────────────────┐
-                                                       │  llama.cpp model servers        │
-                                                       │  (chat / vision / embedding)    │
-                                                       │  one process per configured     │
-                                                       │  model, on its own port         │
+                                                       │  llama.cpp model servers      │
+                                                       │  (chat / vision / embedding)  │
+                                                       │  one process per configured   │
+                                                       │  model, on its own port       │
                                                        └───────────────────────────────┘
                                                                       │
                                                                       ▼
                                                        ┌───────────────────────────────┐
-                                                       │  PostgreSQL (users, roles,     │
-                                                       │  groups, agents, stats)        │
+                                                       │  PostgreSQL (users, roles,    │
+                                                       │  groups, agents, stats)       │
                                                        └───────────────────────────────┘
 ```
 
