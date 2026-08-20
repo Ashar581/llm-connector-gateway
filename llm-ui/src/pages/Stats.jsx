@@ -112,7 +112,7 @@ const INPUT_CLS = "input-theme rounded-lg px-3 py-2 text-xs w-full";
 export default function Stats() {
 	const [loading, setLoading] = useState(false);
 	const [filters, setFilters] = useState({
-		agentName: "", modelName: "bonsai", server: "",
+		agentName: "", modelName: "", server: "",
 		startDate: "", startTime: "", endDate: "", endTime: "",
 	});
 
