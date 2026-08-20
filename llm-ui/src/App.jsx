@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router";
 import { useState, useEffect } from "react";
 import { useTheme } from "./context/ThemeContext";
+import { useAuth } from "./context/AuthContext";
 import "./App.css";
 
 // ── Brand mark — a signal passing through an open gate ─────
@@ -88,6 +89,14 @@ const PlayIcon = () => (
   </svg>
 );
 
+const ShieldIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
+
 const SettingsIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
     fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -96,7 +105,7 @@ const SettingsIcon = () => (
   </svg>
 );
 
-const desktopNavLinks = [
+const baseDesktopNavLinks = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/agents", label: "Agents" },
   { to: "/stats", label: "Stats" },
@@ -104,7 +113,7 @@ const desktopNavLinks = [
   { to: "/settings", label: "Settings" },
 ];
 
-const mobileNavLinks = [
+const baseMobileNavLinks = [
   { to: "/", label: "Home", Icon: LayoutGridIcon, end: true },
   { to: "/agents", label: "Agents", Icon: CpuIcon },
   { to: "/stats", label: "Stats", Icon: AnalyticsIcon },
@@ -114,7 +123,17 @@ const mobileNavLinks = [
 
 export default function App() {
   const { theme, toggleTheme } = useTheme();
+  const { isAdmin } = useAuth();
   const isDark = theme === "dark";
+
+  // Admin (Users / Roles / Groups) only shows for SUPER_ADMIN / SYSTEM_ADMIN.
+  const desktopNavLinks = isAdmin
+    ? [...baseDesktopNavLinks, { to: "/admin", label: "Admin" }]
+    : baseDesktopNavLinks;
+
+  const mobileNavLinks = isAdmin
+    ? [...baseMobileNavLinks, { to: "/admin", label: "Admin", Icon: ShieldIcon }]
+    : baseMobileNavLinks;
 
   const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
 
@@ -218,11 +237,11 @@ export default function App() {
       {/* Mobile bottom tab bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 border-t backdrop-blur-md"
         style={{ borderColor: "var(--border)", backgroundColor: "var(--bg-nav)" }}>
-        <div className="flex items-center justify-around px-2 py-2">
+        <div className="flex items-center justify-around px-1 py-2">
           {mobileNavLinks.map(({ to, label, Icon, end }) => (
             <NavLink key={to} to={to} end={end}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-all duration-200 ${isActive ? "text-amber-400" : ""
+                `flex flex-col items-center gap-1 ${mobileNavLinks.length > 5 ? "px-2.5" : "px-4"} py-2 rounded-lg transition-all duration-200 ${isActive ? "text-amber-400" : ""
                 }`
               }
               style={({ isActive }) => isActive ? {} : { color: "var(--text-muted)" }}
