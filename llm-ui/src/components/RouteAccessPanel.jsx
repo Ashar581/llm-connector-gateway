@@ -7,17 +7,35 @@ import { useRbac } from "../context/RbacContext";
 import { MANAGEABLE_ROUTES, saveRouteAccessConfig } from "../services/rbacService";
 
 export default function RouteAccessPanel({ allRoles = [] }) {
-    const { config, loading, refresh } = useRbac();
+    const { config, loading, refresh, lastSyncedAt } = useRbac();
     const [draft, setDraft] = useState({});
     const [saving, setSaving] = useState(false);
     const [dirty, setDirty] = useState(false);
+    const [syncedLabel, setSyncedLabel] = useState("");
 
     useEffect(() => {
-        if (!loading) {
+        // Skip re-syncing from `config` while the admin has unsaved edits in
+        // progress — otherwise a background poll picking up someone else's
+        // change would silently wipe out what they're mid-way through typing.
+        if (!loading && !dirty) {
             setDraft(config ?? {});
-            setDirty(false);
         }
-    }, [config, loading]);
+    }, [config, loading, dirty]);
+
+    // Small "synced Ns ago" ticker, refreshed independently of the poll
+    // itself so the label stays current between polls.
+    useEffect(() => {
+        const formatAgo = () => {
+            if (!lastSyncedAt) return "";
+            const secs = Math.max(0, Math.round((Date.now() - lastSyncedAt) / 1000));
+            if (secs < 5) return "Synced just now";
+            if (secs < 60) return `Synced ${secs}s ago`;
+            return `Synced ${Math.round(secs / 60)}m ago`;
+        };
+        setSyncedLabel(formatAgo());
+        const tick = setInterval(() => setSyncedLabel(formatAgo()), 5000);
+        return () => clearInterval(tick);
+    }, [lastSyncedAt]);
 
     const roleOptions = useMemo(
         () => allRoles.map((r) => ({ value: r.code, label: r.name, sublabel: r.code })),
@@ -27,6 +45,11 @@ export default function RouteAccessPanel({ allRoles = [] }) {
     const setRouteRoles = (routeKey, codes) => {
         setDraft((prev) => ({ ...prev, [routeKey]: codes }));
         setDirty(true);
+    };
+
+    const handleManualRefresh = async () => {
+        await refresh();
+        setDirty(false); // explicit refresh — pull the latest and drop any unsaved local edits
     };
 
     const handleSave = async () => {
@@ -57,14 +80,40 @@ export default function RouteAccessPanel({ allRoles = [] }) {
                         regardless of these settings.
                     </p>
                 </div>
-                <span
-                    className="text-[10px] px-2 py-1 rounded-full uppercase tracking-wider whitespace-nowrap"
-                    style={{ backgroundColor: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b" }}
-                    title="These rules are saved in this browser until the backend endpoint is available."
-                >
-                    Stored locally for now
-                </span>
+                <div className="flex flex-col items-end gap-2">
+                    <span
+                        className="text-[10px] px-2 py-1 rounded-full uppercase tracking-wider whitespace-nowrap"
+                        style={{ backgroundColor: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b" }}
+                        title="These rules are saved in this browser until the backend endpoint is available."
+                    >
+                        Stored locally for now
+                    </span>
+                    <div className="flex items-center gap-2">
+                        {syncedLabel && (
+                            <span className="flex items-center gap-1.5 text-[10px]" style={{ color: "var(--text-faint)" }}>
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
+                                {syncedLabel}
+                            </span>
+                        )}
+                        <button
+                            type="button"
+                            onClick={handleManualRefresh}
+                            disabled={loading}
+                            title="Check for updates now"
+                            className="text-[10px] uppercase tracking-wider px-2 py-1 rounded transition-colors hover:text-amber-500 disabled:opacity-50"
+                            style={{ border: "1px solid var(--border)", color: "var(--text-muted)" }}
+                        >
+                            ↻ Refresh
+                        </button>
+                    </div>
+                </div>
             </div>
+
+            {dirty && (
+                <p className="text-[11px] mb-2" style={{ color: "var(--text-faint)" }}>
+                    Live updates from other admins are paused while you have unsaved changes — save or refresh to resync.
+                </p>
+            )}
 
             {loading ? (
                 <div className="space-y-3 py-6">
