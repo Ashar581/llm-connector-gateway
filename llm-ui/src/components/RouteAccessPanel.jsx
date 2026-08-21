@@ -42,8 +42,8 @@ export default function RouteAccessPanel({ allRoles = [] }) {
         [allRoles]
     );
 
-    const setRouteRoles = (routeKey, codes) => {
-        setDraft((prev) => ({ ...prev, [routeKey]: codes }));
+    const setRouteRoles = (routePath, codes) => {
+        setDraft((prev) => ({ ...prev, [routePath]: codes }));
         setDirty(true);
     };
 
@@ -82,16 +82,16 @@ export default function RouteAccessPanel({ allRoles = [] }) {
                 </div>
                 <div className="flex flex-col items-end gap-2">
                     <span
-                        className="text-[10px] px-2 py-1 rounded-full uppercase tracking-wider whitespace-nowrap"
-                        style={{ backgroundColor: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b" }}
-                        title="These rules are saved in this browser until the backend endpoint is available."
+                        className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full uppercase tracking-wider whitespace-nowrap"
+                        style={{ backgroundColor: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.3)", color: "rgb(52,211,153)" }}
+                        title="Pages are auto-discovered from the app and kept in sync with the backend on load."
                     >
-                        Stored locally for now
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
+                        Synced with server
                     </span>
                     <div className="flex items-center gap-2">
                         {syncedLabel && (
-                            <span className="flex items-center gap-1.5 text-[10px]" style={{ color: "var(--text-faint)" }}>
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]" />
+                            <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>
                                 {syncedLabel}
                             </span>
                         )}
@@ -124,11 +124,11 @@ export default function RouteAccessPanel({ allRoles = [] }) {
             ) : (
                 <div className="space-y-4 mt-5">
                     {MANAGEABLE_ROUTES.map((route) => {
-                        const selected = draft[route.key] ?? [];
+                        const selected = draft[route.path] ?? [];
                         const isPublic = selected.length === 0;
                         return (
                             <div
-                                key={route.key}
+                                key={route.path}
                                 className="rounded-lg p-4"
                                 style={{ backgroundColor: "var(--bg-subtle)", border: "1px solid var(--border)" }}
                             >
@@ -150,7 +150,7 @@ export default function RouteAccessPanel({ allRoles = [] }) {
                                 <MultiSelectChips
                                     options={roleOptions}
                                     selected={selected}
-                                    onChange={(codes) => setRouteRoles(route.key, codes)}
+                                    onChange={(codes) => setRouteRoles(route.path, codes)}
                                     placeholder="Search roles…"
                                     emptyMessage="No roles created yet — create one in the Roles tab first."
                                     accent="rgb(167,139,250)"
