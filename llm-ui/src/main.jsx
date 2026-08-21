@@ -20,8 +20,9 @@ createRoot(document.getElementById("root")).render(
         {/*
           RbacProvider sits inside AuthProvider so it can be paired with
           useAuth() wherever route access is checked (RbacRoute, App.jsx
-          nav). It loads the route-access config once on mount — see
-          services/rbacService.jsx for why this is localStorage for now.
+          nav, and the admin-only reconciliation on load). It loads the
+          route-access config from the real /v1/settings backend — see
+          services/rbacService.jsx.
         */}
         <RbacProvider>
           <RouterProvider router={router} />

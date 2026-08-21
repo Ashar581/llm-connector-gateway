@@ -16,7 +16,7 @@ import AccessRestricted from "./AccessRestricted";
  * A route with no rule configured (or an empty one) is public to any
  * signed-in user, per the default-allow requirement.
  */
-export default function RbacRoute({ routeKey, children }) {
+export default function RbacRoute({ routePath, children }) {
     const { user, isAdmin } = useAuth();
     const { config, loading } = useRbac();
 
@@ -31,10 +31,10 @@ export default function RbacRoute({ routeKey, children }) {
     }
 
     const userRoleCodes = Array.from(user?.roles ?? []);
-    const allowed = isRouteOpenToRoles(config, routeKey, userRoleCodes);
+    const allowed = isRouteOpenToRoles(config, routePath, userRoleCodes);
 
     if (!allowed) {
-        const label = MANAGEABLE_ROUTES.find((r) => r.key === routeKey)?.label;
+        const label = MANAGEABLE_ROUTES.find((r) => r.path === routePath)?.label;
         return <AccessRestricted routeLabel={label} />;
     }
 

@@ -1,8 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "./AuthContext";
 import {
     getRouteAccessConfig,
-    subscribeToRouteAccessChanges,
+    reconcileRouteSettings,
     ROUTE_ACCESS_POLL_INTERVAL_MS,
 } from "../services/rbacService";
 
@@ -11,32 +12,35 @@ const RbacContext = createContext(undefined);
 /**
  * RbacProvider
  * ─────────────
- * Loads the route-access config and keeps it "live" across three channels,
- * so a change an admin makes shows up for everyone else without a manual
- * refresh or re-login:
+ * Loads the route-access config from the backend and keeps it "live":
  *
- *  1. Initial load on mount.
- *  2. Same-browser cross-tab — instant, via the native `storage` event
- *     (works today because the config is localStorage-backed).
- *  3. Cross-device / cross-user — a periodic poll of the GET endpoint,
- *     plus an immediate re-check whenever the tab regains focus. This is
- *     the practical way to get "live" behaviour out of a plain REST GET
- *     without standing up WebSocket/SSE infrastructure. Once a push
- *     channel exists, swap `subscribeToRouteAccessChanges` in
- *     rbacService.jsx and this provider keeps working unchanged.
+ *  1. On mount, if the signed-in user is an admin, reconcile the
+ *     frontend's known routes (MANAGEABLE_ROUTES) against the backend
+ *     first — create rows for new pages, delete rows for removed ones,
+ *     and sync any label drift — so the config that loads right after is
+ *     already accurate. Non-admins skip this (creating/deleting settings
+ *     rows is an admin-level action) and just read what's there.
+ *  2. From then on, a periodic poll of the GET endpoint (plus an
+ *     immediate re-check whenever the tab regains focus) picks up
+ *     changes made by other users. This is the practical way to get
+ *     "live" behaviour out of a plain REST GET without standing up
+ *     WebSocket/SSE infrastructure — if a push channel is added later,
+ *     this polling loop is the only thing that needs to change.
  *
  * Background refreshes are silent (no loading flicker) and only touch
- * state when the config actually changed, and — once past the first
- * load — surface a small toast so people understand why a nav item just
+ * state when the config actually changed, surfacing a small toast once
+ * past the first load so people understand why a nav item just
  * appeared or disappeared.
  */
 export function RbacProvider({ children }) {
+    const { isAdmin } = useAuth();
     const [config, setConfig] = useState({});
     const [loading, setLoading] = useState(true);
     const [lastSyncedAt, setLastSyncedAt] = useState(null);
     const hasLoadedOnce = useRef(false);
+    const hasReconciled = useRef(false);
 
-    const refresh = useCallback(async ({ silent = false, notifyOnChange = false } = {}) => {
+    const load = useCallback(async ({ silent = false, notifyOnChange = false } = {}) => {
         if (!silent) setLoading(true);
         try {
             const cfg = (await getRouteAccessConfig()) ?? {};
@@ -57,24 +61,34 @@ export function RbacProvider({ children }) {
         }
     }, []);
 
-    // 1. Initial load.
-    useEffect(() => { refresh(); }, [refresh]);
+    const refresh = useCallback((opts) => load(opts), [load]);
 
-    // 2. Same-browser cross-tab — instant.
-    useEffect(
-        () => subscribeToRouteAccessChanges(() => refresh({ silent: true, notifyOnChange: true })),
-        [refresh]
-    );
+    // Initial load — admins reconcile first.
+    useEffect(() => {
+        let active = true;
+        (async () => {
+            if (isAdmin && !hasReconciled.current) {
+                hasReconciled.current = true;
+                try {
+                    await reconcileRouteSettings();
+                } catch (e) {
+                    console.error("Failed to reconcile route access settings", e);
+                }
+            }
+            if (active) await load();
+        })();
+        return () => { active = false; };
+    }, [isAdmin, load]);
 
-    // 3. Cross-device / cross-user — periodic poll + refresh-on-focus.
+    // Periodic poll + refresh-on-focus.
     useEffect(() => {
         const interval = setInterval(
-            () => refresh({ silent: true, notifyOnChange: true }),
+            () => load({ silent: true, notifyOnChange: true }),
             ROUTE_ACCESS_POLL_INTERVAL_MS
         );
         const onVisible = () => {
             if (document.visibilityState === "visible") {
-                refresh({ silent: true, notifyOnChange: true });
+                load({ silent: true, notifyOnChange: true });
             }
         };
         document.addEventListener("visibilitychange", onVisible);
@@ -82,7 +96,7 @@ export function RbacProvider({ children }) {
             clearInterval(interval);
             document.removeEventListener("visibilitychange", onVisible);
         };
-    }, [refresh]);
+    }, [load]);
 
     return (
         <RbacContext.Provider value={{ config, loading, refresh, lastSyncedAt }}>

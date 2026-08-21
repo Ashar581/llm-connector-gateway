@@ -28,12 +28,12 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <RbacRoute routeKey="dashboard"><Home /></RbacRoute> },
-      { path: "agents", element: <RbacRoute routeKey="agents"><Agents /></RbacRoute> },
-      { path: "playground", element: <RbacRoute routeKey="playground"><Playground /></RbacRoute> },
+      { index: true, element: <RbacRoute routePath="/"><Home /></RbacRoute> },
+      { path: "agents", element: <RbacRoute routePath="/agents"><Agents /></RbacRoute> },
+      { path: "playground", element: <RbacRoute routePath="/playground"><Playground /></RbacRoute> },
       { path: "settings", element: <Settings /> },
       { path: "profile", element: <Profile /> },
-      { path: "stats", element: <RbacRoute routeKey="stats"><Stats /></RbacRoute> },
+      { path: "stats", element: <RbacRoute routePath="/stats"><Stats /></RbacRoute> },
       {
         path: "admin",
         element: (
