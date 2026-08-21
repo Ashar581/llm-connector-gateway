@@ -4,6 +4,7 @@ import { useTheme } from "./context/ThemeContext";
 import { useAuth } from "./context/AuthContext";
 import { useRbac } from "./context/RbacContext";
 import { isRouteOpenToRoles } from "./services/rbacService";
+import { getInitials, getAvatarGradient } from "./utils/avatarUtils";
 import "./App.css";
 
 // ── Brand mark — a signal passing through an open gate ─────
@@ -231,6 +232,22 @@ export default function App() {
           >
             {isDark ? <SunIcon /> : <MoonIcon />}
           </button>
+
+          {user && (
+            <NavLink
+              to="/profile"
+              title="My Profile"
+              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 hover:opacity-85"
+              style={({ isActive }) => ({
+                background: getAvatarGradient(user?.username ?? user?.email ?? user?.fullname),
+                boxShadow: isActive ? "0 0 0 2px var(--bg-nav), 0 0 0 4px rgb(245,158,11)" : "none",
+              })}
+            >
+              <span className="text-[11px] font-black text-white tracking-tight">
+                {getInitials(user?.fullname || `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() || user?.username)}
+              </span>
+            </NavLink>
+          )}
         </div>
       </nav>
 

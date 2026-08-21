@@ -5,6 +5,7 @@ import Agents from "../pages/Agents";
 import Playground from "../pages/Playground";
 import Settings from "../pages/Settings";
 import Stats from "../pages/Stats";
+import Profile from "../pages/Profile";
 import Login from "../pages/Login";
 import Admin from "../pages/Admin";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
       { path: "agents", element: <RbacRoute routeKey="agents"><Agents /></RbacRoute> },
       { path: "playground", element: <RbacRoute routeKey="playground"><Playground /></RbacRoute> },
       { path: "settings", element: <Settings /> },
+      { path: "profile", element: <Profile /> },
       { path: "stats", element: <RbacRoute routeKey="stats"><Stats /></RbacRoute> },
       {
         path: "admin",
