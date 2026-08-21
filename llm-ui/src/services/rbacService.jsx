@@ -1,88 +1,121 @@
 // ── Route-level RBAC config ─────────────────────────────────────────────
-// The backend endpoint for this hasn't shipped yet, so this reads/writes
-// localStorage — same pattern Settings.jsx already uses for BASE_URL.
+// Backed by the real /v1/settings endpoints (see settingsService.jsx).
 //
-// Every function here is async and shaped like a future API call on
-// purpose (getConfig ≈ GET, saveConfig ≈ PUT) so that once the DB-backed
-// endpoint exists, only the bodies of getRouteAccessConfig /
-// saveRouteAccessConfig need to change — every call site already awaits
-// them and treats the config as opaque JSON.
+// Two sources of truth, reconciled on load:
+//   - The frontend's code (MANAGEABLE_ROUTES) knows which pages actually
+//     exist right now.
+//   - The backend (SettingsEntity rows) knows which roles can access each
+//     one — that's admin-configured and must survive across deploys.
 //
-// Config shape: { [routeKey]: string[] roleCodes }
-// An absent key, or an empty array, means the route is public — open to
-// any signed-in user. SUPER_ADMIN / SYSTEM_ADMIN always bypass this
-// entirely (enforced by the caller, not stored here).
+// reconcileRouteSettings() below keeps the backend's rows in step with
+// whatever pages the frontend currently ships, per three rules:
+//   1. A route in code but missing in the backend  → bulk-create it
+//      (roles: [] = public by default, same as the "unset = public" rule
+//      everywhere else in this system).
+//   2. A row in the backend with no matching route in code  → delete it
+//      (the page was removed from the app).
+//   3. A route in both, but the code's label differs from the backend's
+//      → update just the label. Roles are left untouched — those are an
+//      admin decision, not something a code change should ever overwrite.
 
-const STORAGE_KEY = "llm_route_access_config";
+import {
+    getAllSettings,
+    addSettingsBulk,
+    updateSetting,
+    deleteSetting,
+} from "./settingsService";
 
 // How often RbacContext polls the backend for changes made by other users.
 // This is the practical way to get "live" updates out of a plain REST GET
-// endpoint without needing WebSocket/SSE infrastructure. If a push channel
-// is added later, this can be relaxed (or dropped) — see
-// subscribeToRouteAccessChanges below.
+// endpoint without needing WebSocket/SSE infrastructure.
 export const ROUTE_ACCESS_POLL_INTERVAL_MS = 30000;
 
-// Keys must match the `routeKey` passed to <RbacRoute> in routers/routes.jsx
-// and the `key` on each nav link in App.jsx. Keep this list in sync if a
-// new top-level, RBAC-manageable route is added.
+// Every top-level, RBAC-manageable route in the app. `path` doubles as the
+// backend's unique `routePath` key, so add a route here and it appears in
+// the backend (public by default) after the next reconciliation; delete
+// one here and its backend row gets cleaned up the same way.
 export const MANAGEABLE_ROUTES = [
-    { key: "dashboard", label: "Dashboard", path: "/" },
-    { key: "agents", label: "Agents", path: "/agents" },
-    { key: "stats", label: "Stats", path: "/stats" },
-    { key: "playground", label: "Playground", path: "/playground" },
+    { path: "/", label: "Dashboard" },
+    { path: "/agents", label: "Agents" },
+    { path: "/stats", label: "Stats" },
+    { path: "/playground", label: "Playground" },
 ];
 
-function readLocalConfig() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {};
-    } catch (e) {
-        console.error("Failed to parse stored route access config", e);
-        return {};
-    }
-}
-
-// TODO(API): once the backend endpoint ships, replace the body with:
-//   const response = await apiSvc.get("v1/route-access");
-//   return response.data.data ?? {};
+/**
+ * Config shape consumed by the rest of the app: { [routePath]: string[] roleCodes }
+ * An absent key, or an empty array, means the route is public.
+ */
 export async function getRouteAccessConfig() {
-    return readLocalConfig();
-}
-
-// TODO(API): once the backend endpoint ships, replace the body with:
-//   const response = await apiSvc.put("v1/route-access", config);
-//   return response.data.data ?? config;
-export async function saveRouteAccessConfig(config) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config ?? {}));
+    const settings = await getAllSettings();
+    const config = {};
+    (settings ?? []).forEach((s) => {
+        config[s.routePath] = Array.from(s.roles ?? []);
+    });
     return config;
 }
 
-/**
- * Whether `userRoleCodes` satisfies the access rule set for `routeKey`.
- * No rule (or an empty rule) means the route is public.
- */
-export function isRouteOpenToRoles(config, routeKey, userRoleCodes = []) {
-    const allowed = config?.[routeKey];
+export function isRouteOpenToRoles(config, routePath, userRoleCodes = []) {
+    const allowed = config?.[routePath];
     if (!allowed || allowed.length === 0) return true;
     const upper = new Set(Array.from(userRoleCodes, (r) => String(r).toUpperCase()));
     return allowed.some((r) => upper.has(String(r).toUpperCase()));
 }
 
 /**
- * Notifies `onChange()` whenever the route-access config changes somewhere
- * else. Today that's "somewhere else" = another browser tab, via the
- * native `storage` event — instant, no polling needed, and it already
- * works with the current localStorage backing.
- *
- * TODO(API): once the backend exposes a push channel (WebSocket/SSE) for
- * this config, swap the body of this function to subscribe to that
- * channel and call `onChange()` on each message instead. RbacContext
- * doesn't need to change at all — it just calls this and reacts.
+ * Persists role selections from the Access panel. By the time this runs,
+ * reconciliation has already guaranteed every MANAGEABLE_ROUTES entry
+ * exists as a backend row, so this is always an update, never a create.
  */
-export function subscribeToRouteAccessChanges(onChange) {
-    const handler = (e) => {
-        if (e.key === STORAGE_KEY) onChange();
-    };
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
+export async function saveRouteAccessConfig(config) {
+    await Promise.all(
+        MANAGEABLE_ROUTES.map((route) =>
+            updateSetting({
+                routePath: route.path,
+                label: route.label,
+                roles: Array.from(config?.[route.path] ?? []),
+            })
+        )
+    );
+    return config;
+}
+
+/**
+ * Scans MANAGEABLE_ROUTES against the backend's current rows and reconciles
+ * the three cases described above. Intended to run once per session, for
+ * admins only (creating/deleting settings rows is an admin-level action —
+ * see RbacProvider). Returns the backend's post-reconciliation list.
+ */
+export async function reconcileRouteSettings() {
+    const backendSettings = await getAllSettings();
+    const backendByPath = new Map((backendSettings ?? []).map((s) => [s.routePath, s]));
+    const codePaths = new Set(MANAGEABLE_ROUTES.map((r) => r.path));
+
+    const toCreate = MANAGEABLE_ROUTES
+        .filter((r) => !backendByPath.has(r.path))
+        .map((r) => ({ label: r.label, routePath: r.path, roles: [] }));
+
+    const toDelete = (backendSettings ?? []).filter((s) => !codePaths.has(s.routePath));
+
+    const toRelabel = MANAGEABLE_ROUTES.filter((r) => {
+        const existing = backendByPath.get(r.path);
+        return existing && existing.label !== r.label;
+    });
+
+    let changed = false;
+
+    if (toCreate.length > 0) {
+        await addSettingsBulk(toCreate);
+        changed = true;
+    }
+    if (toDelete.length > 0) {
+        await Promise.all(toDelete.map((s) => deleteSetting(s.routePath)));
+        changed = true;
+    }
+    if (toRelabel.length > 0) {
+        // Deliberately omit `roles` here — see the module doc above.
+        await Promise.all(toRelabel.map((r) => updateSetting({ routePath: r.path, label: r.label })));
+        changed = true;
+    }
+
+    return changed ? getAllSettings() : backendSettings;
 }

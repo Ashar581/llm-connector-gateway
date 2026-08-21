@@ -109,19 +109,19 @@ const SettingsIcon = () => (
 );
 
 const baseDesktopNavLinks = [
-  { key: "dashboard", to: "/", label: "Dashboard", end: true },
-  { key: "agents", to: "/agents", label: "Agents" },
-  { key: "stats", to: "/stats", label: "Stats" },
-  { key: "playground", to: "/playground", label: "Playground" },
-  { key: "settings", to: "/settings", label: "Settings" },
+  { to: "/", label: "Dashboard", end: true },
+  { to: "/agents", label: "Agents" },
+  { to: "/stats", label: "Stats" },
+  { to: "/playground", label: "Playground" },
+  { to: "/settings", label: "Settings" },
 ];
 
 const baseMobileNavLinks = [
-  { key: "dashboard", to: "/", label: "Home", Icon: LayoutGridIcon, end: true },
-  { key: "agents", to: "/agents", label: "Agents", Icon: CpuIcon },
-  { key: "stats", to: "/stats", label: "Stats", Icon: AnalyticsIcon },
-  { key: "playground", to: "/playground", label: "Play", Icon: PlayIcon },
-  { key: "settings", to: "/settings", label: "Settings", Icon: SettingsIcon },
+  { to: "/", label: "Home", Icon: LayoutGridIcon, end: true },
+  { to: "/agents", label: "Agents", Icon: CpuIcon },
+  { to: "/stats", label: "Stats", Icon: AnalyticsIcon },
+  { to: "/playground", label: "Play", Icon: PlayIcon },
+  { to: "/settings", label: "Settings", Icon: SettingsIcon },
 ];
 
 export default function App() {
@@ -130,24 +130,26 @@ export default function App() {
   const { config: rbacConfig, loading: rbacLoading } = useRbac();
   const isDark = theme === "dark";
 
-  // Settings has no RBAC entry (it's per-browser config, not gated) and
-  // Admin keeps its own hardcoded SUPER_ADMIN/SYSTEM_ADMIN check — neither
-  // goes through the dynamic route-access config below.
+  // `to` doubles as the backend's routePath key. Settings isn't a managed
+  // route (it's per-browser config, not gated) so it never has a config
+  // entry — which already makes it public under the "no rule = public"
+  // rule below, no special-casing needed. Admin keeps its own hardcoded
+  // SUPER_ADMIN/SYSTEM_ADMIN check, entirely separate from this config.
   const userRoleCodes = Array.from(user?.roles ?? []);
-  const canAccess = (key) => {
-    if (key === "settings" || isAdmin) return true;
+  const canAccess = (path) => {
+    if (isAdmin) return true;
     if (rbacLoading) return true; // avoid a flash of a hidden link while loading
-    return isRouteOpenToRoles(rbacConfig, key, userRoleCodes);
+    return isRouteOpenToRoles(rbacConfig, path, userRoleCodes);
   };
 
   // Admin (Users / Roles / Groups / Access) only shows for SUPER_ADMIN / SYSTEM_ADMIN.
   const desktopNavLinks = [
-    ...baseDesktopNavLinks.filter((l) => canAccess(l.key)),
+    ...baseDesktopNavLinks.filter((l) => canAccess(l.to)),
     ...(isAdmin ? [{ key: "admin", to: "/admin", label: "Admin" }] : []),
   ];
 
   const mobileNavLinks = [
-    ...baseMobileNavLinks.filter((l) => canAccess(l.key)),
+    ...baseMobileNavLinks.filter((l) => canAccess(l.to)),
     ...(isAdmin ? [{ key: "admin", to: "/admin", label: "Admin", Icon: ShieldIcon }] : []),
   ];
 
