@@ -29,7 +29,7 @@ export default function Settings() {
   };
   const handleLogout = () => {
     logout();
-    navigate('/login')
+    navigate('/ui/login')
   }
 
 
