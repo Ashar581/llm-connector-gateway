@@ -15,6 +15,13 @@
 
 const STORAGE_KEY = "llm_route_access_config";
 
+// How often RbacContext polls the backend for changes made by other users.
+// This is the practical way to get "live" updates out of a plain REST GET
+// endpoint without needing WebSocket/SSE infrastructure. If a push channel
+// is added later, this can be relaxed (or dropped) — see
+// subscribeToRouteAccessChanges below.
+export const ROUTE_ACCESS_POLL_INTERVAL_MS = 30000;
+
 // Keys must match the `routeKey` passed to <RbacRoute> in routers/routes.jsx
 // and the `key` on each nav link in App.jsx. Keep this list in sync if a
 // new top-level, RBAC-manageable route is added.
@@ -59,4 +66,23 @@ export function isRouteOpenToRoles(config, routeKey, userRoleCodes = []) {
     if (!allowed || allowed.length === 0) return true;
     const upper = new Set(Array.from(userRoleCodes, (r) => String(r).toUpperCase()));
     return allowed.some((r) => upper.has(String(r).toUpperCase()));
+}
+
+/**
+ * Notifies `onChange()` whenever the route-access config changes somewhere
+ * else. Today that's "somewhere else" = another browser tab, via the
+ * native `storage` event — instant, no polling needed, and it already
+ * works with the current localStorage backing.
+ *
+ * TODO(API): once the backend exposes a push channel (WebSocket/SSE) for
+ * this config, swap the body of this function to subscribe to that
+ * channel and call `onChange()` on each message instead. RbacContext
+ * doesn't need to change at all — it just calls this and reacts.
+ */
+export function subscribeToRouteAccessChanges(onChange) {
+    const handler = (e) => {
+        if (e.key === STORAGE_KEY) onChange();
+    };
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
 }
