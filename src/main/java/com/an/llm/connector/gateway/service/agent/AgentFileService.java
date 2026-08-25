@@ -3,13 +3,23 @@ package com.an.llm.connector.gateway.service.agent;
 import com.an.llm.connector.gateway.dto.agent.AgentFileDto;
 import com.an.llm.connector.gateway.entity.agent.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.entity.agent.AgentFileEntity;
+import com.an.llm.connector.gateway.enums.IngestionMode;
+import com.an.llm.connector.gateway.enums.LlmCapability;
+import com.an.llm.connector.gateway.exception.NotAllowedException;
 import com.an.llm.connector.gateway.exception.NotFoundException;
+import com.an.llm.connector.gateway.exception.OperationFailedException;
 import com.an.llm.connector.gateway.mapper.agent.AgentFileMapper;
 import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
 import com.an.llm.connector.gateway.repository.AgentFileRepository;
+import com.an.llm.connector.gateway.repository.views.AgentFileDeletionView;
+import com.an.llm.connector.gateway.service.ai.DocumentIngestionServiceV2;
+import com.an.llm.connector.gateway.service.ai.RetrievalServiceV2;
+import com.an.llm.connector.gateway.service.factory.VectorStoreBeanFactory;
+import com.an.llm.connector.gateway.util.FileHashGenerator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,11 +37,16 @@ public class AgentFileService {
     private final AgentFileRepository agentFileRepository;
     private final AgentFileMapper agentFileMapper;
 
+    private final RetrievalServiceV2 retrievalServiceV2;
+    private final VectorStoreBeanFactory vectorStoreBeanFactory;
+
     @Transactional
     public List<AgentFileDto> add(String agentName, List<MultipartFile> files) {
 
         AgentConfigurationEntity agent = agentConfigurationRepository.findByName(agentName)
                 .orElseThrow(() -> new NotFoundException("Agent does not exists."));
+
+        if (!agent.getType().equals(LlmCapability.RAG)) throw new NotAllowedException("Files can only be attached to RAG based agents.");
 
         List<AgentFileEntity> entities = new ArrayList<>();
 
@@ -47,10 +62,14 @@ public class AgentFileService {
             } catch (Exception e) {
                 log.error("Error getting file bytes.", e);
             }
+
+            try {
+                entity.setHashKey(FileHashGenerator.generateSHA256(file));
+            } catch (Exception e){
+                log.error("Error while generating hash of file {}",entity.getFileName());
+                throw new OperationFailedException("Unable to generate the hash of the attached file.");
+            }
             entities.add(entity);
-            /**
-              since file is added we need to add RAG based functionality too.
-             */
         }
 
         return agentFileMapper.toDtoList(agentFileRepository.saveAll(entities));
@@ -58,15 +77,13 @@ public class AgentFileService {
 
     @Transactional
     public Long delete(@NonNull Long id){
-        if (!agentFileRepository.existsById(id)) {
-            throw new NotFoundException("File does not exist.");
-        }
+        AgentFileDeletionView file = agentFileRepository.findDeletionDataById(id)
+                .orElseThrow(() -> new NotFoundException("File does not exist."));
 
+        VectorStore vectorStore = vectorStoreBeanFactory.getVectorStore(file.getVectorStore());
+        retrievalServiceV2.removeAgentFromDocument(vectorStore,file.getHashKey(), file.getAgentName());
         agentFileRepository.deleteById(id);
 
-        /**
-         * Since the file is deleted make sure to deleted things from Vector DB too so that there are no ambiguity.
-         */
         return id;
     }
 
