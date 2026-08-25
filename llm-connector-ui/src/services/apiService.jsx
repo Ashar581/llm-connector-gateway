@@ -1,6 +1,7 @@
 import axios from "axios";
 import NProgress from "nprogress";
 import { TOKEN_KEY, REFRESH_TOKEN_KEY } from "../context/AuthContext";
+import { APP_BASENAME } from "../constants/app";
 
 // ── NProgress config ────────────────────────────────────────────────────────
 NProgress.configure({
@@ -210,15 +211,19 @@ apiSvc.interceptors.response.use(
 
 /**
  * Clears all auth data from storage and navigates to /login.
- * Uses window.location so this works outside React component trees.
+ * Uses window.location so this works outside React component trees —
+ * which means it also has to account for the router's basename (/ui)
+ * itself, since raw window.location navigation bypasses React Router's
+ * automatic basename handling entirely.
  */
 function redirectToLogin() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem("auth_user");
 
-    if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
+    const loginPath = `${APP_BASENAME}/login`;
+    if (window.location.pathname !== loginPath) {
+        window.location.href = loginPath;
     }
 }
 
