@@ -85,6 +85,7 @@ public class RetrievalServiceV2 {
 
     // Implementation based on in-memory vector store.
     public void removeAgentFromDocument(@NonNull VectorStore vectorStore, @NonNull String hashKey, @NonNull String agentId) {
+        log.info("Removing chunks from vector store {} and file hash {} for agent {}",vectorStore.getName(),hashKey,agentId);
         List<Document> chunks = findDocumentChunks(vectorStore, hashKey);
 
         if (chunks.isEmpty()) {
