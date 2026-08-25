@@ -215,6 +215,8 @@ public class AgentConfigurationService {
         AgentConfigurationEntity entity = agentConfigurationRepository.findByName(name)
                 .orElseThrow(()-> new NotFoundException("No agent with given name exists."));
 
+        LlmCapability oldType = entity.getType();
+
         if (updateRequested.getInstructions()!=null && !updateRequested.getInstructions().isBlank()) {
             entity.setInstructions(updateRequested.getInstructions());
         }
@@ -227,7 +229,6 @@ public class AgentConfigurationService {
         if (updateRequested.getType() != null && !updateRequested.getType().isBlank()) {
             entity.setType(LlmCapability.getFromValue(updateRequested.getType()));
         }
-        entity.setMaxTokens(updateRequested.getMaxTokens());
         if (updateRequested.getTemperature() != null) {
             entity.setTemperature(updateRequested.getTemperature());
         }
@@ -256,6 +257,47 @@ public class AgentConfigurationService {
             entity.setDocumentTypes(updateRequested.getDocumentTypes());
         }
 
+        //RAG based updated
+        if (updateRequested.getVectorStore() != null && !updateRequested.getVectorStore().isBlank()) {
+            entity.setVectorStore(updateRequested.getVectorStore());
+        }
+
+        if (updateRequested.getEncodingType() != null && !updateRequested.getEncodingType().isBlank()) {
+            entity.setEncodingType(updateRequested.getEncodingType());
+        }
+
+        if (updateRequested.getChunkSize() != null) {
+            entity.setChunkSize(updateRequested.getChunkSize());
+        }
+
+        if (updateRequested.getMinChunkLengthToEmbed() != null) {
+            entity.setMinChunkLengthToEmbed(updateRequested.getMinChunkLengthToEmbed());
+        }
+
+        if (updateRequested.getMinChunkSizeChars() != null) {
+            entity.setMinChunkSizeChars(updateRequested.getMinChunkSizeChars());
+        }
+
+        if (updateRequested.getMaxNumChunks() != null) {
+            entity.setMaxNumChunks(updateRequested.getMaxNumChunks());
+        }
+
+        if (updateRequested.getSeparator() != null) {
+            entity.setSeparator(updateRequested.getSeparator());
+        }
+
+        if (updateRequested.getTopK() != null) {
+            entity.setTopK(updateRequested.getTopK());
+        }
+
+        if (updateRequested.getSimilarityThreshold() != null) {
+            entity.setSimilarityThreshold(updateRequested.getSimilarityThreshold());
+        }
+
+        if (updateRequested.getEnablePrivateMode() != null) {
+            entity.setEnablePrivateMode(updateRequested.getEnablePrivateMode());
+        }
+
         //simple page chunk verification.
         if (updateRequested.getPageChunk() != null && (updateRequested.getPageChunk()>4 || updateRequested.getPageChunk()<1)) throw new NotAllowedException("Page chunk can only be a between 1 to 4.");
 
@@ -267,6 +309,28 @@ public class AgentConfigurationService {
         if ((entity.getDocumentTypes() != null || entity.getClassificationMode() != null) && !LlmCapability.CLASSIFICATION.equals(entity.getType())) {
             entity.setDocumentTypes(null);
             entity.setClassificationMode(null);
+        }
+
+        //if non RAG is updated to RAG then new configurations are also needed.
+        //if RAG type is converted to non-RAG then remaining configurations are supposed
+        //to be removed including the file if attached.
+        //if file is deleted then the RAG reference is also supposed to be deleted.
+
+        if (oldType.equals(LlmCapability.RAG) && !entity.getType().equals(LlmCapability.RAG)) {
+            entity.setVectorStore(null);
+            entity.setEncodingType(null);
+            entity.setChunkSize(null);
+            entity.setMinChunkLengthToEmbed(null);
+            entity.setMinChunkSizeChars(null);
+            entity.setMaxNumChunks(null);
+            entity.setSeparator(null);
+            entity.setTopK(null);
+            entity.setSimilarityThreshold(null);
+            entity.setEnablePrivateMode(null);
+        }
+
+        if (entity.getType().equals(LlmCapability.RAG)) {
+            validateRagConfigurations(agentConfigurationMapper.toDto(entity),null);
         }
 
         //before saving check if the files are there and the type of agent isn't RAG, restrict
