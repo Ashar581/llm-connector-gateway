@@ -7,15 +7,17 @@
 // repeatable document-type list) use a CustomPanel instead — see
 // ClassificationConfigPanel.jsx for that pattern.
 
-function FieldLabel({ children }) {
+function FieldLabel({ children, required }) {
     return (
         <div className="flex justify-between items-center text-xs mb-1.5">
-            <span className="uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{children}</span>
+            <span className="uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                {children}{required && <span className="text-amber-500 ml-0.5">*</span>}
+            </span>
         </div>
     );
 }
 
-function TypeField({ field, value, onChange }) {
+function TypeField({ field, value, onChange, error }) {
     const commit = (raw) => {
         if (field.validate && !field.validate(raw)) return;
         onChange(raw);
@@ -25,23 +27,33 @@ function TypeField({ field, value, onChange }) {
         case "select":
             return (
                 <div>
-                    <FieldLabel>{field.label}</FieldLabel>
-                    <div className="flex flex-wrap gap-1.5">
-                        {field.options.map((opt) => (
-                            <button
-                                key={opt}
-                                type="button"
-                                onClick={() => commit(opt)}
-                                className="px-2.5 py-1.5 text-xs rounded-lg transition-all duration-200"
-                                style={value === opt
-                                    ? { backgroundColor: "rgba(217,119,6,0.1)", border: "1px solid rgba(217,119,6,0.3)", color: "rgb(245,158,11)" }
-                                    : { border: "1px solid var(--border)", color: "var(--text-muted)" }
-                                }
-                            >
-                                {opt}
-                            </button>
-                        ))}
+                    <FieldLabel required={field.required}>{field.label}</FieldLabel>
+                    <div
+                        className="flex flex-wrap gap-1.5 rounded-lg transition-colors"
+                        style={error ? { border: "1px solid rgba(248,113,113,0.4)", padding: "6px" } : undefined}
+                    >
+                        {field.options.length === 0 ? (
+                            <span className="text-xs py-1" style={{ color: "var(--text-faint)" }}>
+                                No options available
+                            </span>
+                        ) : (
+                            field.options.map((opt) => (
+                                <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => commit(opt)}
+                                    className="px-2.5 py-1.5 text-xs rounded-lg transition-all duration-200"
+                                    style={value === opt
+                                        ? { backgroundColor: "rgba(217,119,6,0.1)", border: "1px solid rgba(217,119,6,0.3)", color: "rgb(245,158,11)" }
+                                        : { border: "1px solid var(--border)", color: "var(--text-muted)" }
+                                    }
+                                >
+                                    {opt}
+                                </button>
+                            ))
+                        )}
                     </div>
+                    {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
                 </div>
             );
 
@@ -151,13 +163,13 @@ function TypeField({ field, value, onChange }) {
     }
 }
 
-export default function DynamicTypeFields({ fields, values, onChange }) {
+export default function DynamicTypeFields({ fields, values, onChange, errors = {} }) {
     if (!fields || fields.length === 0) return null;
     return (
         <div className="rounded-xl p-4 space-y-4" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="text-xs uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>Type Options</div>
             {fields.map((f) => (
-                <TypeField key={f.key} field={f} value={values[f.key]} onChange={(v) => onChange(f.key, v)} />
+                <TypeField key={f.key} field={f} value={values[f.key]} onChange={(v) => onChange(f.key, v)} error={errors[f.key]} />
             ))}
         </div>
     );

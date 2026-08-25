@@ -127,7 +127,7 @@ export default function Playground() {
 
   const availableModels = modelMap[source] ?? [];
   const availableTypes = selectedModel?.type ?? [];
-  const typeConfig = getTypeConfig(selectedType, modelMap);
+  const typeConfig = getTypeConfig(selectedType, modelMap, source);
   const isFileType = typeConfig.isFileType;
   const isClassification = selectedType === "classification";
   const isEmbedding = selectedType === 'embedding';

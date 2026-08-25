@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router";
+import { APP_BASENAME } from "../constants/app";
 import App from "../App";
 import Home from "../pages/Home";
 import Agents from "../pages/Agents";
@@ -46,7 +47,7 @@ const router = createBrowserRouter([
   },
 ],
     {
-      basename: "/ui",
+      basename: APP_BASENAME,
     }
 );
 

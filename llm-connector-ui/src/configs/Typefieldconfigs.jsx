@@ -83,7 +83,7 @@ export const TYPE_FIELD_CONFIGS = {
         dropHint: "RAG accepts documents to index (PDF, DOCX, TXT, MD, CSV)",
         modeLabel: "RAG mode",
         fields: [
-            { key: "vectorStore", label: "Vector Store", type: "select", options: [], default: "" },
+            { key: "vectorStore", label: "Vector Store", type: "select", options: [], default: "", required: true },
             {
                 key: "encodingType", label: "Encoding Type", type: "select", options: ["cl100k_base", "r50k_base", "p50k_base", "p50k_edit", "o200k_base"], default: ""
             },
@@ -113,14 +113,14 @@ export const TYPE_FIELD_CONFIGS = {
     },
 };
 
-export const getTypeConfig = (type, models) => {
+export const getTypeConfig = (type, models, source) => {
     const config = TYPE_FIELD_CONFIGS[type] || TYPE_FIELD_CONFIGS.default;
 
     if (type !== "rag" || !models) {
         return config;
     }
 
-    const embeddingModels = getEmbeddingModels(models);
+    const embeddingModels = getEmbeddingModels(models, source);
 
     return {
         ...config,
@@ -135,15 +135,22 @@ export const getTypeConfig = (type, models) => {
     };
 };
 
-const getEmbeddingModels = (models) => {
-    const embeddingModelIds = [
-        ...models.free,
-        ...models.paid,
-    ].filter(model => model.type.includes("embedding")).map(model => model.id);
-    return embeddingModelIds;
+// Restricted to whichever source (free/paid) is currently selected — a
+// vector store from the *other* source isn't actually usable together with
+// the rest of the agent's config, so it shouldn't be offered. Also
+// defensively re-filters to active models even if a caller's modelMap
+// wasn't already pre-filtered, since an inactive embedding model can't
+// actually serve requests.
+const getEmbeddingModels = (models, source) => {
+    const pool = source
+        ? (models[source] ?? [])
+        : [...(models.free ?? []), ...(models.paid ?? [])];
 
-
-}
+    return pool
+        .filter((model) => model.active !== false)
+        .filter((model) => model.type?.includes("embedding"))
+        .map((model) => model.id);
+};
 
 export const isFileType = (type) => getTypeConfig(type).isFileType;
 
