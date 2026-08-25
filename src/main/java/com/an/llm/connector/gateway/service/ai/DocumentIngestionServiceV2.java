@@ -103,7 +103,6 @@ public class DocumentIngestionServiceV2 {
         if (hashKeys != null && !hashKeys.isEmpty()) {
             for (String hashKey : hashKeys) {
                 if (retrievalServiceV2.documentExists(vectorStore, hashKey)) {
-                    System.out.println("Document exists.");
                     if (!agent.isBlank()) {
                         log.info("Updating the existing document's metadata with the agent-id {}", agent);
                         retrievalServiceV2.addAgentToDocument(vectorStore, hashKey, agent);
