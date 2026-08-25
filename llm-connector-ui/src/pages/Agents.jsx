@@ -33,6 +33,19 @@ export default function Agents() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [agentToDelete, setAgentToDelete] = useState(null);
 
+  // Silent (no full-page loading skeleton) re-fetch of the whole list — used
+  // after actions that mutate something the list needs to reflect but that
+  // don't already return the authoritative updated agent (e.g. file
+  // add/remove, which has no single-agent GET to pull fresh state from).
+  const refreshAgents = async () => {
+    try {
+      const data = await getAgents();
+      setAgents(data);
+    } catch (e) {
+      console.error("Failed to refresh agents", e);
+    }
+  };
+
   useEffect(() => {
     setTimeout(() => setLoaded(true), 80);
     const controller = new AbortController();
@@ -276,6 +289,7 @@ export default function Agents() {
           onClose={() => setModalOpen(false)}
           agent={selectedAgent}
           onSave={handleSave}
+          onFilesSaved={refreshAgents}
         />
         <AgentPlayground
           open={playgroundOpen}

@@ -41,7 +41,7 @@ function extractApiError(e) {
   return e?.message ?? "An unexpected error occurred.";
 }
 
-export default function AgentModal({ open, onClose, agent, onSave }) {
+export default function AgentModal({ open, onClose, agent, onSave, onFilesSaved }) {
   const [form, setForm] = useState(defaultForm);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
@@ -69,7 +69,13 @@ export default function AgentModal({ open, onClose, agent, onSave }) {
   const isClassification = form.type === "classification";
   const isVision = form.type === 'vision';
   const isRag = form.type === 'rag';
-  const ragConfig = getTypeConfig("rag", modelMap);
+  const ragConfig = getTypeConfig("rag", modelMap, form.source);
+  // Effective usable context — divided by parallelExecution, same as the
+  // Playground's maxTokenLimit — since a model split across N parallel
+  // executions only has context/N actually available per call.
+  const maxTokenLimit = selectedModelData?.context && selectedModelData?.parallelExecution
+    ? Math.floor(selectedModelData.context / selectedModelData.parallelExecution)
+    : null;
 
   // ── Fetch models ───────────────────────────────────────
   useEffect(() => {
@@ -81,8 +87,8 @@ export default function AgentModal({ open, onClose, agent, onSave }) {
         const res = await apiSvc.get("v1/config/model", { signal: controller.signal });
         const data = res.data.data;
         setModelMap({
-          free: data.free?.models ?? [],
-          paid: data.paid?.models ?? [],
+          free: (data.free?.models ?? []).filter((model) => model.active === true),
+          paid: (data.paid?.models ?? []).filter((model) => model.active === true),
         });
       } catch (e) {
         if (e.name === "AbortError") return;
@@ -228,6 +234,14 @@ export default function AgentModal({ open, onClose, agent, onSave }) {
       setRemovedFileIds([]);
       setNewFiles([]);
       toast.success("Files saved successfully.", { id: toastId });
+      // The Agents list keeps its own cached copy of each agent (including
+      // `files`) for optimistic updates elsewhere — file adds/removals
+      // happen immediately here, outside the main Save Changes flow, so
+      // without this the list would keep showing stale file counts/lists
+      // until a full page reload. There's no single-agent GET endpoint to
+      // pull the authoritative post-save state from, so ask the parent to
+      // refresh its full list instead — simplest way to guarantee accuracy.
+      onFilesSaved?.();
     } catch (e) {
       console.error("File save failed", e);
       toast.error(extractApiError(e), { id: toastId });
@@ -247,6 +261,10 @@ export default function AgentModal({ open, onClose, agent, onSave }) {
       errs.temperature = "Must be between 0 and 2";
     if (form.maxTokens !== "" && (isNaN(form.maxTokens) || Number(form.maxTokens) < 1))
       errs.maxTokens = "Must be a positive number";
+    if (form.maxTokens !== "" && maxTokenLimit && Number(form.maxTokens) > maxTokenLimit)
+      errs.maxTokens = `Max token cannot exceed ${maxTokenLimit}`;
+    if (isRag && !typeFieldValues.vectorStore)
+      errs.vectorStore = "Vector Store is required when RAG is selected.";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -404,8 +422,8 @@ export default function AgentModal({ open, onClose, agent, onSave }) {
                 {[
                   {
                     label: "Context",
-                    value: selectedModelData.context
-                      ? `${(selectedModelData.context / 1000).toFixed(0)}k`
+                    value: maxTokenLimit
+                      ? `${(maxTokenLimit / 1000).toFixed(0)}k`
                       : "—",
                   },
                   { label: "Provider", value: selectedModelData.provider ?? "local" },
@@ -473,7 +491,11 @@ export default function AgentModal({ open, onClose, agent, onSave }) {
             <DynamicTypeFields
               fields={ragConfig.fields}
               values={typeFieldValues}
-              onChange={(key, value) => setTypeFieldValues((prev) => ({ ...prev, [key]: value }))}
+              onChange={(key, value) => {
+                setTypeFieldValues((prev) => ({ ...prev, [key]: value }));
+                if (key === "vectorStore") setErrors((prev) => ({ ...prev, vectorStore: null }));
+              }}
+              errors={errors}
             />
           )}
 
@@ -621,11 +643,16 @@ export default function AgentModal({ open, onClose, agent, onSave }) {
                 <span>Precise</span><span>Creative</span>
               </div>
             </Field>
-            <Field label="Max Tokens" error={errors.maxTokens} hint="Leave empty for default">
+            <Field label="Max Tokens" error={errors.maxTokens} hint={maxTokenLimit ? `Max ${maxTokenLimit}` : "Leave empty for default"}>
               <input
                 type="number" value={form.maxTokens}
-                onChange={(e) => set("maxTokens", e.target.value)}
-                placeholder="e.g. 2048" min={1}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "") { set("maxTokens", ""); return; }
+                  const n = Number(v);
+                  set("maxTokens", maxTokenLimit ? Math.min(n, maxTokenLimit) : n);
+                }}
+                placeholder={maxTokenLimit ? `Max ${maxTokenLimit}` : "e.g. 2048"} min={1} max={maxTokenLimit ?? undefined}
                 className={inputCls(errors.maxTokens)}
               />
             </Field>
