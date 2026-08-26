@@ -84,8 +84,8 @@ llm:
           port: 8080
           model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
           mm-proj :
-          context: 16000
-          parallelExecution: 4
+          context: 4096
+          parallelExecution: 2
           gpu : true
           active: true
 
@@ -102,8 +102,8 @@ llm:
           port: 8082
           model-name: Bonsai-8B.gguf
           mm-proj :
-          context: 16384
-          parallelExecution: 8
+          context: 4096
+          parallelExecution: 2
           gpu : true
           active: true
 
@@ -131,8 +131,8 @@ llm:
           port: 8084
           model-name: Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf
           mm-proj : mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf
-          context: 8192
-          parallelExecution: 2
+          context: 2048
+          parallelExecution: 1
           gpu : true
           active: false
 
@@ -161,8 +161,8 @@ llm:
           port: 7076
           model-name: Qwen3VL-8B-Instruct-Q4_K_M.gguf
           mm-proj : mmproj-Qwen3VL-8B-Instruct-F16.gguf
-          context: 8192
-          parallelExecution: 2
+          context: 2048
+          parallelExecution: 1
           gpu : true
           active: false
 
