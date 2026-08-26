@@ -2,7 +2,7 @@ package com.an.llm.connector.gateway.util;
 
 public class ProcessBuilderUtils {
 
-    private static final String LLAMA_PATH = "~/llama.cpp";
+    private static final String LLAMA_PATH = System.getProperty("user.dir") + "/runtime/llama.cpp";
 
     private static String getGpuArg(Boolean gpu) {
         return Boolean.TRUE.equals(gpu) ? "-ngl 999 " : "";
