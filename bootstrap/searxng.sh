@@ -2,78 +2,142 @@
 
 set -Eeuo pipefail
 
+
+# ============================================================
+# SearXNG
+# ============================================================
+
 SEARXNG_REPOSITORY="https://github.com/searxng/searxng.git"
+
 SEARXNG_PORT="${SEARXNG_PORT:-8888}"
 
 SEARXNG_SRC="${SEARXNG_DIR}/searxng-src"
 SEARXNG_PYENV="${SEARXNG_DIR}/searx-pyenv"
 SEARXNG_SETTINGS="${SEARXNG_DIR}/settings.yml"
+
 SEARXNG_LOG="${SEARXNG_DIR}/searxng.log"
 SEARXNG_PID="${SEARXNG_DIR}/searxng.pid"
 
+
+# ============================================================
+# Main
+# ============================================================
 
 prepare_searxng() {
 
     log "Preparing SearXNG..."
 
     check_searxng_prerequisites
+
     clone_or_update_searxng
+
     create_searxng_virtualenv
+
     install_searxng
+
     create_searxng_settings
+
     start_searxng
 
     success "SearXNG is ready."
 }
 
 
+# ============================================================
+# Prerequisites
+# ============================================================
+
 check_searxng_prerequisites() {
 
     log "Checking SearXNG prerequisites..."
 
+
     command_exists python3 || \
         fail "python3 is required for SearXNG."
+
 
     command_exists git || \
         fail "git is required for SearXNG."
 
-    python3 -m venv --help >/dev/null 2>&1 || \
-        fail "Python virtual environment support is missing."
 
-    python3 -c \
-        'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' \
-        || fail "SearXNG requires Python 3.10 or newer."
+    if ! python3 -m venv --help >/dev/null 2>&1; then
 
-    success "SearXNG prerequisites are available."
+        fail \
+            "Python virtual environment support is unavailable."
+
+    fi
+
+
+    if ! python3 -c \
+        'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'
+    then
+
+        fail \
+            "SearXNG requires Python 3.10 or newer."
+
+    fi
+
+
+    info \
+        "Python: $(python3 --version 2>&1)"
+
+
+    success \
+        "SearXNG prerequisites are available."
 }
 
+
+# ============================================================
+# Clone / update
+# ============================================================
 
 clone_or_update_searxng() {
 
     if [[ ! -d "${SEARXNG_SRC}/.git" ]]; then
 
-        log "SearXNG source not found. Cloning..."
+        log \
+            "SearXNG source not found. Cloning..."
+
 
         mkdir -p "${SEARXNG_DIR}"
+
 
         run git clone \
             "${SEARXNG_REPOSITORY}" \
             "${SEARXNG_SRC}"
 
-        success "SearXNG source cloned."
+
+        success \
+            "SearXNG source cloned."
+
 
         return
     fi
 
 
-    log "SearXNG source already exists. Updating..."
+    log \
+        "SearXNG source already exists. Updating..."
 
 
-    if ! git -C "${SEARXNG_SRC}" diff --quiet || \
-       ! git -C "${SEARXNG_SRC}" diff --cached --quiet; then
+    if ! git -C "${SEARXNG_SRC}" diff --quiet; then
 
         warning \
-            "SearXNG source has local changes. Skipping git pull."
+            "SearXNG source contains local modifications."
+
+        warning \
+            "Skipping git pull."
+
+        return
+    fi
+
+
+    if ! git -C "${SEARXNG_SRC}" diff --cached --quiet; then
+
+        warning \
+            "SearXNG source contains staged changes."
+
+        warning \
+            "Skipping git pull."
 
         return
     fi
@@ -85,13 +149,19 @@ clone_or_update_searxng() {
         --ff-only
 
 
-    success "SearXNG source updated."
+    success \
+        "SearXNG source updated."
 }
 
 
+# ============================================================
+# Virtual environment
+# ============================================================
+
 create_searxng_virtualenv() {
 
-    log "Preparing SearXNG Python environment..."
+    log \
+        "Preparing SearXNG Python environment..."
 
 
     if [[ -x "${SEARXNG_PYENV}/bin/python" ]]; then
@@ -108,20 +178,27 @@ create_searxng_virtualenv() {
         "${SEARXNG_PYENV}"
 
 
-    success "Python virtual environment created."
+    success \
+        "SearXNG virtual environment created."
 }
 
 
+# ============================================================
+# Install
+# ============================================================
+
 install_searxng() {
 
-    log "Installing/updating SearXNG..."
+    log \
+        "Installing/updating SearXNG..."
 
 
     local python="${SEARXNG_PYENV}/bin/python"
 
 
     [[ -x "${python}" ]] || \
-        fail "SearXNG Python executable not found."
+        fail \
+            "SearXNG Python executable not found."
 
 
     run "${python}" \
@@ -148,13 +225,19 @@ install_searxng() {
         -e "${SEARXNG_SRC}"
 
 
-    success "SearXNG installation completed."
+    success \
+        "SearXNG installation completed."
 }
 
 
+# ============================================================
+# Settings
+# ============================================================
+
 create_searxng_settings() {
 
-    log "Preparing SearXNG settings..."
+    log \
+        "Preparing SearXNG settings..."
 
 
     if [[ -f "${SEARXNG_SETTINGS}" ]]; then
@@ -169,9 +252,12 @@ create_searxng_settings() {
     local template="${SEARXNG_SRC}/utils/templates/etc/searxng/settings.yml"
 
 
-    [[ -f "${template}" ]] || \
+    if [[ ! -f "${template}" ]]; then
+
         fail \
-        "SearXNG settings template not found: ${template}"
+            "SearXNG settings template not found: ${template}"
+
+    fi
 
 
     mkdir -p "${SEARXNG_DIR}"
@@ -182,9 +268,14 @@ create_searxng_settings() {
         "${SEARXNG_SETTINGS}"
 
 
-    success "SearXNG settings created."
+    success \
+        "SearXNG settings created."
 }
 
+
+# ============================================================
+# Secret
+# ============================================================
 
 generate_searxng_secret() {
 
@@ -202,9 +293,14 @@ generate_searxng_secret() {
 }
 
 
+# ============================================================
+# Start
+# ============================================================
+
 start_searxng() {
 
-    log "Starting SearXNG..."
+    log \
+        "Starting SearXNG..."
 
 
     local python="${SEARXNG_PYENV}/bin/python"
@@ -212,15 +308,20 @@ start_searxng() {
 
     [[ -x "${python}" ]] || \
         fail \
-        "SearXNG Python environment is not available."
+            "SearXNG Python environment is not available."
 
+
+    # --------------------------------------------------------
+    # Already running?
+    # --------------------------------------------------------
 
     if curl \
         --silent \
         --fail \
         --max-time 2 \
         "http://127.0.0.1:${SEARXNG_PORT}/" \
-        >/dev/null 2>&1; then
+        >/dev/null 2>&1
+    then
 
         success \
             "SearXNG is already running on port ${SEARXNG_PORT}."
@@ -264,9 +365,14 @@ start_searxng() {
 }
 
 
+# ============================================================
+# Wait
+# ============================================================
+
 wait_for_searxng() {
 
-    log "Waiting for SearXNG..."
+    log \
+        "Waiting for SearXNG..."
 
 
     local attempts=0
@@ -281,7 +387,8 @@ wait_for_searxng() {
             --fail \
             --max-time 2 \
             "http://127.0.0.1:${SEARXNG_PORT}/" \
-            >/dev/null 2>&1; then
+            >/dev/null 2>&1
+        then
 
             success \
                 "SearXNG is running on port ${SEARXNG_PORT}."
@@ -305,6 +412,9 @@ wait_for_searxng() {
 
                 if [[ -f "${SEARXNG_LOG}" ]]; then
 
+                    warning \
+                        "Last SearXNG log output:"
+
                     tail -n 40 \
                         "${SEARXNG_LOG}"
 
@@ -313,13 +423,12 @@ wait_for_searxng() {
 
                 fail \
                     "SearXNG failed to start."
-
             fi
-
         fi
 
 
         attempts=$((attempts + 1))
+
 
         sleep 2
 
@@ -331,6 +440,9 @@ wait_for_searxng() {
 
 
     if [[ -f "${SEARXNG_LOG}" ]]; then
+
+        warning \
+            "Last SearXNG log output:"
 
         tail -n 40 \
             "${SEARXNG_LOG}"

@@ -2,14 +2,16 @@
 
 set -Eeuo pipefail
 
-# ------------------------------------------------------------
+
+# ============================================================
 # Platform / hardware detection
-# ------------------------------------------------------------
+# ============================================================
 
 detect_platform() {
 
     OS="$(uname -s)"
     ARCH="$(uname -m)"
+
 
     case "${OS}" in
 
@@ -24,6 +26,7 @@ detect_platform() {
         *)
             fail "Unsupported operating system: ${OS}"
             ;;
+
     esac
 
 
@@ -40,6 +43,7 @@ detect_platform() {
         *)
             PLATFORM_ARCH="unknown"
             ;;
+
     esac
 
 
@@ -75,34 +79,68 @@ detect_platform() {
 }
 
 
+# ============================================================
+# macOS
+# ============================================================
+
 detect_macos_backend() {
 
-    if [[ "${PLATFORM_ARCH}" == "arm64" ]]; then
+    local machine_arch
+
+
+    # hw.machine detects the actual Mac architecture even
+    # when the current process is running through Rosetta 2.
+
+    machine_arch="$(
+        sysctl -in hw.machine
+    )"
+
+
+    if [[ "${machine_arch}" == "arm64" ]]; then
+
+        PLATFORM_ARCH="arm64"
 
         GPU_VENDOR="apple"
         GPU_NAME="Apple Silicon"
+
         LLAMA_BACKEND="METAL"
 
         return
     fi
 
 
-    # Intel Mac.
-    GPU_VENDOR="none"
-    GPU_NAME="Intel Mac GPU"
-    LLAMA_BACKEND="CPU"
+    if [[ "${machine_arch}" == "x86_64" ]]; then
+
+        PLATFORM_ARCH="x86_64"
+
+        GPU_VENDOR="intel"
+        GPU_NAME="Intel Mac"
+
+        LLAMA_BACKEND="CPU"
+
+        return
+    fi
+
+
+    fail \
+        "Unable to determine macOS architecture: ${machine_arch}"
 }
 
+
+# ============================================================
+# Linux
+# ============================================================
 
 detect_linux_backend() {
 
     # --------------------------------------------------------
-    # NVIDIA / CUDA
+    # NVIDIA
     # --------------------------------------------------------
 
     if command_exists nvidia-smi; then
 
         GPU_VENDOR="nvidia"
+
 
         GPU_NAME="$(
             nvidia-smi \
@@ -113,20 +151,28 @@ detect_linux_backend() {
                 || true
         )"
 
+
         if [[ -z "${GPU_NAME}" ]]; then
             GPU_NAME="NVIDIA GPU"
         fi
 
+
+        # CUDA toolkit must exist for a CUDA build.
 
         if command_exists nvcc; then
 
             LLAMA_BACKEND="CUDA"
 
             return
+
         fi
 
-        warning "NVIDIA GPU detected but nvcc/CUDA toolkit was not found."
-        warning "Falling back to CPU."
+
+        warning \
+            "NVIDIA GPU detected but nvcc was not found."
+
+        warning \
+            "Falling back to CPU."
 
         LLAMA_BACKEND="CPU"
 
@@ -135,7 +181,7 @@ detect_linux_backend() {
 
 
     # --------------------------------------------------------
-    # AMD / ROCm / HIP
+    # AMD / ROCm
     # --------------------------------------------------------
 
     if command_exists rocminfo \
@@ -143,17 +189,20 @@ detect_linux_backend() {
 
         GPU_VENDOR="amd"
 
+
         GPU_NAME="$(
             rocminfo 2>/dev/null \
                 | grep -m1 \
-                -E "Name:.*gfx|Marketing Name:" \
+                    -E "Marketing Name:|Name:" \
                 | sed 's/^[[:space:]]*//' \
                 || true
         )"
 
+
         if [[ -z "${GPU_NAME}" ]]; then
             GPU_NAME="AMD GPU"
         fi
+
 
         LLAMA_BACKEND="HIP"
 
@@ -163,10 +212,6 @@ detect_linux_backend() {
 
     # --------------------------------------------------------
     # Vulkan
-    #
-    # Do NOT select Vulkan merely because vulkaninfo exists.
-    # llama.cpp's Vulkan build needs the development tooling
-    # as well.
     # --------------------------------------------------------
 
     if command_exists vulkaninfo \
@@ -174,6 +219,7 @@ detect_linux_backend() {
 
         GPU_VENDOR="vulkan"
         GPU_NAME="Vulkan GPU"
+
         LLAMA_BACKEND="VULKAN"
 
         return
@@ -181,18 +227,24 @@ detect_linux_backend() {
 
 
     # --------------------------------------------------------
-    # CPU fallback
+    # CPU
     # --------------------------------------------------------
 
     GPU_VENDOR="none"
     GPU_NAME="none"
+
     LLAMA_BACKEND="CPU"
 }
 
 
+# ============================================================
+# Summary
+# ============================================================
+
 print_platform_summary() {
 
     printf '\n'
+
     printf '%s\n' \
         "------------------------------------------------------------"
 
