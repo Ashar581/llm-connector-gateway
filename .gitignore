@@ -38,3 +38,6 @@ application-*.local.yaml
 
 # Logs
 logs/
+
+# Runtime
+runtime/
