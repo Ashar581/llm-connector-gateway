@@ -2,13 +2,15 @@
 
 set -Eeuo pipefail
 
-# ------------------------------------------------------------
+
+# ============================================================
 # System dependencies
-# ------------------------------------------------------------
+# ============================================================
 
 install_dependencies() {
 
     log "Checking system dependencies..."
+
 
     if [[ "${PLATFORM_OS}" == "linux" ]]; then
 
@@ -20,17 +22,24 @@ install_dependencies() {
 
     else
 
-        fail "Dependency installation is not supported for: ${PLATFORM_OS}"
+        fail \
+            "Unsupported operating system: ${PLATFORM_OS}"
+
     fi
 }
 
+
+# ============================================================
+# Linux
+# ============================================================
 
 install_linux_dependencies() {
 
     if ! command_exists apt-get; then
 
         fail \
-            "This automatic Linux installer currently supports Debian/Ubuntu (apt)."
+            "Automatic Linux installation currently supports Debian/Ubuntu systems using apt."
+
     fi
 
 
@@ -43,8 +52,14 @@ install_linux_dependencies() {
         cmake
         python3
         python3-pip
-        openjdk-21-jdk
-        maven
+        python3-venv
+        python3-dev
+        libxml2-dev
+        libxslt1-dev
+        libffi-dev
+        libssl-dev
+        zlib1g-dev
+        openssl
         screen
         htop
     )
@@ -52,10 +67,13 @@ install_linux_dependencies() {
 
     local missing=()
 
+
     for package in "${packages[@]}"; do
 
         if ! dpkg -s "${package}" >/dev/null 2>&1; then
+
             missing+=("${package}")
+
         fi
 
     done
@@ -63,7 +81,8 @@ install_linux_dependencies() {
 
     if [[ "${#missing[@]}" -eq 0 ]]; then
 
-        success "Required Debian/Ubuntu packages are installed."
+        success \
+            "Required Debian/Ubuntu packages are installed."
 
         return
     fi
@@ -76,25 +95,38 @@ install_linux_dependencies() {
     if is_root; then
 
         run apt-get update
-        run apt-get install -y "${missing[@]}"
+
+        run apt-get install \
+            -y \
+            "${missing[@]}"
 
     else
 
         if ! sudo_available; then
 
             fail \
-                "Missing packages and sudo is unavailable."
+                "Missing packages detected but sudo is unavailable."
+
         fi
 
+
         run sudo apt-get update
-        run sudo apt-get install -y "${missing[@]}"
+
+        run sudo apt-get install \
+            -y \
+            "${missing[@]}"
 
     fi
 
 
-    success "System dependencies installed."
+    success \
+        "System dependencies installed."
 }
 
+
+# ============================================================
+# macOS
+# ============================================================
 
 install_macos_dependencies() {
 
@@ -102,6 +134,7 @@ install_macos_dependencies() {
 
         fail \
             "Homebrew is required on macOS for automatic dependency installation."
+
     fi
 
 
@@ -110,16 +143,22 @@ install_macos_dependencies() {
         cmake
         python
         wget
-        maven
     )
 
 
     local missing=()
 
+
     for package in "${packages[@]}"; do
 
-        if ! brew list --formula "${package}" >/dev/null 2>&1; then
+        if ! brew list \
+            --formula \
+            "${package}" \
+            >/dev/null 2>&1
+        then
+
             missing+=("${package}")
+
         fi
 
     done
@@ -127,13 +166,34 @@ install_macos_dependencies() {
 
     if [[ "${#missing[@]}" -eq 0 ]]; then
 
-        success "Required Homebrew packages are installed."
+        success \
+            "Required Homebrew packages are installed."
 
         return
     fi
 
 
-    run brew install "${missing[@]}"
+    info "Missing Homebrew packages:"
+    info "${missing[*]}"
 
-    success "macOS dependencies installed."
+
+    if [[ "${PLATFORM_ARCH}" == "arm64" ]]; then
+
+        run arch \
+            -arm64 \
+            brew \
+            install \
+            "${missing[@]}"
+
+    else
+
+        run brew \
+            install \
+            "${missing[@]}"
+
+    fi
+
+
+    success \
+        "macOS dependencies installed."
 }
