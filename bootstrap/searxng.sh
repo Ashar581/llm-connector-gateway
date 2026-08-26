@@ -160,26 +160,109 @@ clone_or_update_searxng() {
 
 create_searxng_virtualenv() {
 
-    log \
-        "Preparing SearXNG Python environment..."
+    log "Preparing SearXNG Python environment..."
 
 
-    if [[ -x "${SEARXNG_PYENV}/bin/python" ]]; then
+    # --------------------------------------------------------
+    # If the venv does not exist, create it.
+    # --------------------------------------------------------
 
-        success \
-            "SearXNG virtual environment already exists."
+    if [[ ! -x "${SEARXNG_PYENV}/bin/python" ]]; then
 
-        return
+        info "Creating Python virtual environment..."
+
+        run python3 \
+            -m venv \
+            "${SEARXNG_PYENV}"
+
     fi
 
 
-    run python3 \
-        -m venv \
-        "${SEARXNG_PYENV}"
+    # --------------------------------------------------------
+    # Some environments can create a venv without pip.
+    #
+    # Check for pip explicitly rather than assuming that the
+    # existence of bin/python means the venv is complete.
+    # --------------------------------------------------------
+
+    if ! "${SEARXNG_PYENV}/bin/python" \
+        -m pip --version \
+        >/dev/null 2>&1
+    then
+
+        warning \
+            "SearXNG virtual environment does not contain pip."
+
+
+        # ----------------------------------------------------
+        # Try ensurepip first.
+        # ----------------------------------------------------
+
+        if "${SEARXNG_PYENV}/bin/python" \
+            -m ensurepip \
+            --upgrade \
+            >/dev/null 2>&1
+        then
+
+            success \
+                "pip installed using ensurepip."
+
+        else
+
+            # ------------------------------------------------
+            # If ensurepip is unavailable, use the system
+            # pip bootstrap script.
+            # ------------------------------------------------
+
+            warning \
+                "ensurepip unavailable. Bootstrapping pip manually."
+
+
+            local get_pip
+
+            get_pip="${SEARXNG_DIR}/get-pip.py"
+
+
+            if [[ ! -f "${get_pip}" ]]; then
+
+                run curl \
+                    -L \
+                    --fail \
+                    --retry 5 \
+                    -o "${get_pip}" \
+                    "https://bootstrap.pypa.io/get-pip.py"
+
+            fi
+
+
+            run "${SEARXNG_PYENV}/bin/python" \
+                "${get_pip}"
+
+
+            rm -f "${get_pip}"
+
+        fi
+
+    fi
+
+
+    # --------------------------------------------------------
+    # Verify pip now exists.
+    # --------------------------------------------------------
+
+    if ! "${SEARXNG_PYENV}/bin/python" \
+        -m pip --version \
+        >/dev/null 2>&1
+    then
+
+        fail \
+            "Unable to install pip into the SearXNG Python environment."
+
+    fi
 
 
     success \
-        "SearXNG virtual environment created."
+        "SearXNG virtual environment is ready."
 }
 
 
