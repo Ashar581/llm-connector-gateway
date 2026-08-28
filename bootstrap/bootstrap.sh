@@ -101,24 +101,28 @@ main() {
     # --------------------------------------------------------
     # 5. Install/configure/start SearXNG
     #
-    # This is a native Python installation.
+    # SearXNG is optional.
     #
-    # No Docker is required.
+    # It is deliberately executed in a subshell so that a
+    # failure inside SearXNG cannot terminate this bootstrap.
     #
-    # prepare_searxng() handles:
-    #
-    #     clone/update source
-    #     create virtualenv
-    #     install dependencies
-    #     create settings.yml
-    #     start SearXNG
-    #     wait until it is reachable
+    # Dependencies, llama.cpp and models remain strict.
     # --------------------------------------------------------
 
-    if ! prepare_searxng; then
+    if (
+        prepare_searxng
+    ); then
 
-        warning "SearXNG preparation failed."
-        warning "Continuing without SearXNG."
+        success \
+            "SearXNG preparation completed."
+
+    else
+
+        warning \
+            "SearXNG preparation failed."
+
+        warning \
+            "Continuing without SearXNG."
 
     fi
 
