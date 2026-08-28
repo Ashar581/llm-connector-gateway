@@ -115,7 +115,12 @@ main() {
     #     wait until it is reachable
     # --------------------------------------------------------
 
-    prepare_searxng
+    if ! prepare_searxng; then
+
+        warning "SearXNG preparation failed."
+        warning "Continuing without SearXNG."
+
+    fi
 
 
     # --------------------------------------------------------
