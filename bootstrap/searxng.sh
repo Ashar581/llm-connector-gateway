@@ -60,12 +60,8 @@ check_searxng_prerequisites() {
         fail "git is required for SearXNG."
 
 
-    if ! python3 -m venv --help >/dev/null 2>&1; then
-
-        fail \
-            "Python virtual environment support is unavailable."
-
-    fi
+    command_exists curl || \
+        fail "curl is required for SearXNG."
 
 
     if ! python3 -c \
@@ -164,22 +160,225 @@ create_searxng_virtualenv() {
         "Preparing SearXNG Python environment..."
 
 
-    if [[ -x "${SEARXNG_PYENV}/bin/python" ]]; then
+    mkdir -p "${SEARXNG_DIR}"
+
+
+    # --------------------------------------------------------
+    # If an existing venv is present, make sure it actually
+    # contains a working Python + pip installation.
+    # --------------------------------------------------------
+
+    if [[ -x "${SEARXNG_PYENV}/bin/python" ]] \
+        && "${SEARXNG_PYENV}/bin/python" \
+            -m pip --version \
+            >/dev/null 2>&1
+    then
 
         success \
             "SearXNG virtual environment already exists."
 
         return
+
     fi
 
 
-    run python3 \
+    # --------------------------------------------------------
+    # Existing venv is incomplete/broken.
+    # --------------------------------------------------------
+
+    if [[ -d "${SEARXNG_PYENV}" ]]; then
+
+        warning \
+            "Existing SearXNG virtual environment is incomplete."
+
+        info \
+            "Recreating virtual environment..."
+
+        rm -rf "${SEARXNG_PYENV}"
+
+    fi
+
+
+    # --------------------------------------------------------
+    # First attempt: create the venv normally.
+    # --------------------------------------------------------
+
+    if python3 \
         -m venv \
         "${SEARXNG_PYENV}"
+    then
+
+        success \
+            "SearXNG virtual environment created."
+
+    else
+
+        # ----------------------------------------------------
+        # Normal venv creation failed.
+        #
+        # Try installing the OS venv package on Debian/Ubuntu.
+        # ----------------------------------------------------
+
+        warning \
+            "Python virtual environment creation failed."
+
+
+        if command_exists apt-get; then
+
+            info \
+                "Installing Python venv support..."
+
+
+            if is_root; then
+
+                apt-get update -qq
+
+                apt-get install \
+                    -y \
+                    python3-venv \
+                    python3-pip
+
+            elif sudo_available; then
+
+                sudo apt-get update -qq
+
+                sudo apt-get install \
+                    -y \
+                    python3-venv \
+                    python3-pip
+
+            else
+
+                fail \
+                    "Python venv is unavailable and sudo is not available."
+
+            fi
+
+
+            rm -rf "${SEARXNG_PYENV}"
+
+
+            # ------------------------------------------------
+            # Try again.
+            # ------------------------------------------------
+
+            if ! python3 \
+                -m venv \
+                "${SEARXNG_PYENV}"
+            then
+
+                fail \
+                    "Unable to create the SearXNG Python virtual environment."
+
+            fi
+
+
+            success \
+                "SearXNG virtual environment created."
+
+        else
+
+            fail \
+                "Unable to create Python virtual environment. " \
+                "Install Python venv support for this operating system."
+
+        fi
+
+    fi
+
+
+    # --------------------------------------------------------
+    # Verify Python exists.
+    # --------------------------------------------------------
+
+    if [[ ! -x "${SEARXNG_PYENV}/bin/python" ]]; then
+
+        fail \
+            "SearXNG Python executable was not created."
+
+    fi
+
+
+    # --------------------------------------------------------
+    # Verify pip.
+    # --------------------------------------------------------
+
+    if ! "${SEARXNG_PYENV}/bin/python" \
+        -m pip --version \
+        >/dev/null 2>&1
+    then
+
+        warning \
+            "SearXNG virtual environment was created without pip."
+
+
+        # ----------------------------------------------------
+        # Try ensurepip.
+        # ----------------------------------------------------
+
+        if "${SEARXNG_PYENV}/bin/python" \
+            -m ensurepip \
+            --upgrade \
+            >/dev/null 2>&1
+        then
+
+            success \
+                "pip installed using ensurepip."
+
+        else
+
+            # ------------------------------------------------
+            # Fallback: get-pip.py
+            # ------------------------------------------------
+
+            warning \
+                "ensurepip is unavailable."
+
+            info \
+                "Bootstrapping pip..."
+
+
+            local get_pip
+
+            get_pip="${SEARXNG_DIR}/get-pip.py"
+
+
+            run curl \
+                -L \
+                --fail \
+                --retry 5 \
+                -o "${get_pip}" \
+                "https://bootstrap.pypa.io/get-pip.py"
+
+
+            run "${SEARXNG_PYENV}/bin/python" \
+                "${get_pip}"
+
+
+            rm -f "${get_pip}"
+
+        fi
+
+    fi
+
+
+    # --------------------------------------------------------
+    # Final pip verification.
+    # --------------------------------------------------------
+
+    if ! "${SEARXNG_PYENV}/bin/python" \
+        -m pip --version \
+        >/dev/null 2>&1
+    then
+
+        fail \
+            "pip could not be installed into the SearXNG virtual environment."
+
+    fi
 
 
     success \
-        "SearXNG virtual environment created."
+        "SearXNG Python environment is ready."
 }
 
 
