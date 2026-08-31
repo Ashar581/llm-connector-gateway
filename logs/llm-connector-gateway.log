@@ -71,3 +71,144 @@ This generated password is for development use only. Your security configuration
 2026-07-15 00:23:00 [SpringApplicationShutdownHook] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-07-15 00:23:00 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2026-07-15 00:23:00 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-08-31 17:21:29 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-08-31 17:21:29 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 21.0.12.1 with PID 30165 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-08-31 17:21:29 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "dev"
+2026-08-31 17:21:29 [main] WARN  org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to process import candidates for configuration class [com.an.llm.connector.gateway.Application]: Error processing condition on org.springframework.boot.mail.autoconfigure.MailSenderAutoConfiguration
+2026-08-31 17:21:29 [main] INFO  org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-08-31 17:21:29 [main] ERROR org.springframework.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to process import candidates for configuration class [com.an.llm.connector.gateway.Application]: Error processing condition on org.springframework.boot.mail.autoconfigure.MailSenderAutoConfiguration
+	at org.springframework.context.annotation.ConfigurationClassParser.processImports(ConfigurationClassParser.java:644)
+	at org.springframework.context.annotation.ConfigurationClassParser$DeferredImportSelectorGroupingHandler.lambda$processGroupImports$0(ConfigurationClassParser.java:864)
+	at java.base/java.lang.Iterable.forEach(Iterable.java:75)
+	at org.springframework.context.annotation.ConfigurationClassParser$DeferredImportSelectorGroupingHandler.processGroupImports(ConfigurationClassParser.java:860)
+	at org.springframework.context.annotation.ConfigurationClassParser$DeferredImportSelectorHandler.process(ConfigurationClassParser.java:831)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:200)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:452)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:316)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118)
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:795)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:603)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.an.llm.connector.gateway.Application.main(Application.java:17)
+Caused by: java.lang.IllegalStateException: Error processing condition on org.springframework.boot.mail.autoconfigure.MailSenderAutoConfiguration
+	at org.springframework.boot.autoconfigure.condition.SpringBootCondition.matches(SpringBootCondition.java:60)
+	at org.springframework.context.annotation.ConditionEvaluator.shouldSkip(ConditionEvaluator.java:100)
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:249)
+	at org.springframework.context.annotation.ConfigurationClassParser.processImports(ConfigurationClassParser.java:634)
+	... 18 common frames omitted
+Caused by: org.springframework.util.PlaceholderResolutionException: Could not resolve placeholder 'EMAIL_HOST' in value "${EMAIL_HOST}"
+	at org.springframework.util.PlaceholderResolutionException.withValue(PlaceholderResolutionException.java:81)
+	at org.springframework.util.PlaceholderParser$ParsedValue.resolve(PlaceholderParser.java:296)
+	at org.springframework.util.PlaceholderParser.replacePlaceholders(PlaceholderParser.java:129)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:96)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:286)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:257)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveNestedPlaceholders(AbstractPropertyResolver.java:277)
+	at org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertyResolver.getProperty(ConfigurationPropertySourcesPropertyResolver.java:83)
+	at org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertyResolver.getProperty(ConfigurationPropertySourcesPropertyResolver.java:64)
+	at org.springframework.core.env.AbstractEnvironment.getProperty(AbstractEnvironment.java:552)
+	at org.springframework.boot.autoconfigure.condition.OnPropertyCondition$Spec.collectProperties(OnPropertyCondition.java:170)
+	at org.springframework.boot.autoconfigure.condition.OnPropertyCondition.determineOutcome(OnPropertyCondition.java:104)
+	at org.springframework.boot.autoconfigure.condition.OnPropertyCondition.getMatchOutcome(OnPropertyCondition.java:62)
+	at org.springframework.boot.autoconfigure.condition.AbstractNestedCondition$MemberOutcomes.getConditionOutcome(AbstractNestedCondition.java:197)
+	at org.springframework.boot.autoconfigure.condition.AbstractNestedCondition$MemberOutcomes.<init>(AbstractNestedCondition.java:191)
+	at org.springframework.boot.autoconfigure.condition.AbstractNestedCondition$MemberConditions.lambda$getMatchOutcomes$0(AbstractNestedCondition.java:171)
+	at java.base/java.util.LinkedHashMap.forEach(LinkedHashMap.java:986)
+	at org.springframework.util.MultiValueMapAdapter.forEach(MultiValueMapAdapter.java:174)
+	at java.base/java.util.Collections$UnmodifiableMap.forEach(Collections.java:1708)
+	at org.springframework.boot.autoconfigure.condition.AbstractNestedCondition$MemberConditions.getMatchOutcomes(AbstractNestedCondition.java:171)
+	at org.springframework.boot.autoconfigure.condition.AbstractNestedCondition$MemberMatchOutcomes.<init>(AbstractNestedCondition.java:80)
+	at org.springframework.boot.autoconfigure.condition.AbstractNestedCondition.getMatchOutcome(AbstractNestedCondition.java:65)
+	at org.springframework.boot.autoconfigure.condition.SpringBootCondition.matches(SpringBootCondition.java:47)
+	... 21 common frames omitted
+2026-08-31 17:22:18 [background-preinit] INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 9.0.1.Final
+2026-08-31 17:22:18 [main] INFO  com.an.llm.connector.gateway.Application - Starting Application using Java 21.0.12.1 with PID 33837 (/Users/macbook/Downloads/llm-connector-gateway/target/classes started by macbook in /Users/macbook/Downloads/llm-connector-gateway)
+2026-08-31 17:22:18 [main] INFO  com.an.llm.connector.gateway.Application - The following 1 profile is active: "local"
+2026-08-31 17:22:19 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-31 17:22:19 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 69 ms. Found 7 JPA repository interfaces.
+2026-08-31 17:22:19 [main] INFO  org.springframework.cloud.context.scope.GenericScope - BeanFactory id=2bb7fef0-edc8-3918-a988-138fa403aad3
+2026-08-31 17:22:19 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat initialized with port 6969 (http)
+2026-08-31 17:22:19 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-6969"]
+2026-08-31 17:22:19 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2026-08-31 17:22:19 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-08-31 17:22:19 [main] INFO  org.springframework.boot.web.context.servlet.WebApplicationContextInitializer - Root WebApplicationContext: initialization completed in 1148 ms
+2026-08-31 17:22:19 [main] INFO  com.an.llm.connector.gateway.security.SecretKeyProviderImpl - Using yml for jwt signing key.
+2026-08-31 17:22:20 [main] INFO  org.hibernate.orm.jpa - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-31 17:22:20 [main] INFO  org.hibernate.orm.core - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-08-31 17:22:20 [main] INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-31 17:22:20 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-08-31 17:22:20 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6cd1ee
+2026-08-31 17:22:20 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-08-31 17:22:20 [main] INFO  org.hibernate.orm.connections.pooling - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/llm-connector-gateway?useSSL=false&stringtype=unspecified]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.4
+	Default catalog/schema: llm-connector-gateway/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-31 17:22:20 [main] INFO  org.hibernate.orm.core - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-31 17:22:20 [main] INFO  org.hibernate.orm.jdbc.batch - HHH100501: Automatic JDBC statement batching enabled (maximum batch size 100)
+2026-08-31 17:22:21 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-31 17:22:21 [main] INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactories - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.AdminCreationConfig - Creating admin roles: [System Admin, Super Admin]
+2026-08-31 17:22:21 [main] ERROR com.an.llm.connector.gateway.service.user.RoleService - Role System Admin already exists. Skipped creation.
+2026-08-31 17:22:21 [main] ERROR com.an.llm.connector.gateway.service.user.RoleService - Role Super Admin already exists. Skipped creation.
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.AdminCreationConfig - Creating admin group: [Admin]
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.AdminCreationConfig - Group already existing. Group already exist.
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.AdminCreationConfig - Creating admin user ashahab
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.AdminCreationConfig - User already existing. User with same email already exists.
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.service.LlmConfigService - All models map: {paid={openai-gpt4=ModelConfig(id=openai-gpt4, type=[chat, agent, summarization, generation], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=gpt-4o, mmProj=null, context=null, parallelExecution=null, gpu=null, active=null), openai-embed=ModelConfig(id=openai-embed, type=[embedding], baseUrl=null, apiPath=null, apiKey=ashar581, port=null, provider=openai, modelName=text-embedding-3-large, mmProj=null, context=null, parallelExecution=null, gpu=null, active=null)}, free={qwen-instruct=ModelConfig(id=qwen-instruct, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8080, apiPath=/v1/chat/completions, apiKey=ashar581, port=8080, provider=null, modelName=qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf, mmProj=, context=16384, parallelExecution=4, gpu=true, active=true), bonsai=ModelConfig(id=bonsai, type=[chat, agent, summarization, generation, rag], baseUrl=http://localhost:8082, apiPath=/v1/chat/completions, apiKey=ashar581, port=8082, provider=null, modelName=Bonsai-8B.gguf, mmProj=, context=16384, parallelExecution=8, gpu=true, active=false), qwen3-embed=ModelConfig(id=qwen3-embed, type=[embedding], baseUrl=http://localhost:9091, apiPath=/v1/embeddings, apiKey=ashar581, port=9091, provider=null, modelName=Qwen3-Embedding-8B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=2, gpu=true, active=false), bge-large-embed=ModelConfig(id=bge-large-embed, type=[embedding], baseUrl=http://localhost:9090, apiPath=/v1/embeddings, apiKey=ashar581, port=9090, provider=null, modelName=bge-large-en-v1.5-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=16, gpu=false, active=true), qwen-vl=ModelConfig(id=qwen-vl, type=[vision, classification], baseUrl=http://localhost:8084, apiPath=/v1/chat/completions, apiKey=ashar581, port=8084, provider=null, modelName=Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf, mmProj=mmproj-Qwen_Qwen2.5-VL-7B-Instruct-f16.gguf, context=16384, parallelExecution=1, gpu=true, active=false), embed-v2=ModelConfig(id=embed-v2, type=[embedding], baseUrl=http://localhost:9092, apiPath=/v1/embeddings, apiKey=ashar581, port=9092, provider=null, modelName=Qwen3-Embedding-4B-Q4_K_M.gguf, mmProj=, context=8192, parallelExecution=8, gpu=true, active=false), qwen-coder=ModelConfig(id=qwen-coder, type=[code], baseUrl=http://localhost:8083, apiPath=/v1/chat/completions, apiKey=ashar581, port=8083, provider=null, modelName=qwen2.5-coder-7b-instruct-q4_k_m.gguf, mmProj=, context=8192, parallelExecution=1, gpu=true, active=false), vision-v3=ModelConfig(id=vision-v3, type=[vision, classification], baseUrl=http://localhost:7076, apiPath=/v1/chat/completions, apiKey=ashar581, port=7076, provider=null, modelName=Qwen3VL-8B-Instruct-Q4_K_M.gguf, mmProj=mmproj-Qwen3VL-8B-Instruct-F16.gguf, context=8192, parallelExecution=1, gpu=true, active=false), qwen-sml=ModelConfig(id=qwen-sml, type=[chat, agent, summarization, generation, tool, rag], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=Qwen3.5-4B-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=2, gpu=true, active=false), embed-m3=ModelConfig(id=embed-m3, type=[embedding], baseUrl=http://localhost:9093, apiPath=/v1/embeddings, apiKey=ashar581, port=9093, provider=null, modelName=bge-m3-Q4_K_M.gguf, mmProj=, context=4096, parallelExecution=8, gpu=true, active=true), nu-extractor=ModelConfig(id=nu-extractor, type=[vision, classification], baseUrl=http://localhost:8085, apiPath=/v1/chat/completions, apiKey=ashar581, port=8085, provider=null, modelName=NuExtract-2.0-8B-Q4_K_S.gguf, mmProj=mmproj-BF16.gguf, context=16384, parallelExecution=1, gpu=true, active=false)}}
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-instruct
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: bonsai
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-coder
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-vl
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: nu-extractor
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: vision-v3
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for ChatClient with name: qwen-sml
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: bge-large-embed 
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: qwen3-embed 
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: embed-v2 
+2026-08-31 17:22:21 [main] INFO  com.an.llm.connector.gateway.config.GenericBeanConfig - Creating bean for OpenAiEmbeddingModel: embed-m3 
+2026-08-31 17:22:22 [main] WARN  org.springframework.boot.jpa.autoconfigure.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-31 17:22:22 [main] WARN  org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 1a7bbe1d-600a-4d97-b31d-1b6133d65d20
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-08-31 17:22:22 [main] INFO  org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-08-31 17:22:23 [main] INFO  org.springframework.boot.actuate.endpoint.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-08-31 17:22:23 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-6969"]
+2026-08-31 17:22:23 [main] INFO  org.springframework.boot.tomcat.TomcatWebServer - Tomcat started on port 6969 (http) with context path '/'
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.Application - Started Application in 4.626 seconds (process running for 16.348)
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Starting activated LLMs.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf. Listening on port: 8080. Adjusted context: 16384. Allowed parallel: 4
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM already running locally on port 8080.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model : qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf processing was not started. Port: 8080 is already running. Either the model is already running or some other application is running in the port.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Bonsai-8B.gguf will not run since it was disable.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: qwen2.5-coder-7b-instruct-q4_k_m.gguf will not run since it was disable.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen_Qwen2.5-VL-7B-Instruct-Q4_K_S.gguf will not run since it was disable.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: NuExtract-2.0-8B-Q4_K_S.gguf will not run since it was disable.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3VL-8B-Instruct-Q4_K_M.gguf will not run since it was disable.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Model: Qwen3.5-4B-Q4_K_M.gguf will not run since it was disable.
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - Processing model: bge-large-en-v1.5-q4_k_m.gguf. Listening on port: 9090. Adjusted context: 8192. Allowed parallel: 16
+2026-08-31 17:22:23 [main] INFO  com.an.llm.connector.gateway.config.LlmLocalStartConfig - LLM needs to be started on port 9090
+2026-08-31 17:22:38 [SpringApplicationShutdownHook] INFO  org.springframework.boot.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-08-31 17:22:38 [tomcat-shutdown] INFO  org.springframework.boot.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-08-31 17:22:38 [SpringApplicationShutdownHook] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-08-31 17:22:38 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-08-31 17:22:38 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
