@@ -7,15 +7,9 @@ public class ProcessBuilderUtils {
         return Boolean.TRUE.equals(gpu) ? "-ngl 999 " : "";
     }
 
-    public static String generateProcessBuilderScript(
-            String model,
-            Integer context,
-            Integer parallelExecution,
-            Boolean gpu,
-            Integer port) {
-
-        String command = String.format(
-                "cd \"%s\" && ./build/bin/llama-server " +
+    public static String generateProcessBuilderScript(String model, Integer context, Integer parallelExecution, Boolean gpu, Integer port) {
+        return String.format(
+                "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
                         "-c %s -np %s -t 8 -cb %s" +
                         "--batch-size 4096 " +
@@ -24,23 +18,8 @@ public class ProcessBuilderUtils {
                         "--cache-type-v q8_0 " +
                         "--flash-attn on " +
                         "--host 0.0.0.0 --port %s",
-                LLAMA_PATH,
-                model,
-                context,
-                parallelExecution,
-                getGpuArg(gpu),
-                port
+                LLAMA_PATH, model, context, parallelExecution, getGpuArg(gpu), port
         );
-
-        System.out.println();
-        System.out.println("============================================================");
-        System.out.println("LLAMA SERVER COMMAND");
-        System.out.println("============================================================");
-        System.out.println(command);
-        System.out.println("============================================================");
-        System.out.println();
-
-        return command;
     }
 
     public static String generateProcessBuilderEmbedScript(String model, Integer context, Integer parallelExecution, Boolean gpu, Integer port) {
