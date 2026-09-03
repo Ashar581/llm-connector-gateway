@@ -438,74 +438,90 @@ create_searxng_settings() {
     log \
         "Preparing SearXNG settings..."
 
-    # --------------------------------------------------------
-    # Existing settings are user-owned.
-    # Never overwrite or modify them.
-    # --------------------------------------------------------
-
-    if [[ -f "${SEARXNG_SETTINGS}" ]]; then
-
-        success \
-            "Existing SearXNG settings preserved."
-
-        return
-    fi
-
-    # --------------------------------------------------------
-    # Create settings from the official SearXNG template.
-    # --------------------------------------------------------
-
     local template="${SEARXNG_SRC}/utils/templates/etc/searxng/settings.yml"
 
-    if [[ ! -f "${template}" ]]; then
+    # --------------------------------------------------------
+    # Create settings file if it does not exist.
+    # --------------------------------------------------------
 
-        fail \
-            "SearXNG settings template not found: ${template}"
+    if [[ ! -f "${SEARXNG_SETTINGS}" ]]; then
+
+        if [[ ! -f "${template}" ]]; then
+
+            fail \
+                "SearXNG settings template not found: ${template}"
+
+        fi
+
+        mkdir -p "${SEARXNG_DIR}"
+
+        run cp \
+            "${template}" \
+            "${SEARXNG_SETTINGS}"
+
+        info \
+            "SearXNG settings file created."
+
+    else
+
+        info \
+            "Existing SearXNG settings found."
+
     fi
 
-    mkdir -p "${SEARXNG_DIR}"
-
-    run cp \
-        "${template}" \
-        "${SEARXNG_SETTINGS}"
-
     # --------------------------------------------------------
-    # Enable JSON output for the SearXNG API.
+    # Ensure JSON output is enabled.
     #
-    # PyYAML is already installed by install_searxng().
+    # This only changes search.formats.
+    # All other user settings are preserved.
     # --------------------------------------------------------
 
-    run "${SEARXNG_PYENV}/bin/python" -c '
-    import yaml
+    local python="${SEARXNG_PYENV}/bin/python"
 
-    settings_path = "'"${SEARXNG_SETTINGS}"'"
+    if [[ ! -x "${python}" ]]; then
 
-    with open(settings_path, "r") as file:
-        settings = yaml.safe_load(file) or {}
+        fail \
+            "SearXNG Python executable not found."
 
-    search = settings.setdefault("search", {})
+    fi
 
-    formats = search.get("formats", [])
+    run "${python}" -c '
+import yaml
 
-    if "html" not in formats:
-      formats.insert(0, "html")
+settings_path = "'"${SEARXNG_SETTINGS}"'"
 
-    if "json" not in formats:
-      formats.append("json")
+with open(settings_path, "r") as file:
+    settings = yaml.safe_load(file) or {}
 
-    search["formats"] = formats
+search = settings.setdefault("search", {})
 
-    with open(settings_path, "w") as file:
-        yaml.safe_dump(
-            settings,
-            file,
-            sort_keys=False,
-            default_flow_style=False
-        )
-    '
+formats = search.get("formats")
+
+if formats is None:
+    formats = []
+
+elif not isinstance(formats, list):
+    formats = [formats]
+
+if "html" not in formats:
+    formats.insert(0, "html")
+
+if "json" not in formats:
+    formats.append("json")
+
+search["formats"] = formats
+
+with open(settings_path, "w") as file:
+    yaml.safe_dump(
+        settings,
+        file,
+        sort_keys=False,
+        default_flow_style=False
+    )
+'
 
     success \
-        "SearXNG settings created with JSON API enabled."
+        "SearXNG settings ready. JSON API enabled."
 }
 
 # ============================================================
