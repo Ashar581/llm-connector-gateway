@@ -470,10 +470,14 @@ create_searxng_settings() {
     fi
 
     # --------------------------------------------------------
-    # Ensure JSON output is enabled.
+    # Ensure the SearXNG configuration required by the
+    # application is enabled.
     #
-    # This only changes search.formats.
-    # All other user settings are preserved.
+    # JSON is required by the web-search API.
+    # Limiter is disabled because this local installation
+    # does not provision Valkey.
+    #
+    # All other settings are preserved.
     # --------------------------------------------------------
 
     local python="${SEARXNG_PYENV}/bin/python"
@@ -493,6 +497,10 @@ settings_path = "'"${SEARXNG_SETTINGS}"'"
 with open(settings_path, "r") as file:
     settings = yaml.safe_load(file) or {}
 
+# ------------------------------------------------------------
+# Search settings
+# ------------------------------------------------------------
+
 search = settings.setdefault("search", {})
 
 formats = search.get("formats")
@@ -511,6 +519,18 @@ if "json" not in formats:
 
 search["formats"] = formats
 
+# ------------------------------------------------------------
+# Server settings
+# ------------------------------------------------------------
+
+server = settings.setdefault("server", {})
+
+server["limiter"] = False
+
+# ------------------------------------------------------------
+# Write updated settings
+# ------------------------------------------------------------
+
 with open(settings_path, "w") as file:
     yaml.safe_dump(
         settings,
@@ -521,7 +541,7 @@ with open(settings_path, "w") as file:
 '
 
     success \
-        "SearXNG settings ready. JSON API enabled."
+        "SearXNG settings ready. JSON API enabled and limiter disabled."
 }
 
 # ============================================================
