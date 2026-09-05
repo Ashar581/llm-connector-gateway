@@ -50,7 +50,6 @@ public class LlmConfigService {
             }
 
             this.allModels = allModels;
-            log.info("All models map: {}",this.allModels);
         }
     }
 
