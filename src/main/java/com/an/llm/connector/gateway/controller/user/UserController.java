@@ -3,6 +3,7 @@ package com.an.llm.connector.gateway.controller.user;
 import com.an.llm.connector.gateway.base.ApiResponseBody;
 import com.an.llm.connector.gateway.base.BaseApiDelegate;
 import com.an.llm.connector.gateway.dto.user.UserDto;
+import com.an.llm.connector.gateway.model.auth.ChangePasswordRequest;
 import com.an.llm.connector.gateway.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -36,5 +37,10 @@ public class UserController extends BaseApiDelegate {
     @PutMapping("update")
     public ResponseEntity<@NonNull ApiResponseBody<UserDto>> update(@RequestBody UserDto dto) {
         return sendSuccessfulApiResponse(userService.update(dto), "User updated successfully.");
+    }
+
+    @PutMapping("change-password")
+    public ResponseEntity<@NonNull ApiResponseBody<Boolean>> changePassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest){
+        return sendSuccessfulApiResponse(userService.changePassword(changePasswordRequest),"Password was changed successfully.");
     }
 }
