@@ -7,7 +7,9 @@ import com.an.llm.connector.gateway.entity.user.User;
 import com.an.llm.connector.gateway.exception.AlreadyExistsException;
 import com.an.llm.connector.gateway.exception.NotFoundException;
 import com.an.llm.connector.gateway.exception.NullException;
+import com.an.llm.connector.gateway.exception.OperationFailedException;
 import com.an.llm.connector.gateway.mapper.user.UserMapper;
+import com.an.llm.connector.gateway.model.auth.ChangePasswordRequest;
 import com.an.llm.connector.gateway.repository.user.GroupRepo;
 import com.an.llm.connector.gateway.repository.user.RoleRepo;
 import com.an.llm.connector.gateway.repository.user.UserRepo;
@@ -178,6 +180,52 @@ public class UserService {
         return userMapper.toDto(
                 userRepo.save(existingUser)
         );
+    }
+
+    @Transactional
+    public Boolean changePassword(@NonNull ChangePasswordRequest changePasswordRequest) {
+        String userid = changePasswordRequest.getUserid();
+
+        User user;
+        if (userid.contains("@")) {
+            user = userRepo.findByEmail(userid)
+                    .orElseThrow(()-> new OperationFailedException("Unable to change password. Please try again."));
+        } else {
+            user = userRepo.findByUsername(userid)
+                    .orElseThrow(() -> new OperationFailedException("Unable to change password. Please try again."));
+        }
+
+        if (!bCryptPasswordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
+            throw new OperationFailedException("Unable to change password.");
+        }
+
+        if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmPassword())) {
+            throw new OperationFailedException("Confirmed and new password mismatched.");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(changePasswordRequest.getConfirmPassword()));
+
+        userRepo.save(user);
+
+        emailUtils.sendEmail(
+                user.getEmail(),
+                "Password Changed for LLM Connector Account",
+                """
+                        Hello %s,
+                        
+                        Your password for your LLM Connector account has been successfully changed.
+                        
+                        If you made this change, no further action is required.
+                        
+                        If you did not make this change, please contact our support team immediately to secure your account.
+                        
+                        Regards,
+                        LLM Connector Gateway"""
+                        .formatted(user.getFirstName())
+        );
+
+
+        return true;
     }
 
     private String generateUsername(@NonNull UserDto dto) {
