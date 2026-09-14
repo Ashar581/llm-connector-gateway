@@ -10,6 +10,8 @@ import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.service.tokenize.ContextBudgetService;
 import com.an.llm.connector.gateway.service.tokenize.HistoryTokenTrimmer;
+import com.an.llm.connector.gateway.service.web.WebSearchService;
+import com.an.llm.connector.gateway.service.web.tool.WebSearchTool;
 import com.an.llm.connector.gateway.util.ChatMessageContextUtils;
 import com.an.llm.connector.gateway.util.LlmInstructions;
 import lombok.NonNull;
@@ -40,6 +42,7 @@ public class ChatClientService {
     private final HistoryTokenTrimmer historyTokenTrimmer;
     private final LlmConfigService llmConfigService;
     private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
+    private final WebSearchService webSearchService;
 
     public String ask(LlmConnectorRequest request) {
         validateAllowedType(request);
@@ -48,24 +51,45 @@ public class ChatClientService {
                 ? request.getInstructions()
                 : LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL;
 
+        if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+            instructions = instructions + "\n" + LlmInstructions.DEFAULT_WEB_INSTRUCTIONS;
+        }
+
         ChatResponse response;
 
         long start = System.currentTimeMillis();
 
         if (!request.isChatHistoryEnabled()) {
-            response =  aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
+            var prompt = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
                     .prompt()
                     .system(instructions)
                     .options(buildChatOptions(request))
-                    .user(request.getQuery())
-                    .call()
+                    .user(request.getQuery());
+
+            //newly added for web
+            if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+                request.setEnablePrivateMode(false);
+                prompt.tools(new WebSearchTool(webSearchService,request));
+            }
+
+            response = prompt.call()
                     .chatResponse();
         } else {
 
             Prompt prompt = buildPromptWithTokenBudget(request, instructions);
 
-            response = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
+            //newly added for web
+            var chatPrompt = aiBeanFactory
+                    .getChatClient(request.getSource(), request.getType(), request.getModel())
                     .prompt(prompt)
+                    .options(buildChatOptions(request));
+
+            if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+                request.setEnablePrivateMode(false);
+                chatPrompt.tools(new WebSearchTool(webSearchService, request));
+            }
+
+            response = chatPrompt
                     .call()
                     .chatResponse();
         }
@@ -89,7 +113,11 @@ public class ChatClientService {
         String instructions = request.getInstructions() != null
                 && !request.getInstructions().isBlank()
                 ? request.getInstructions()
-                : LlmInstructions.TEST_CHAT_INSTRUCTION;
+                : LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL;
+
+        if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+            instructions = instructions + "\n" + LlmInstructions.DEFAULT_WEB_INSTRUCTIONS;
+        }
 
         long start = System.currentTimeMillis();
 
@@ -98,20 +126,34 @@ public class ChatClientService {
         Flux<@NonNull ChatResponse> responseFlux;
 
         if (!request.isChatHistoryEnabled()) {
-            responseFlux = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
+            //newly added for web
+            var prompt = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
                     .prompt()
                     .system(instructions)
                     .options(buildChatOptions(request))
-                    .user(request.getQuery())
-                    .stream()
+                    .user(request.getQuery());
+
+            if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+                request.setEnablePrivateMode(false);
+                prompt.tools(new WebSearchTool(webSearchService,request));
+            }
+
+            responseFlux = prompt.stream()
                     .chatResponse();
         }
         else {
             Prompt prompt = buildPromptWithTokenBudget(request, instructions);
 
-            responseFlux = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
-                    .prompt(prompt)
-                    .stream()
+            //newly added for web
+            var chatPrompt = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
+                    .prompt(prompt);
+
+            if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+                request.setEnablePrivateMode(false);
+                chatPrompt.tools(new WebSearchTool(webSearchService,request));
+            }
+
+            responseFlux = chatPrompt.stream()
                     .chatResponse();
         }
 
