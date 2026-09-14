@@ -52,4 +52,9 @@ public interface LlmInstructions {
         - Do not generate transitional phrases.
         - Do not include summaries unless explicitly requested.
         """;
+
+    String DEFAULT_WEB_INSTRUCTIONS = """
+        Use web search when current or externally verifiable information is needed.
+        Prefer relevant, reliable sources and answer based on retrieved information.
+        """;
 }
