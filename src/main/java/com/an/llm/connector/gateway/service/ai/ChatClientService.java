@@ -265,7 +265,8 @@ public class ChatClientService {
                 LlmCapability.CHAT,
                 LlmCapability.AGENT,
                 LlmCapability.RAG,
-                LlmCapability.CODE
+                LlmCapability.CODE,
+                LlmCapability.WEB
         );
 
         if (request.isChatHistoryEnabled() && !allowedHistoryTypes.contains(type)) {
