@@ -87,8 +87,7 @@ public class WebSearchService {
 
                     ChatResponse llmResponse = client.prompt()
                             .system("""
-                                    Summarize the following content while preserving
-                                    all important facts.
+                                    Summarize the following content while preserving all important facts.
                                     """)
                             .user("""
                                     WEBSITE SCRAPED DATA
@@ -159,8 +158,7 @@ public class WebSearchService {
 
                     ChatResponse llmResponse = client.prompt()
                             .system("""
-                                    Summarize the following content while preserving
-                                    all important facts.
+                                    Summarize the following content while preserving all important facts. Remove unnecessary words/keywords.
                                     """)
                             .user("""
                                     WEBSITE SCRAPED DATA
