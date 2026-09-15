@@ -85,7 +85,7 @@ llm:
           port: 7070
           model-name: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
           mm-proj :
-          context: 20480
+          context: 25600
           parallelExecution: 5
           gpu : true
           active: true
@@ -104,8 +104,8 @@ llm:
           port: 7072
           model-name: Bonsai-8B.gguf
           mm-proj :
-          context: 16384
-          parallelExecution: 8
+          context: 14336
+          parallelExecution: 7
           gpu : true
           active: true
 
