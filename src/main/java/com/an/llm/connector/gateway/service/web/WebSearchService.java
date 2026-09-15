@@ -144,7 +144,7 @@ public class WebSearchService {
                 request.getModel()
         );
 
-        int allowedTokensPerSlot = (int)(((double) modelConfig.getContext() / modelConfig.getParallelExecution()) * 0.85);
+        int allowedTokensPerSlot = (int)(((double) modelConfig.getContext() / modelConfig.getParallelExecution()) * 0.75);
 
         List<String> chunkedTokens = tokenChunkService.chunk(
                 webDocuments.getFirst().text(),
