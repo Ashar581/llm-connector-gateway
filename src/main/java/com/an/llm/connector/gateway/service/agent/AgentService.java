@@ -17,6 +17,8 @@ import com.an.llm.connector.gateway.service.classification.ClassificationOrchest
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.service.ai.VisionServiceV2;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
+import com.an.llm.connector.gateway.service.web.WebSearchService;
+import com.an.llm.connector.gateway.service.web.tool.WebSearchTool;
 import com.an.llm.connector.gateway.util.JsonUtils;
 import com.an.llm.connector.gateway.util.LlmInstructions;
 import lombok.NonNull;
@@ -45,6 +47,7 @@ public class AgentService {
     private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
     private final RagServiceV3 ragServiceV3;
     private final RagServiceV4 ragServiceV4;
+    private final WebSearchService webSearchService;
 
     public Object generate(@NonNull AiRequest aiRequest){
         AgentConfigurationEntity agentConfiguration = agentConfigurationRepository.findByName(aiRequest.getAgent())
@@ -65,6 +68,9 @@ public class AgentService {
             case RAG -> {
                 return generateRagResponse(agentConfiguration,aiRequest);
             }
+            case WEB -> {
+                return generateWebResponse(agentConfiguration,aiRequest);
+            }
             default -> {
                 return generateChatClientResponse(agentConfiguration,aiRequest);
             }
@@ -84,6 +90,9 @@ public class AgentService {
         switch (agentConfiguration.getType()) {
             case RAG -> {
                 return generateStreamRagResponse(agentConfiguration,aiRequest);
+            }
+            case WEB -> {
+                return streamWeb(aiRequest,agentConfiguration);
             }
             default ->  {
                 return streamChat(aiRequest,agentConfiguration);
@@ -278,6 +287,101 @@ public class AgentService {
         return ragServiceV4.chatStream(request, IngestionMode.AGENT);
     }
 
+    private String generateWebResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest){
+        try {
+            ChatClient chatClient = aiBeanFactory.getChatClient(
+                    agentConfiguration.getSource().getValue(),
+                    agentConfiguration.getType().getValue(),
+                    agentConfiguration.getModel().getValue()
+            );
+            long start = System.currentTimeMillis();
+
+            LlmConnectorRequest request = new LlmConnectorRequest();
+            request.setEnablePrivateMode(false);
+            request.setType(agentConfiguration.getType().getValue());
+            request.setSource(agentConfiguration.getSource().getValue());
+            request.setModel(agentConfiguration.getModel().getValue());
+
+            ChatResponse response =  chatClient
+                    .prompt()
+                    .system(agentConfiguration.getInstructions())
+                    .options(buildChatOptions(agentConfiguration))
+                    .user(aiRequest.getQuery())
+                    .tools(new WebSearchTool(webSearchService,request))
+                    .call()
+                    .chatResponse();
+
+            long completionTimeMs = System.currentTimeMillis() - start;
+
+            assert response != null;
+            //async service for generating the stats.
+            try {
+                systemConsumptionStatsSvc.add(response, aiRequest, completionTimeMs);
+            } catch (Exception e){
+                log.error("Error recording non-stream consumption tokens stats.",e);
+            }
+
+            return Objects.requireNonNull(response.getResult()).getOutput().getText();
+
+        }catch (Exception e){
+            log.error("Error while calling LLM.",e);
+            throw new ApiFallbackException("Error communicating with AI.");
+        }
+    }
+
+    private Flux<@NonNull String> streamWeb(AiRequest aiRequest, AgentConfigurationEntity agentConfiguration) {
+        long start = System.currentTimeMillis();
+
+        AtomicReference<ChatResponse> lastResponse = new AtomicReference<>();
+        try {
+            ChatClient chatClient = aiBeanFactory.getChatClient(
+                    agentConfiguration.getSource().getValue(),
+                    agentConfiguration.getType().getValue(),
+                    agentConfiguration.getModel().getValue()
+            );
+
+            ChatOptions chatOptions = buildChatOptions(agentConfiguration);
+
+            LlmConnectorRequest request = new LlmConnectorRequest();
+            request.setEnablePrivateMode(false);
+            request.setType(agentConfiguration.getType().getValue());
+            request.setSource(agentConfiguration.getSource().getValue());
+            request.setModel(agentConfiguration.getModel().getValue());
+
+            return chatClient
+                    .prompt()
+                    .system(agentConfiguration.getInstructions())
+                    .options(chatOptions)
+                    .user(aiRequest.getQuery())
+                    .tools(new WebSearchTool(webSearchService,request))
+                    .stream()
+                    .chatResponse()
+                    .doOnNext(lastResponse::set)
+                    .map(chatResponse -> {
+                        Generation generation = chatResponse.getResult();
+                        if (generation == null || generation.getOutput().getText() == null) {
+                            return "";
+                        }
+                        return generation.getOutput().getText();
+                    })
+                    .doOnComplete(() -> {
+                        ChatResponse streamEnd = lastResponse.get();
+                        if (streamEnd == null) {
+                            return;
+                        }
+                        long completionTimeMs = System.currentTimeMillis() - start;
+                        try {
+                            systemConsumptionStatsSvc.add(streamEnd, aiRequest, completionTimeMs);
+                        } catch (Exception e) {
+                            log.error("Failed to record stream consumption stats", e);
+                        }
+                    });
+
+        } catch (Exception e) {
+            log.error("Error while calling LLM.", e);
+            throw new ApiFallbackException("Error communicating with AI.");
+        }
+    }
 
     // make a dynamic configuration
     private ChatOptions buildChatOptions(AgentConfigurationEntity agentConfiguration){
