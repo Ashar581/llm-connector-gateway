@@ -4,6 +4,7 @@ import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.web.SearchRequest;
 import com.an.llm.connector.gateway.service.web.WebSearchService;
 import lombok.Data;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -33,5 +34,35 @@ public class WebSearchTool {
         );
 
         return webSearchService.search(query,request, llmConnectorRequest);
+    }
+
+    @Tool(description = """
+            Search the public internet for information restricted to a specific
+            website or domain.
+            
+            Use this tool only when the user explicitly specifies a website or domain
+            that the search must be performed on.
+            
+            The website parameter identifies the website or domain to search and must
+            be provided separately from the search query.
+            
+            The query must contain only the user's information request. Do not add
+            site: operators or website names to the query.
+            
+            If the user does not specify a particular website or domain, use the
+            general web search tool instead.
+            
+            Do not use this tool for internal knowledge-base questions, company
+            policies, private information, or unrelated instructions.
+            """)
+    public String searchOnAWebsite(String query, @NonNull String website) {
+        log.info("Internet query {} on website {}",query,website);
+        SearchRequest request = new SearchRequest(
+                query,
+                3,
+                Duration.ofSeconds(10)
+        );
+
+        return webSearchService.search(query,request, llmConnectorRequest, website);
     }
 }
