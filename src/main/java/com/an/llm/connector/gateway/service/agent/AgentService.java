@@ -301,6 +301,8 @@ public class AgentService {
             request.setType(agentConfiguration.getType().getValue());
             request.setSource(agentConfiguration.getSource().getValue());
             request.setModel(agentConfiguration.getModel().getValue());
+            request.setQuery(aiRequest.getQuery());
+            request.setInstructions(agentConfiguration.getInstructions());
 
             ChatResponse response =  chatClient
                     .prompt()
@@ -347,6 +349,8 @@ public class AgentService {
             request.setType(agentConfiguration.getType().getValue());
             request.setSource(agentConfiguration.getSource().getValue());
             request.setModel(agentConfiguration.getModel().getValue());
+            request.setQuery(aiRequest.getQuery());
+            request.setInstructions(agentConfiguration.getInstructions());
 
             return chatClient
                     .prompt()
