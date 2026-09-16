@@ -79,6 +79,8 @@ public class SearXNGSearch {
                 query = request;
             }
 
+            log.info("Search query finalised : {}",query);
+
             SearXNGResponse response = restClient
                     .get()
                     .uri(uriBuilder -> uriBuilder

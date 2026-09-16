@@ -204,6 +204,8 @@ public class WebSearchService {
 
         SearchResponse response = searXNGSearch.search(internetQuery,website);
 
+        log.info("Search Response: {}",response);
+
         List<String> urls = response.results()
                 .stream()
                 .limit(searchRequest.maxResults()==null? 5 : searchRequest.maxResults())
