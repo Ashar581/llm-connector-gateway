@@ -120,6 +120,9 @@ public class WebSearchService {
 
         SearchResponse response = searXNGSearch.search(internetQuery);
 
+        String userPrompt = request.getQuery();
+        String userInstructions = request.getInstructions() == null ? "" : request.getInstructions();
+
         List<String> urls = response.results()
                 .stream()
                 .limit(searchRequest.maxResults()==null? 5 : searchRequest.maxResults())
@@ -159,12 +162,18 @@ public class WebSearchService {
                     ChatResponse llmResponse = client.prompt()
                             .system("""
                                     Summarize the following content while preserving all important facts. Remove unnecessary words/keywords.
+                                    Understand the intent from user request and keep data accordingly.
                                     """)
                             .user("""
+                                    USER QUERY:
+                                    %s
+                                    
+                                    USER INITIAL INSTRUCTION:
+                                    %s
                                     WEBSITE SCRAPED DATA
                                     
                                     %s
-                                    """.formatted(chunk))
+                                    """.formatted(userPrompt,userInstructions,chunk))
                             .call()
                             .chatResponse();
 
@@ -189,6 +198,9 @@ public class WebSearchService {
 
     public String search(String internetQuery,SearchRequest searchRequest, LlmConnectorRequest request, String website) {
         if (request.getEnablePrivateMode()) return "Internet access permission was switched off.";
+
+        String userPrompt = request.getQuery();
+        String userInstructions = request.getInstructions() == null ? "" : request.getInstructions();
 
         SearchResponse response = searXNGSearch.search(internetQuery,website);
 
@@ -231,12 +243,18 @@ public class WebSearchService {
                     ChatResponse llmResponse = client.prompt()
                             .system("""
                                     Summarize the following content while preserving all important facts. Remove unnecessary words/keywords.
+                                    Understand the intent from user request and keep data accordingly.
                                     """)
                             .user("""
+                                    USER QUERY:
+                                    %s
+                                    
+                                    USER INITIAL INSTRUCTION:
+                                    %s
                                     WEBSITE SCRAPED DATA
                                     
                                     %s
-                                    """.formatted(chunk))
+                                    """.formatted(userPrompt,userInstructions,chunk))
                             .call()
                             .chatResponse();
 
