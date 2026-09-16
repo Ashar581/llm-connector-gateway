@@ -93,14 +93,14 @@ download_models() {
         "https://huggingface.co/CompendiumLabs/bge-large-en-v1.5-gguf/resolve/main/bge-large-en-v1.5-q4_k_m.gguf"
 
 
-    download_model \
-        "Qwen3VL-8B-Instruct-Q4_K_M.gguf" \
-        "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF/resolve/main/Qwen3VL-8B-Instruct-Q4_K_M.gguf"
-
-
-    download_model \
-        "mmproj-Qwen3VL-8B-Instruct-F16.gguf" \
-        "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF/resolve/main/mmproj-Qwen3VL-8B-Instruct-F16.gguf"
+#    download_model \
+#        "Qwen3VL-8B-Instruct-Q4_K_M.gguf" \
+#        "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF/resolve/main/Qwen3VL-8B-Instruct-Q4_K_M.gguf"
+#
+#
+#    download_model \
+#        "mmproj-Qwen3VL-8B-Instruct-F16.gguf" \
+#        "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF/resolve/main/mmproj-Qwen3VL-8B-Instruct-F16.gguf"
 
 
     download_model \
