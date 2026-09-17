@@ -94,6 +94,8 @@ public class SearXNGSearch {
                     .retrieve()
                     .body(SearXNGResponse.class);
 
+            log.info("Searxng Response {}",response);
+
             return searXNGMapper.toSearchResponse(response);
 
         } catch (Exception e) {
