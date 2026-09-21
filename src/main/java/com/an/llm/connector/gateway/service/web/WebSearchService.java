@@ -275,4 +275,33 @@ public class WebSearchService {
                 .map(CompletableFuture::join)
                 .collect(Collectors.joining("\n\n"));
     }
+
+    public String searchPaid(String internetQuery,SearchRequest searchRequest, LlmConnectorRequest request) {
+        SearchResponse response = searXNGSearch.search(internetQuery);
+
+        List<String> urls = response.results()
+                .stream()
+                .limit(searchRequest.maxResults()==null? 5 : searchRequest.maxResults())
+                .map(SearchResult::url)
+                .toList();
+
+        List<WebDocument> webDocuments = webPageDownloader.download(urls);
+
+
+        return webDocuments.getFirst().toString();
+    }
+
+    public String searchWebsitePaid(String internetQuery,SearchRequest searchRequest, LlmConnectorRequest request, String website) {
+        SearchResponse response = searXNGSearch.search(internetQuery);
+
+        List<String> urls = response.results()
+                .stream()
+                .limit(searchRequest.maxResults()==null? 5 : searchRequest.maxResults())
+                .map(SearchResult::url)
+                .toList();
+
+        List<WebDocument> webDocuments = webPageDownloader.download(urls);
+
+        return webDocuments.getFirst().toString();
+    }
 }

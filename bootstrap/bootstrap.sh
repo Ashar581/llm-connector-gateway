@@ -85,7 +85,7 @@ main() {
     # The backend is selected automatically by platform.sh.
     # --------------------------------------------------------
 
-    prepare_llama
+#    prepare_llama
 
 
     # --------------------------------------------------------

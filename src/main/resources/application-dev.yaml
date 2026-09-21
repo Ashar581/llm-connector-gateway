@@ -34,14 +34,14 @@ spring:
       max-request-size: 20MB
     #Used for single open AI configuration. (Only for testing will remove it)
   ai:
-    openai:
-      api-key: ashar581
-      base-url: http://localhost:8080
-      chat:
-        completions-path: /v1/chat/completions
-        options:
-          model: qwen2.5-7b-instruct-q4_0-00001-of-00002.gguf
-          temperature: 0.7
+    model:
+      chat: none
+      embedding: none
+      audio:
+        speech: none
+        transcription: none
+      image: none
+      moderation: none
   mail:
     host: ${EMAIL_HOST}
     port: ${EMAIL_PORT}
@@ -244,22 +244,15 @@ llm:
           active: true
     paid:
       models:
-        - id: openai-gpt4
+        - id: gpt-4o-mini
           type:
-            - chat
-            - agent
-            - summarization
-            - generation
+            - web
           provider: openai
-          api-key: ashar581
-          model-name: gpt-4o
-
-        - id: openai-embed
-          type:
-            - embedding
-          provider: openai
-          api-key: ashar581
-          model-name: text-embedding-3-large
+          api-key: ${OPEN_AI_KEY}
+          model-name: gpt-4o-mini
+          base-url: https://api.openai.com
+          api-path: /v1/chat/completions
+          active: true
 
 api-key : DS-AN581-SS018-2904-1911
 admin:
