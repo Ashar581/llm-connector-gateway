@@ -406,9 +406,12 @@ public class AgentConfigurationService {
                 if (!modelConfig.getType().contains(type)) {
                     throw new NotFoundException(String.format("%s does not have %s capabilities.",model,type));
                 }
-                int availableMaxTokens = calculateContextPerParallel(modelConfig.getContext(), modelConfig.getParallelExecution());
-                if (maxTokens != null) {
-                    if (maxTokens>availableMaxTokens) throw new NotAllowedException("Max tokens cannot be greater than "+availableMaxTokens);
+                if (source.equalsIgnoreCase(Source.FREE.getValue())) {
+                    int availableMaxTokens = calculateContextPerParallel(modelConfig.getContext(), modelConfig.getParallelExecution());
+                    if (maxTokens != null) {
+                        if (maxTokens > availableMaxTokens)
+                            throw new NotAllowedException("Max tokens cannot be greater than " + availableMaxTokens);
+                    }
                 }
             }
         }
