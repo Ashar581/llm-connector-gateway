@@ -2,14 +2,12 @@ package com.an.llm.connector.gateway.service.agent;
 
 import com.an.llm.connector.gateway.entity.agent.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.enums.IngestionMode;
-import com.an.llm.connector.gateway.exception.ApiFallbackException;
-import com.an.llm.connector.gateway.exception.NotAllowedException;
-import com.an.llm.connector.gateway.exception.NotFoundException;
-import com.an.llm.connector.gateway.exception.NullException;
+import com.an.llm.connector.gateway.exception.*;
 import com.an.llm.connector.gateway.model.AiRequest;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.classification.ClassificationResponse;
 import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
+import com.an.llm.connector.gateway.service.LlmConfigService;
 import com.an.llm.connector.gateway.service.ai.EmbeddingServiceV2;
 import com.an.llm.connector.gateway.service.ai.RagServiceV3;
 import com.an.llm.connector.gateway.service.ai.RagServiceV4;
@@ -18,6 +16,7 @@ import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.service.ai.VisionServiceV2;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.service.web.WebSearchService;
+import com.an.llm.connector.gateway.service.web.tool.WebSearchPaidTool;
 import com.an.llm.connector.gateway.service.web.tool.WebSearchTool;
 import com.an.llm.connector.gateway.util.JsonUtils;
 import com.an.llm.connector.gateway.util.LlmInstructions;
@@ -48,6 +47,7 @@ public class AgentService {
     private final RagServiceV3 ragServiceV3;
     private final RagServiceV4 ragServiceV4;
     private final WebSearchService webSearchService;
+    private final LlmConfigService llmConfigService;
 
     public Object generate(@NonNull AiRequest aiRequest){
         AgentConfigurationEntity agentConfiguration = agentConfigurationRepository.findByName(aiRequest.getAgent())
@@ -288,6 +288,30 @@ public class AgentService {
     }
 
     private String generateWebResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest){
+        switch (agentConfiguration.getSource()) {
+            case FREE -> {
+                return generateFreeWebResponse(agentConfiguration, aiRequest);
+            }
+            case PAID -> {
+                return generatePaidWebResponse(agentConfiguration, aiRequest);
+            }
+            default -> throw new OperationFailedException("Invalid source detected. Malformed agent.");
+        }
+    }
+
+    private Flux<@NonNull String> streamWeb(AiRequest aiRequest, AgentConfigurationEntity agentConfiguration) {
+        switch (agentConfiguration.getSource()) {
+            case FREE -> {
+                return generateFreeWebResponseStream(agentConfiguration, aiRequest);
+            }
+            case PAID -> {
+                return generatePaidWebResponseStream(agentConfiguration, aiRequest);
+            }
+            default -> throw new OperationFailedException("Invalid source detected. Malformed agent.");
+        }
+    }
+
+    private String generateFreeWebResponse(@NonNull AgentConfigurationEntity agentConfiguration, @NonNull AiRequest aiRequest) {
         try {
             ChatClient chatClient = aiBeanFactory.getChatClient(
                     agentConfiguration.getSource().getValue(),
@@ -331,7 +355,71 @@ public class AgentService {
         }
     }
 
-    private Flux<@NonNull String> streamWeb(AiRequest aiRequest, AgentConfigurationEntity agentConfiguration) {
+    private String generatePaidWebResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+
+        String provider = llmConfigService.getProvider(
+                agentConfiguration.getSource().getValue(),
+                agentConfiguration.getType().getValue(),
+                agentConfiguration.getModel().getValue()
+        );
+
+        return switch (provider) {
+            case "openai" -> generateOpenAiWebResponse(agentConfiguration,aiRequest);
+            case "anthropic" -> generateAnthropicWebResponse(agentConfiguration,aiRequest);
+            default -> throw new NotFoundException("Provider type not supported");
+        };
+    }
+
+    private String generateOpenAiWebResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+        try {
+            ChatClient chatClient = aiBeanFactory.getChatClient(
+                    agentConfiguration.getSource().getValue(),
+                    agentConfiguration.getType().getValue(),
+                    agentConfiguration.getModel().getValue()
+            );
+            long start = System.currentTimeMillis();
+
+            LlmConnectorRequest request = new LlmConnectorRequest();
+            request.setEnablePrivateMode(false);
+            request.setType(agentConfiguration.getType().getValue());
+            request.setSource(agentConfiguration.getSource().getValue());
+            request.setModel(agentConfiguration.getModel().getValue());
+            request.setQuery(aiRequest.getQuery());
+            request.setInstructions(agentConfiguration.getInstructions());
+
+            ChatResponse response =  chatClient
+                    .prompt()
+                    .system(agentConfiguration.getInstructions())
+                    .options(buildChatOptions(agentConfiguration))
+                    .user(aiRequest.getQuery())
+                    .tools(new WebSearchPaidTool(webSearchService,request))
+                    .call()
+                    .chatResponse();
+
+            long completionTimeMs = System.currentTimeMillis() - start;
+
+            assert response != null;
+            //async service for generating the stats.
+            try {
+                systemConsumptionStatsSvc.add(response, aiRequest, completionTimeMs);
+            } catch (Exception e){
+                log.error("Error recording non-stream consumption tokens stats.",e);
+            }
+
+            return Objects.requireNonNull(response.getResult()).getOutput().getText();
+
+        }catch (Exception e){
+            log.error("Error while calling LLM.",e);
+            throw new ApiFallbackException("Error communicating with AI.");
+        }
+    }
+
+    private String generateAnthropicWebResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+        //anthropic yet to be implemented.
+        return "";
+    }
+
+    private Flux<@NonNull String> generateFreeWebResponseStream(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
         long start = System.currentTimeMillis();
 
         AtomicReference<ChatResponse> lastResponse = new AtomicReference<>();
@@ -385,6 +473,81 @@ public class AgentService {
             log.error("Error while calling LLM.", e);
             throw new ApiFallbackException("Error communicating with AI.");
         }
+    }
+
+    private Flux<@NonNull String> generatePaidWebResponseStream(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+
+        String provider = llmConfigService.getProvider(
+                agentConfiguration.getSource().getValue(),
+                agentConfiguration.getType().getValue(),
+                agentConfiguration.getModel().getValue()
+        );
+
+        return switch (provider) {
+            case "openai" -> generateOpenAiWebResponseStream(agentConfiguration,aiRequest);
+            case "anthropic" -> generateAnthropicWebResponseStream(agentConfiguration,aiRequest);
+            default -> throw new NotFoundException("Provider type not supported");
+        };
+    }
+
+    private Flux<@NonNull String> generateOpenAiWebResponseStream(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+        long start = System.currentTimeMillis();
+
+        AtomicReference<ChatResponse> lastResponse = new AtomicReference<>();
+        try {
+            ChatClient chatClient = aiBeanFactory.getChatClient(
+                    agentConfiguration.getSource().getValue(),
+                    agentConfiguration.getType().getValue(),
+                    agentConfiguration.getModel().getValue()
+            );
+
+            ChatOptions chatOptions = buildChatOptions(agentConfiguration);
+
+            LlmConnectorRequest request = new LlmConnectorRequest();
+            request.setEnablePrivateMode(false);
+            request.setType(agentConfiguration.getType().getValue());
+            request.setSource(agentConfiguration.getSource().getValue());
+            request.setModel(agentConfiguration.getModel().getValue());
+            request.setQuery(aiRequest.getQuery());
+            request.setInstructions(agentConfiguration.getInstructions());
+
+            return chatClient
+                    .prompt()
+                    .system(agentConfiguration.getInstructions())
+                    .options(chatOptions)
+                    .user(aiRequest.getQuery())
+                    .tools(new WebSearchPaidTool(webSearchService,request))
+                    .stream()
+                    .chatResponse()
+                    .doOnNext(lastResponse::set)
+                    .map(chatResponse -> {
+                        Generation generation = chatResponse.getResult();
+                        if (generation == null || generation.getOutput().getText() == null) {
+                            return "";
+                        }
+                        return generation.getOutput().getText();
+                    })
+                    .doOnComplete(() -> {
+                        ChatResponse streamEnd = lastResponse.get();
+                        if (streamEnd == null) {
+                            return;
+                        }
+                        long completionTimeMs = System.currentTimeMillis() - start;
+                        try {
+                            systemConsumptionStatsSvc.add(streamEnd, aiRequest, completionTimeMs);
+                        } catch (Exception e) {
+                            log.error("Failed to record stream consumption stats", e);
+                        }
+                    });
+
+        } catch (Exception e) {
+            log.error("Error while calling LLM.", e);
+            throw new ApiFallbackException("Error communicating with AI.");
+        }
+    }
+
+    private Flux<@NonNull String> generateAnthropicWebResponseStream(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
+        return Flux.just("");
     }
 
     // make a dynamic configuration
