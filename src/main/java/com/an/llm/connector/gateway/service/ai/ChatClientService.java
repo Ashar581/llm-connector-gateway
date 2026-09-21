@@ -341,7 +341,7 @@ public class ChatClientService {
 
             if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
                 request.setEnablePrivateMode(false);
-                prompt.tools(new WebSearchTool(webSearchService,request));
+                prompt.tools(new WebSearchPaidTool(webSearchService,request));
             }
 
             responseFlux = prompt.stream()
@@ -361,7 +361,7 @@ public class ChatClientService {
 
             if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
                 request.setEnablePrivateMode(false);
-                chatPrompt.tools(new WebSearchTool(webSearchService, request));
+                chatPrompt.tools(new WebSearchPaidTool(webSearchService, request));
             }
 
             responseFlux = chatPrompt
