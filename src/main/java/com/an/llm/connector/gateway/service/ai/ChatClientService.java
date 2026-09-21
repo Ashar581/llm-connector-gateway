@@ -1,7 +1,10 @@
 package com.an.llm.connector.gateway.service.ai;
 
 import com.an.llm.connector.gateway.enums.LlmCapability;
+import com.an.llm.connector.gateway.enums.Source;
 import com.an.llm.connector.gateway.exception.ApiFallbackException;
+import com.an.llm.connector.gateway.exception.NotFoundException;
+import com.an.llm.connector.gateway.exception.OperationFailedException;
 import com.an.llm.connector.gateway.model.ContextBudget;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.config.ModelConfig;
@@ -11,6 +14,7 @@ import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.service.tokenize.ContextBudgetService;
 import com.an.llm.connector.gateway.service.tokenize.HistoryTokenTrimmer;
 import com.an.llm.connector.gateway.service.web.WebSearchService;
+import com.an.llm.connector.gateway.service.web.tool.WebSearchPaidTool;
 import com.an.llm.connector.gateway.service.web.tool.WebSearchTool;
 import com.an.llm.connector.gateway.util.ChatMessageContextUtils;
 import com.an.llm.connector.gateway.util.LlmInstructions;
@@ -26,6 +30,7 @@ import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.stereotype.Service;
+import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
@@ -45,6 +50,34 @@ public class ChatClientService {
     private final WebSearchService webSearchService;
 
     public String ask(LlmConnectorRequest request) {
+        validateAllowedType(request);
+
+        switch (Source.getFromValue(request.getSource())) {
+            case FREE -> {
+                return askFree(request);
+            }
+            case PAID -> {
+                return askPaid(request);
+            }
+            default -> throw new OperationFailedException("Unable to determine the request Source.");
+        }
+    }
+
+    public Flux<@NonNull String> askStream(LlmConnectorRequest request) {
+        validateAllowedType(request);
+
+        switch (Source.getFromValue(request.getSource())) {
+            case FREE -> {
+                return askFreeStream(request);
+            }
+            case PAID -> {
+                return askPaidStream(request);
+            }
+            default -> throw new OperationFailedException("Unable to determine the request Source");
+        }
+    }
+
+    private String askFree(LlmConnectorRequest request) {
         validateAllowedType(request);
 
         String instructions = request.getInstructions() != null && !request.getInstructions().isBlank()
@@ -107,7 +140,19 @@ public class ChatClientService {
         return Objects.requireNonNull(response.getResult()).getOutput().getText();
     }
 
-    public Flux<@NonNull String> askStream(LlmConnectorRequest request) {
+    private String askPaid(LlmConnectorRequest request) {
+        validateAllowedType(request);
+
+        String provider = llmConfigService.getProvider(request.getSource(),request.getType(),request.getModel());
+
+        return switch (provider) {
+            case "openai" -> askOpenAi(request);
+            case "anthropic" -> askAnthropic(request);
+            default -> throw new NotFoundException("Provider type not supported");
+        };
+    }
+
+    private Flux<@NonNull String> askFreeStream(LlmConnectorRequest request) {
         validateAllowedType(request);
 
         String instructions = request.getInstructions() != null
@@ -135,7 +180,7 @@ public class ChatClientService {
 
             if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
                 request.setEnablePrivateMode(false);
-                prompt.tools(new WebSearchTool(webSearchService,request));
+                prompt.tools(new WebSearchPaidTool(webSearchService,request));
             }
 
             responseFlux = prompt.stream()
@@ -150,7 +195,7 @@ public class ChatClientService {
 
             if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
                 request.setEnablePrivateMode(false);
-                chatPrompt.tools(new WebSearchTool(webSearchService,request));
+                chatPrompt.tools(new WebSearchPaidTool(webSearchService,request));
             }
 
             responseFlux = chatPrompt.stream()
@@ -183,6 +228,179 @@ public class ChatClientService {
                         log.error("Failed to record stream consumption stats", e);
                     }
                 });
+    }
+
+    public Flux<@NonNull String> askPaidStream(@NonNull LlmConnectorRequest request) {
+        validateAllowedType(request);
+
+        String provider = llmConfigService.getProvider(request.getSource(),request.getType(),request.getModel());
+
+        return switch (provider) {
+            case "openai" -> askOpenAiStream(request);
+            case "anthropic" -> askAnthropicStream(request);
+            default -> throw new NotFoundException("Provider type not supported");
+        };
+    }
+
+    private String askOpenAi(@NonNull LlmConnectorRequest request) {
+        String instructions = request.getInstructions() != null && !request.getInstructions().isBlank()
+                ? request.getInstructions()
+                : LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL;
+
+        if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+            instructions = instructions + "\n" + LlmInstructions.DEFAULT_WEB_INSTRUCTIONS;
+        }
+
+        ChatResponse response;
+
+        long start = System.currentTimeMillis();
+
+        if (!request.isChatHistoryEnabled()) {
+            var prompt = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
+                    .prompt()
+                    .system(instructions)
+                    .options(buildChatOptions(request))
+                    .user(request.getQuery());
+
+            if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+                request.setEnablePrivateMode(false);
+                prompt.tools(new WebSearchPaidTool(webSearchService,request));
+            }
+
+            response = prompt.call()
+                    .chatResponse();
+        } else {
+            var chatPrompt = aiBeanFactory
+                    .getChatClient(request.getSource(), request.getType(), request.getModel())
+                    .prompt()
+                    .system(instructions)
+                    .options(buildChatOptions(request));
+
+            // Add existing conversation history directly.
+            if (request.getChatHistory() != null && !request.getChatHistory().isEmpty()) {
+                chatPrompt.messages(ChatMessageContextUtils.buildHistoryMessages(request));
+            }
+
+            // Add the current user query.
+            chatPrompt.user(request.getQuery());
+
+            // Web search
+            if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+                request.setEnablePrivateMode(false);
+                chatPrompt.tools(new WebSearchTool(webSearchService, request));
+            }
+
+            response = chatPrompt
+                    .call()
+                    .chatResponse();
+        }
+
+        long completionTimeMs = System.currentTimeMillis() - start;
+
+        assert response != null;
+        //async service for generating the stats.
+        try {
+            systemConsumptionStatsSvc.add(response, request, completionTimeMs);
+        } catch (Exception e){
+            log.error("Error recording non-stream consumption tokens stats.",e);
+        }
+
+        return Objects.requireNonNull(response.getResult()).getOutput().getText();
+    }
+
+    private String askAnthropic(@NonNull LlmConnectorRequest request) {
+        //implementation yet to be added.
+        return "";
+    }
+
+    //for paid (using it in switch via provider) - stream only
+    private Flux<@NonNull String> askOpenAiStream(@NonNull LlmConnectorRequest request){
+
+        String instructions = request.getInstructions() != null
+                && !request.getInstructions().isBlank()
+                ? request.getInstructions()
+                : LlmInstructions.CHAT_INSTRUCTIONS_UNIVERSAL;
+
+        if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+            instructions = instructions + "\n" + LlmInstructions.DEFAULT_WEB_INSTRUCTIONS;
+        }
+
+        long start = System.currentTimeMillis();
+
+        AtomicReference<ChatResponse> lastResponse = new AtomicReference<>();
+
+        Flux<@NonNull ChatResponse> responseFlux;
+
+        if (!request.isChatHistoryEnabled()) {
+            //newly added for web
+            var prompt = aiBeanFactory.getChatClient(request.getSource(), request.getType(), request.getModel())
+                    .prompt()
+                    .system(instructions)
+                    .options(buildChatOptions(request))
+                    .user(request.getQuery());
+
+            if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+                request.setEnablePrivateMode(false);
+                prompt.tools(new WebSearchTool(webSearchService,request));
+            }
+
+            responseFlux = prompt.stream()
+                    .chatResponse();
+        } else {
+            var chatPrompt = aiBeanFactory
+                    .getChatClient(request.getSource(), request.getType(), request.getModel())
+                    .prompt()
+                    .system(instructions)
+                    .options(buildChatOptions(request));
+
+            if (request.getChatHistory() != null && !request.getChatHistory().isEmpty()) {
+                chatPrompt.messages(ChatMessageContextUtils.buildHistoryMessages(request));
+            }
+
+            chatPrompt.user(request.getQuery());
+
+            if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
+                request.setEnablePrivateMode(false);
+                chatPrompt.tools(new WebSearchTool(webSearchService, request));
+            }
+
+            responseFlux = chatPrompt
+                    .stream()
+                    .chatResponse();
+        }
+
+        return responseFlux
+                .doOnNext(lastResponse::set)
+                .map(chatResponse -> {
+                    Generation generation = chatResponse.getResult();
+
+                    if (generation == null || generation.getOutput().getText() == null) {
+                        return "";
+                    }
+
+                    return generation.getOutput().getText();
+                })
+                .doOnComplete(() -> {
+                    ChatResponse streamEnd = lastResponse.get();
+
+                    if (streamEnd == null) {
+                        return;
+                    }
+
+                    long completionTimeMs = System.currentTimeMillis() - start;
+
+                    try {
+                        systemConsumptionStatsSvc.add(streamEnd, request, completionTimeMs);
+                    } catch (Exception e) {
+                        log.error("Failed to record stream consumption stats", e);
+                    }
+                });
+    }
+
+    //for paid (using it in switch via provider) - stream only
+    private Flux<@NonNull String> askAnthropicStream(@NonNull LlmConnectorRequest request) {
+        //Anthropic implementation yet to be added.
+        return Flux.just("");
     }
 
     private Prompt buildPromptWithTokenBudget(LlmConnectorRequest request, String instructions) {
@@ -220,6 +438,7 @@ public class ChatClientService {
 
     private ChatOptions buildChatOptions(LlmConnectorRequest request) {
         OpenAiChatOptions.Builder openAiOptions = OpenAiChatOptions.builder()
+                .model(request.getModel())
                 .streamUsage(true);
 
         if (request.getTemperature() != null) {
@@ -234,6 +453,7 @@ public class ChatClientService {
 
     private ChatOptions buildChatOptions(LlmConnectorRequest request, ContextBudget budget) {
         OpenAiChatOptions.Builder openAiOptions = OpenAiChatOptions.builder()
+                .model(request.getModel())
                 .streamUsage(true);
 
         if (request.getTemperature() != null) {
