@@ -15,7 +15,8 @@ public enum LlmModels {
     QWEN3_EMBED("qwen-3-embed"),
     EMBED_V3("embed-v2"),
     EMBED_M3("embed-m3"),
-    GEMMA_4("gemma-4");
+    GEMMA_4("gemma-4"),
+    GPT_4o_MINI("gpt-4o-mini");
 
     private final String id;
 

@@ -95,4 +95,16 @@ public class LlmConfigService {
                 .toList()
                 .getFirst();
     }
+
+    public String getProvider(@NotNull String source, @NotNull String type, @NotNull String model) {
+        isLlmSupported(source, type, model);
+        return getAvailableModels()
+                .get(source)
+                .getModels()
+                .stream()
+                .filter(filter -> filter.getId().equalsIgnoreCase(model))
+                .toList()
+                .getFirst()
+                .getProvider();
+    }
 }
