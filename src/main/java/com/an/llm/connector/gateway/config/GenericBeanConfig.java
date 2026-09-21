@@ -33,19 +33,24 @@ public class GenericBeanConfig {
     //currently only creating beans for free endpoints.
     @PostConstruct
     public void initializeLlmBeans(){
-        SourceConfig sourceConfig = llmConfigService.getModelConfigBySource(Source.FREE);
-        if (sourceConfig==null) {
-            log.error("No LLM source found for initializing bean creation.");
+        initializeFreeLlmBeans();
+        initializePaidLlmBeans();
+    }
+
+    private void initializeFreeLlmBeans() {
+        SourceConfig freeSourceConfig = llmConfigService.getModelConfigBySource(Source.FREE);
+        if (freeSourceConfig==null) {
+            log.error("No free LLM source found for initializing bean creation.");
             return;
         }
-        List<ModelConfig> modelConfigs = sourceConfig.getModels();
+        List<ModelConfig> modelConfigs = freeSourceConfig.getModels();
         if (modelConfigs==null || modelConfigs.isEmpty()) {
-            log.error("No LLM models available for bean creation.");
+            log.error("No free LLM models available for bean creation.");
             return;
         }
         for (ModelConfig config : modelConfigs) {
             if (config.getType().contains(LlmCapability.EMBEDDING.getValue())){
-                log.info("Creating bean for OpenAiEmbeddingModel: {} ",config.getId());
+                log.info("Creating bean for free OpenAiEmbeddingModel: {} ",config.getId());
                 //embedding bean.
                 //for attaching the bean to vector store, either make a logic for dynamic bean creation or make
                 //a bean of embedding defaulted to oen fo the running embedding model. -> bge-large-embed
@@ -67,7 +72,7 @@ public class GenericBeanConfig {
                         ).build()
                 );
             } else {
-                log.info("Creating bean for ChatClient with name: {}",config.getId());
+                log.info("Creating bean for free ChatClient with name: {}",config.getId());
                 //register ChatClint with OpenAiChatModel as parameter
                 genericApplicationContext.registerBean(
                         config.getId(),
@@ -76,6 +81,59 @@ public class GenericBeanConfig {
                                 buildChatOpenAiModel(config)
                         )
                 );
+            }
+        }
+    }
+
+    private void initializePaidLlmBeans() {
+        SourceConfig paidSourceConfig = llmConfigService.getModelConfigBySource(Source.PAID);
+        if (paidSourceConfig==null) {
+            log.error("No paid LLM source found for initializing bean creation.");
+            return;
+        }
+        List<ModelConfig> modelConfigs = paidSourceConfig.getModels();
+        if (modelConfigs==null || modelConfigs.isEmpty()) {
+            log.error("No paid LLM models available for bean creation.");
+            return;
+        }
+        for (ModelConfig config : modelConfigs) {
+            switch (config.getProvider()) {
+                case "openai" : {
+                    log.info("OpenAi paid provider selected. Model {}",config.getModelName());
+                    if (config.getType().contains(LlmCapability.EMBEDDING.getValue())){
+                        log.info("Creating bean for paid OpenAiEmbeddingModel: {} ",config.getId());
+                        genericApplicationContext.registerBean(
+                                config.getId(),
+                                OpenAiEmbeddingModel.class,
+                                () -> new OpenAiEmbeddingModel(buildEmbeddingOpenAiApi(config))
+                        );
+
+                        genericApplicationContext.registerBean(
+                                "vector-"+config.getId(),
+                                VectorStore.class,
+                                () -> SimpleVectorStore.builder(
+                                        genericApplicationContext.getBean(
+                                                config.getId(),
+                                                OpenAiEmbeddingModel.class
+                                        )
+                                ).build()
+                        );
+                    } else {
+                        log.info("Creating bean for paid ChatClient with name: {}",config.getId());
+                        genericApplicationContext.registerBean(
+                                config.getId(),
+                                ChatClient.class,
+                                () -> ChatClient.create(
+                                        buildChatOpenAiModel(config)
+                                )
+                        );
+                    }
+                    break;
+                }
+                case "anthropic" : {
+                    break;
+                }
+                default: log.info("Provider {} is currently not supported.",config.getProvider());
             }
         }
     }
