@@ -287,7 +287,7 @@ public class ChatClientService {
             // Web search
             if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
                 request.setEnablePrivateMode(false);
-                chatPrompt.tools(new WebSearchTool(webSearchService, request));
+                chatPrompt.tools(new WebSearchPaidTool(webSearchService, request));
             }
 
             response = chatPrompt
