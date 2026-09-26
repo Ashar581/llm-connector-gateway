@@ -2,6 +2,7 @@ package com.an.llm.connector.gateway.service.agent;
 
 import com.an.llm.connector.gateway.entity.agent.AgentConfigurationEntity;
 import com.an.llm.connector.gateway.enums.IngestionMode;
+import com.an.llm.connector.gateway.enums.LlmCapability;
 import com.an.llm.connector.gateway.exception.*;
 import com.an.llm.connector.gateway.model.AiRequest;
 import com.an.llm.connector.gateway.model.LlmConnectorRequest;
@@ -16,6 +17,8 @@ import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
 import com.an.llm.connector.gateway.service.ai.VisionServiceV2;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.service.web.WebSearchService;
+import com.an.llm.connector.gateway.service.web.search.FirecrawlService;
+import com.an.llm.connector.gateway.service.web.tool.FirecrawlTools;
 import com.an.llm.connector.gateway.service.web.tool.WebSearchPaidTool;
 import com.an.llm.connector.gateway.service.web.tool.WebSearchTool;
 import com.an.llm.connector.gateway.util.JsonUtils;
@@ -48,6 +51,7 @@ public class AgentService {
     private final RagServiceV4 ragServiceV4;
     private final WebSearchService webSearchService;
     private final LlmConfigService llmConfigService;
+    private final FirecrawlService firecrawlService;
 
     public Object generate(@NonNull AiRequest aiRequest){
         AgentConfigurationEntity agentConfiguration = agentConfigurationRepository.findByName(aiRequest.getAgent())
@@ -68,7 +72,7 @@ public class AgentService {
             case RAG -> {
                 return generateRagResponse(agentConfiguration,aiRequest);
             }
-            case WEB -> {
+            case WEB, BROWSER -> {
                 return generateWebResponse(agentConfiguration,aiRequest);
             }
             default -> {
@@ -91,7 +95,7 @@ public class AgentService {
             case RAG -> {
                 return generateStreamRagResponse(agentConfiguration,aiRequest);
             }
-            case WEB -> {
+            case WEB,BROWSER -> {
                 return streamWeb(aiRequest,agentConfiguration);
             }
             default ->  {
@@ -226,6 +230,7 @@ public class AgentService {
         request.setInstructions(agentConfiguration.getInstructions());
         request.setMode(agentConfiguration.getClassificationMode());
         request.setDocumentTypes(JsonUtils.serializeClass(agentConfiguration.getDocumentTypes()));
+        request.setTemperature(agentConfiguration.getTemperature());
         //setting agent name for token stats.
         request.setAgentName(aiRequest.getAgent());
         try {
@@ -327,6 +332,7 @@ public class AgentService {
             request.setModel(agentConfiguration.getModel().getValue());
             request.setQuery(aiRequest.getQuery());
             request.setInstructions(agentConfiguration.getInstructions());
+            request.setTemperature(agentConfiguration.getTemperature());
 
             ChatResponse response =  chatClient
                     .prompt()
@@ -386,14 +392,15 @@ public class AgentService {
             request.setModel(agentConfiguration.getModel().getValue());
             request.setQuery(aiRequest.getQuery());
             request.setInstructions(agentConfiguration.getInstructions());
+            request.setTemperature(agentConfiguration.getTemperature());
 
             ChatResponse response =  chatClient
                     .prompt()
                     .system(agentConfiguration.getInstructions())
                     .options(buildChatOptions(agentConfiguration))
                     .user(aiRequest.getQuery())
-                    .tools(new WebSearchPaidTool(webSearchService,request))
-                    .call()
+//                    .tools(new WebSearchPaidTool(webSearchService,request))
+                    .tools(agentConfiguration.getType().equals(LlmCapability.WEB) ? new WebSearchPaidTool(webSearchService,request) : new FirecrawlTools(firecrawlService,request))                    .call()
                     .chatResponse();
 
             long completionTimeMs = System.currentTimeMillis() - start;
@@ -439,6 +446,7 @@ public class AgentService {
             request.setModel(agentConfiguration.getModel().getValue());
             request.setQuery(aiRequest.getQuery());
             request.setInstructions(agentConfiguration.getInstructions());
+            request.setTemperature(agentConfiguration.getTemperature());
 
             return chatClient
                     .prompt()
@@ -510,13 +518,15 @@ public class AgentService {
             request.setModel(agentConfiguration.getModel().getValue());
             request.setQuery(aiRequest.getQuery());
             request.setInstructions(agentConfiguration.getInstructions());
+            request.setTemperature(agentConfiguration.getTemperature());
 
             return chatClient
                     .prompt()
                     .system(agentConfiguration.getInstructions())
                     .options(chatOptions)
                     .user(aiRequest.getQuery())
-                    .tools(new WebSearchPaidTool(webSearchService,request))
+//                    .tools(new WebSearchPaidTool(webSearchService,request))
+                    .tools(agentConfiguration.getType().equals(LlmCapability.WEB) ? new WebSearchPaidTool(webSearchService,request) : new FirecrawlTools(firecrawlService,request))
                     .stream()
                     .chatResponse()
                     .doOnNext(lastResponse::set)
@@ -553,6 +563,7 @@ public class AgentService {
     // make a dynamic configuration
     private ChatOptions buildChatOptions(AgentConfigurationEntity agentConfiguration){
         OpenAiChatOptions.Builder openAiOptions = OpenAiChatOptions.builder()
+                .model(agentConfiguration.getModel().getValue())
                 .streamUsage(true);
 
         if (agentConfiguration.getTemperature() != null) {

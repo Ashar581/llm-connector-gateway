@@ -247,12 +247,21 @@ llm:
         - id: gpt-4o-mini
           type:
             - web
+            - browser
           provider: openai
           api-key: ${OPEN_AI_KEY}
           model-name: gpt-4o-mini
           base-url: https://api.openai.com
           api-path: /v1/chat/completions
           active: true
+
+firecrawl:
+  api-key: ${FIRECRAWL_API_KEY:}
+  api-url: ${FIRECRAWL_API_URL:http://localhost:3002}
+
+  timeout-ms: ${FIRECRAWL_TIMEOUT_MS:300000}
+  max-retries: ${FIRECRAWL_MAX_RETRIES:3}
+  backoff-factor: ${FIRECRAWL_BACKOFF_FACTOR:0.5}
 
 api-key : DS-AN581-SS018-2904-1911
 admin:
