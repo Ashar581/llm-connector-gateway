@@ -14,6 +14,8 @@ import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.service.tokenize.ContextBudgetService;
 import com.an.llm.connector.gateway.service.tokenize.HistoryTokenTrimmer;
 import com.an.llm.connector.gateway.service.web.WebSearchService;
+import com.an.llm.connector.gateway.service.web.search.FirecrawlService;
+import com.an.llm.connector.gateway.service.web.tool.FirecrawlTools;
 import com.an.llm.connector.gateway.service.web.tool.WebSearchPaidTool;
 import com.an.llm.connector.gateway.service.web.tool.WebSearchTool;
 import com.an.llm.connector.gateway.util.ChatMessageContextUtils;
@@ -48,6 +50,7 @@ public class ChatClientService {
     private final LlmConfigService llmConfigService;
     private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
     private final WebSearchService webSearchService;
+    private final FirecrawlService firecrawlService;
 
     public String ask(LlmConnectorRequest request) {
         validateAllowedType(request);
@@ -266,6 +269,10 @@ public class ChatClientService {
                 request.setEnablePrivateMode(false);
                 prompt.tools(new WebSearchPaidTool(webSearchService,request));
             }
+            if (request.getType().equalsIgnoreCase(LlmCapability.BROWSER.getValue())) {
+                request.setEnablePrivateMode(false);
+                prompt.tools(new FirecrawlTools(firecrawlService,request));
+            }
 
             response = prompt.call()
                     .chatResponse();
@@ -287,7 +294,8 @@ public class ChatClientService {
             // Web search
             if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
                 request.setEnablePrivateMode(false);
-                chatPrompt.tools(new WebSearchPaidTool(webSearchService, request));
+//                chatPrompt.tools(new WebSearchPaidTool(webSearchService, request));
+                chatPrompt.tools(new FirecrawlTools(firecrawlService,request));
             }
 
             response = chatPrompt
@@ -343,6 +351,10 @@ public class ChatClientService {
                 request.setEnablePrivateMode(false);
                 prompt.tools(new WebSearchPaidTool(webSearchService,request));
             }
+            if (request.getType().equalsIgnoreCase(LlmCapability.BROWSER.getValue())) {
+                request.setEnablePrivateMode(false);
+                prompt.tools(new FirecrawlTools(firecrawlService,request));
+            }
 
             responseFlux = prompt.stream()
                     .chatResponse();
@@ -362,6 +374,11 @@ public class ChatClientService {
             if (request.getType().equalsIgnoreCase(LlmCapability.WEB.getValue())) {
                 request.setEnablePrivateMode(false);
                 chatPrompt.tools(new WebSearchPaidTool(webSearchService, request));
+            }
+
+            if (request.getType().equalsIgnoreCase(LlmCapability.BROWSER.getValue())) {
+                request.setEnablePrivateMode(false);
+                chatPrompt.tools(new FirecrawlTools(firecrawlService,request));
             }
 
             responseFlux = chatPrompt

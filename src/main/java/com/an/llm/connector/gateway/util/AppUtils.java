@@ -56,4 +56,29 @@ public class AppUtils {
                 .trim()
                 .replaceAll("\\s+", "");
     }
+
+    public static String markdownToCliString(String markdown) {
+        if (markdown == null || markdown.isBlank()) {
+            return "";
+        }
+
+        String text = markdown;
+
+        text = text.replaceAll(
+                "\\[([^\\]]+)\\]\\([^\\s)]+(?:\\s+\"[^\"]*\")?\\)",
+                "$1"
+        );
+        text = text.replaceAll("(?m)^\\s*#{1,6}\\s+", "");
+        text = text.replaceAll("\\*\\*(.*?)\\*\\*", "$1");
+        text = text.replaceAll("(?m)^\\s*[*+]\\s+", "- ");
+        text = text.replaceAll("(?m)^\\s*[-]\\s+", "- ");
+        text = text.replaceAll("(?<!\\*)\\*([^*\\n]+)\\*(?!\\*)", "$1");
+        text = text.replaceAll("`([^`]+)`", "$1");
+        text = text.replaceAll("(?m)^\\s*>\\s?", "");
+        text = text.replaceAll("[ \\t]+", " ");
+        text = text.replaceAll("(?m)^\\s+|\\s+$", "");
+        text = text.replaceAll("\\n{3,}", "\n\n");
+
+        return text.trim();
+    }
 }

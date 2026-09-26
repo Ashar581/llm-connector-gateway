@@ -15,7 +15,8 @@ public enum LlmCapability {
     VISION("vision"),
     RAG("rag"),
     CLASSIFICATION("classification"),
-    WEB("web");
+    WEB("web"),
+    BROWSER("browser");
 
     private final String id;
 
