@@ -256,7 +256,7 @@ llm:
           active: true
 
 firecrawl:
-  api-key: ${FIRECRAWL_API_KEY:}
+  api-key: ${FIRECRAWL_API_KEY:ashar581}
   api-url: ${FIRECRAWL_API_URL:http://localhost:3002}
 
   timeout-ms: ${FIRECRAWL_TIMEOUT_MS:300000}
