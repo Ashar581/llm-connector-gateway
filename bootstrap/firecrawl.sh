@@ -164,8 +164,23 @@ firecrawl_install_linux_prereqs() {
   fi
   if [[ "$major" != "22" ]]; then
     firecrawl_log "Installing Node.js 22 from NodeSource..."
-    curl -fsSL https://deb.nodesource.com/setup_22.x | $SUDO -E bash -
-    $SUDO apt-get install -y nodejs
+    # Do not expand an empty sudo prefix before -E when already running as root.
+    # The previous form `| $SUDO -E bash -` became `| -E bash -` on root Linux.
+    if [[ -n "$SUDO" ]]; then
+      curl -fsSL https://deb.nodesource.com/setup_22.x | $SUDO -E bash -
+      $SUDO apt-get install -y nodejs
+    else
+      curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+      apt-get install -y nodejs
+    fi
+  fi
+
+  # Ubuntu images can already contain another Node installation (for example
+  # /usr/local/bin/node 24.x or an nvm-managed Node). Prefer the NodeSource
+  # 22.x binary for this process without deleting the user's other Node.
+  if [[ -x /usr/bin/node ]]; then
+    export PATH="/usr/bin:/usr/local/bin:${PATH}"
+    hash -r 2>/dev/null || true
   fi
 
   return 0
@@ -941,6 +956,10 @@ NUQ_DATABASE_URL=postgresql://${FIRECRAWL_POSTGRES_USER}:${FIRECRAWL_POSTGRES_PA
 NUQ_RABBITMQ_URL=amqp://${FIRECRAWL_POSTGRES_USER}:${FIRECRAWL_POSTGRES_PASSWORD}@${FIRECRAWL_HOST}:${FIRECRAWL_RABBITMQ_PORT}
 NUQ_BACKEND=pg
 PLAYWRIGHT_BROWSERS_PATH=${FIRECRAWL_PLAYWRIGHT_CACHE}
+# Firecrawl v2.11.0 uses DuckDuckGo when SearXNG is not configured.
+# Route self-hosted search through the project's SearXNG instance instead.
+SEARXNG_ENDPOINT=http://${FIRECRAWL_HOST}:8888
+SEARXNG_CATEGORIES=general
 LOGGING_LEVEL=info
 EOF
 }
@@ -968,34 +987,18 @@ firecrawl_build_native() {
   )
 
   # napi-rs generates the platform .node addon alongside the JS wrapper.
-  # Validate the native N-API addon for the actual host architecture.
-  # Apple Silicon must use darwin-arm64; Intel macOS uses darwin-x64.
-  # Do not assume x64 on Darwin.
-  local native_target=""
-  case "$(uname -s):$(uname -m)" in
-    Darwin:arm64)
-      native_target="darwin-arm64"
-      ;;
-    Darwin:x86_64)
-      native_target="darwin-x64"
-      ;;
-    Linux:x86_64|Linux:amd64)
-      native_target="linux-x64-gnu"
-      ;;
-    Linux:aarch64|Linux:arm64)
-      native_target="linux-arm64-gnu"
-      ;;
-    *)
-      firecrawl_error "Unsupported native addon platform: $(uname -s) $(uname -m)"
-      return 1
-      ;;
-  esac
-
-  local expected_native_addon="${native_dir}/firecrawl-rs.${native_target}.node"
-  if [[ ! -f "${expected_native_addon}" ]]; then
-    firecrawl_error "Rust native build completed without the ${native_target} firecrawl-rs addon."
-    firecrawl_error "Expected: ${expected_native_addon}"
-    return 1
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    if [[ "$(uname -m)" == "arm64" ]]; then
+      find "${native_dir}" -maxdepth 1 -name 'firecrawl-rs.darwin-arm64.node' -print -quit | grep -q . || {
+        firecrawl_error "Rust native build completed without the macOS arm64 firecrawl-rs addon."
+        return 1
+      }
+    else
+      find "${native_dir}" -maxdepth 1 -name 'firecrawl-rs.darwin-x64.node' -print -quit | grep -q . || {
+        firecrawl_error "Rust native build completed without the macOS x64 firecrawl-rs addon."
+        return 1
+      }
+    fi
   fi
 
   [[ -f "${native_module}" ]] || {
@@ -1056,6 +1059,46 @@ firecrawl_start_playwright() {
   done
 
   firecrawl_error "Playwright service did not start listening on port ${FIRECRAWL_PLAYWRIGHT_PORT}."
+  return 1
+}
+
+firecrawl_check_searxng() {
+  local response
+  response="$(curl -fsS --max-time 10 -G \
+    "http://${FIRECRAWL_HOST}:8888/search" \
+    --data-urlencode "q=Axis Bank" \
+    --data-urlencode "format=json" 2>/dev/null || true)"
+
+  if printf '%s' "${response}" | grep -Eq '"results"[[:space:]]*:[[:space:]]*\[[^]]*[^]]\]'; then
+    firecrawl_log "SearXNG search is healthy on http://${FIRECRAWL_HOST}:8888."
+    return 0
+  fi
+
+  firecrawl_error "SearXNG search is not returning results on http://${FIRECRAWL_HOST}:8888."
+  return 1
+}
+
+firecrawl_search_smoke_test() {
+  local response count
+  response="$(curl -fsS --max-time 30 -X POST \
+    "http://${FIRECRAWL_HOST}:${FIRECRAWL_PORT}/v1/search" \
+    -H 'Content-Type: application/json' \
+    --data '{"query":"Axis Bank","limit":3}' 2>/dev/null || true)"
+
+  count="$(printf '%s' "${response}" | sed -n 's/.*"data"[[:space:]]*:[[:space:]]*\[\([^]]*\)\].*/\1/p' | tr -cd '{' | wc -c | tr -d ' ')"
+
+  if [[ "${count}" =~ ^[1-9][0-9]*$ ]]; then
+    firecrawl_log "Firecrawl search smoke test passed (${count} result objects)."
+    return 0
+  fi
+
+  firecrawl_error "Firecrawl search smoke test failed: expected at least one result from /v1/search."
+  firecrawl_error "Response: ${response:-<empty>}"
+  if [[ -f "${FIRECRAWL_LOG_DIR}/api.log" ]]; then
+    echo "---------------- Firecrawl search failure log ----------------" >&2
+    grep -Ei 'search|searx|duckduckgo|error|abort' "${FIRECRAWL_LOG_DIR}/api.log" | tail -80 >&2 || true
+    echo "--------------------------------------------------------------" >&2
+  fi
   return 1
 }
 
@@ -1124,7 +1167,9 @@ prepare_firecrawl() {
   firecrawl_build_playwright || return 1
   firecrawl_start_playwright || return 1
   firecrawl_start_api || return 1
-  firecrawl_log "Firecrawl native stack is ready."
+  firecrawl_check_searxng || return 1
+  firecrawl_search_smoke_test || return 1
+  firecrawl_log "Firecrawl native stack is ready and search is verified."
 }
 
 firecrawl_stop() {
