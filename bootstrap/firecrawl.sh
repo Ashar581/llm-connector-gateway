@@ -157,15 +157,21 @@ firecrawl_install_linux_prereqs() {
     postgresql-17 postgresql-server-dev-17 \
     redis-server rabbitmq-server
 
-  # NodeSource is preferable if the distro's node is not 22.
-  local major=""
-  if command -v node >/dev/null 2>&1; then
-    major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
-  fi
-  if [[ "$major" != "22" ]]; then
-    firecrawl_log "Installing Node.js 22 from NodeSource..."
-    # Do not expand an empty sudo prefix before -E when already running as root.
-    # The previous form `| $SUDO -E bash -` became `| -E bash -` on root Linux.
+  # NodeSource is preferable if the distro's Node.js is not 22.
+  # Do not trust the first `node` on PATH: Ubuntu hosts can retain an older
+  # manually-installed /usr/local/bin/node that shadows NodeSource /usr/bin/node.
+  local node22="" candidate candidate_major
+  while IFS= read -r candidate; do
+    [[ -x "$candidate" ]] || continue
+    candidate_major="$("$candidate" -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
+    if [[ "$candidate_major" == "22" ]]; then
+      node22="$candidate"
+      break
+    fi
+  done < <(type -a -p node 2>/dev/null | awk '!seen[$0]++')
+
+  if [[ -z "$node22" ]]; then
+    firecrawl_log "Installing/refreshing Node.js 22 from NodeSource..."
     if [[ -n "$SUDO" ]]; then
       curl -fsSL https://deb.nodesource.com/setup_22.x | $SUDO -E bash -
       $SUDO apt-get install -y nodejs
@@ -173,15 +179,28 @@ firecrawl_install_linux_prereqs() {
       curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
       apt-get install -y nodejs
     fi
+
+    while IFS= read -r candidate; do
+      [[ -x "$candidate" ]] || continue
+      candidate_major="$("$candidate" -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
+      if [[ "$candidate_major" == "22" ]]; then
+        node22="$candidate"
+        break
+      fi
+    done < <(type -a -p node 2>/dev/null | awk '!seen[$0]++')
   fi
 
-  # Ubuntu images can already contain another Node installation (for example
-  # /usr/local/bin/node 24.x or an nvm-managed Node). Prefer the NodeSource
-  # 22.x binary for this process without deleting the user's other Node.
-  if [[ -x /usr/bin/node ]]; then
-    export PATH="/usr/bin:/usr/local/bin:${PATH}"
-    hash -r 2>/dev/null || true
-  fi
+  [[ -n "$node22" ]] || {
+    firecrawl_error "Node.js 22 could not be located after NodeSource installation."
+    firecrawl_error "Detected node binaries: $(type -a -p node 2>/dev/null | tr '\n' ' ')"
+    return 1
+  }
+
+  local node_dir
+  node_dir="$(dirname "$node22")"
+  export PATH="$node_dir:${PATH}"
+  hash -r 2>/dev/null || true
+  firecrawl_log "Using Node.js 22 binary: $node22 ($("$node22" --version))"
 
   return 0
 }
@@ -218,6 +237,7 @@ firecrawl_ensure_node_pnpm() {
   major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
   [[ "$major" == "22" ]] || {
     firecrawl_error "Node.js 22 is required; found $(node --version 2>/dev/null || echo unknown)."
+    firecrawl_error "Node binary selected by PATH: $(command -v node)"
     return 1
   }
 
@@ -299,14 +319,140 @@ firecrawl_install_js() {
 }
 
 firecrawl_pg_paths() {
+  local candidate=""
+
   if command -v pg_config >/dev/null 2>&1; then
-    PG_CONFIG="$(command -v pg_config)"
+    candidate="$(command -v pg_config)"
   elif [[ "$(uname -s)" == "Darwin" ]] && command -v brew >/dev/null 2>&1; then
     local p
     p="$(brew --prefix postgresql@17 2>/dev/null || true)"
-    [[ -x "$p/bin/pg_config" ]] && PG_CONFIG="$p/bin/pg_config"
+    [[ -x "$p/bin/pg_config" ]] && candidate="$p/bin/pg_config"
   fi
-  export PG_CONFIG
+
+  [[ -n "$candidate" && -x "$candidate" ]] || {
+    firecrawl_error "pg_config for PostgreSQL 17 was not found."
+    return 1
+  }
+
+  local major
+  major="$($candidate --version | awk '{print $2}' | cut -d. -f1)"
+  [[ "$major" == "17" ]] || {
+    firecrawl_error "PostgreSQL 17 pg_config is required; found ${major:-unknown} at $candidate."
+    return 1
+  }
+
+  PG_CONFIG="$candidate"
+  PG_BINDIR="$($candidate --bindir 2>/dev/null || true)"
+  [[ -n "$PG_BINDIR" && -x "$PG_BINDIR/initdb" && -x "$PG_BINDIR/pg_ctl" && \
+     -x "$PG_BINDIR/psql" && -x "$PG_BINDIR/pg_isready" ]] || {
+    firecrawl_error "PostgreSQL 17 binaries are incomplete. Expected initdb, pg_ctl, psql and pg_isready under: ${PG_BINDIR:-unknown}"
+    return 1
+  }
+
+  export PG_CONFIG PG_BINDIR
+}
+
+firecrawl_pg_owner() {
+  if [[ "$(uname -s)" != "Linux" || "$(id -u)" -ne 0 ]]; then
+    FIRECRAWL_PG_RUN_USER="${USER:-$(id -un)}"
+    export FIRECRAWL_PG_RUN_USER
+    return 0
+  fi
+
+  if id postgres >/dev/null 2>&1; then
+    FIRECRAWL_PG_RUN_USER="postgres"
+  else
+    FIRECRAWL_PG_RUN_USER="firecrawl"
+    if ! id firecrawl >/dev/null 2>&1; then
+      useradd --system --home-dir "${FIRECRAWL_DIR}" --no-create-home --shell /usr/sbin/nologin firecrawl
+    fi
+  fi
+
+  mkdir -p "${FIRECRAWL_POSTGRES_DATA}" "${FIRECRAWL_LOG_DIR}"
+  chown -R "${FIRECRAWL_PG_RUN_USER}:$(id -gn "${FIRECRAWL_PG_RUN_USER}")" \
+    "${FIRECRAWL_POSTGRES_DATA}" "${FIRECRAWL_LOG_DIR}"
+  export FIRECRAWL_PG_RUN_USER
+}
+
+firecrawl_pg_exec() {
+  local env_prefix=("LC_ALL=${LC_ALL:-C}" "LANG=${LANG:-C}")
+  if [[ "$(uname -s)" == "Linux" && "$(id -u)" -eq 0 && "${FIRECRAWL_PG_RUN_USER:-}" != "root" ]]; then
+    runuser -u "${FIRECRAWL_PG_RUN_USER}" -- env "${env_prefix[@]}" "$@"
+  else
+    env "${env_prefix[@]}" "$@"
+  fi
+}
+
+firecrawl_port_listening() {
+  local port="$1"
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -nP -iTCP:"${port}" -sTCP:LISTEN 2>/dev/null | grep -q LISTEN
+    return $?
+  fi
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltnH 2>/dev/null | awk '{print $4}' | grep -Eq ':'"${port}"'$'
+    return $?
+  fi
+  # If neither inspection tool exists, pg_isready still detects PostgreSQL;
+  # the bind/start operation below will provide the definitive check.
+  return 1
+}
+
+firecrawl_same_pg_data_dir() {
+  local port="$1"
+  local psql_bin="${PG_BINDIR}/psql"
+  local actual=""
+  actual="$(${psql_bin} -h "${FIRECRAWL_HOST}" -p "${port}" -U "${FIRECRAWL_PG_ADMIN_USER:-postgres}" \
+    -d postgres -Atqc 'SHOW data_directory;' 2>/dev/null || true)"
+  [[ -n "$actual" ]] || return 1
+
+  local expected_abs actual_abs
+  expected_abs="$(cd "${FIRECRAWL_POSTGRES_DATA}" 2>/dev/null && pwd -P || true)"
+  actual_abs="$(cd "${actual}" 2>/dev/null && pwd -P || true)"
+  [[ -n "$expected_abs" && "$expected_abs" == "$actual_abs" ]]
+}
+
+firecrawl_select_project_pg_port() {
+  local requested="${FIRECRAWL_POSTGRES_PORT:-5433}"
+  local start="${requested}"
+  local port
+
+  [[ "$requested" =~ ^[0-9]+$ && "$requested" -ge 1024 && "$requested" -le 65535 ]] || {
+    firecrawl_error "Invalid FIRECRAWL_POSTGRES_PORT: ${requested}"
+    return 1
+  }
+
+  # Reuse only the project's own PostgreSQL cluster. Never modify an unrelated
+  # PostgreSQL server merely because it happens to be version 17.
+  if "${PG_BINDIR}/pg_isready" -h "${FIRECRAWL_HOST}" -p "$requested" >/dev/null 2>&1; then
+    if firecrawl_same_pg_data_dir "$requested"; then
+      FIRECRAWL_POSTGRES_PORT="$requested"
+      FIRECRAWL_POSTGRES_EXTERNAL=0
+      export FIRECRAWL_POSTGRES_PORT FIRECRAWL_POSTGRES_EXTERNAL
+      firecrawl_log "Project-local PostgreSQL 17 is already running on 127.0.0.1:${requested}; reusing it."
+      return 0
+    fi
+  elif ! firecrawl_port_listening "$requested"; then
+    FIRECRAWL_POSTGRES_PORT="$requested"
+    FIRECRAWL_POSTGRES_EXTERNAL=0
+    export FIRECRAWL_POSTGRES_PORT FIRECRAWL_POSTGRES_EXTERNAL
+    return 0
+  fi
+
+  firecrawl_log "Port ${requested} is already occupied by another service; searching for a free PostgreSQL port..."
+  for port in $(seq "$start" $((start + 100))); do
+    [[ "$port" -le 65535 ]] || break
+    if ! firecrawl_port_listening "$port" && ! "${PG_BINDIR}/pg_isready" -h "${FIRECRAWL_HOST}" -p "$port" >/dev/null 2>&1; then
+      FIRECRAWL_POSTGRES_PORT="$port"
+      FIRECRAWL_POSTGRES_EXTERNAL=0
+      export FIRECRAWL_POSTGRES_PORT FIRECRAWL_POSTGRES_EXTERNAL
+      firecrawl_log "Selected free project-local PostgreSQL port: ${FIRECRAWL_POSTGRES_PORT}."
+      return 0
+    fi
+  done
+
+  firecrawl_error "No free local PostgreSQL port found in ${start}-$((start + 100))."
+  return 1
 }
 
 firecrawl_build_pg_cron() {
@@ -542,96 +688,43 @@ firecrawl_write_pg_conf() {
 }
 
 firecrawl_pg_init() {
-  firecrawl_pg_paths
+  firecrawl_pg_paths || return 1
+  firecrawl_pg_owner || return 1
 
-  local bindir
-  bindir="$(dirname "${PG_CONFIG}")"
-  local pg_ctl="${bindir}/pg_ctl"
-  local initdb="${bindir}/initdb"
-  local psql="${bindir}/psql"
-  local pg_isready="${bindir}/pg_isready"
-  local requested_port="${FIRECRAWL_POSTGRES_PORT:-55432}"
-  local project_port="${requested_port}"
-
-  # Existing PostgreSQL handling:
-  #
-  # 1. If PostgreSQL 17 is already listening on the normal local PostgreSQL
-  #    port, reuse it. Do NOT start another server.
-  # 2. If another PostgreSQL version is listening, leave it untouched and
-  #    use the project-local PostgreSQL instance on FIRECRAWL_POSTGRES_PORT.
-  # 3. If the project-local port is already occupied, fail clearly rather
-  #    than touching an unrelated process.
-  #
-  # The Firecrawl database itself is still created/configured by this
-  # bootstrap. We never stop or modify an unrelated running PostgreSQL
-  # server.
-
-  local existing_port="${FIRECRAWL_EXISTING_POSTGRES_PORT:-5432}"
-  local existing_version=""
-  local existing_pg_config=""
+  local pg_ctl="${PG_BINDIR}/pg_ctl"
+  local initdb="${PG_BINDIR}/initdb"
+  local pg_isready="${PG_BINDIR}/pg_isready"
 
   firecrawl_log "Checking for an existing local PostgreSQL server..."
 
-  if "${pg_isready}" -h 127.0.0.1 -p "${existing_port}" >/dev/null 2>&1; then
-    existing_version="$("${psql}" -h 127.0.0.1 -p "${existing_port}" -d postgres -Atqc 'SHOW server_version;' 2>/dev/null || true)"
-    existing_pg_config="$("${psql}" -h 127.0.0.1 -p "${existing_port}" -d postgres -Atqc 'SHOW config_file;' 2>/dev/null || true)"
-
-    if [[ "${existing_version}" == 17.* ]]; then
-      FIRECRAWL_POSTGRES_PORT="${existing_port}"
-      FIRECRAWL_POSTGRES_EXTERNAL=1
-      export FIRECRAWL_POSTGRES_PORT FIRECRAWL_POSTGRES_EXTERNAL
-      firecrawl_log "Existing PostgreSQL 17 detected on 127.0.0.1:${existing_port}; reusing it."
-      [[ -n "${existing_pg_config}" ]] && firecrawl_log "Existing PostgreSQL config: ${existing_pg_config}"
-
-  # pg_cron must be installed in the server we actually use. If this
-      # is the Homebrew PostgreSQL 17 server, the extension installed above
-      # belongs to this installation.
-      local ext_ok
-      ext_ok="$("${psql}" -h 127.0.0.1 -p "${existing_port}" -d postgres -Atqc \
-        "SELECT EXISTS (SELECT 1 FROM pg_available_extensions WHERE name='pg_cron');" 2>/dev/null || true)"
-      if [[ "${ext_ok}" != "t" ]]; then
-        firecrawl_error "PostgreSQL 17 is running, but pg_cron is not available in that server."
-        firecrawl_error "The bootstrap will not modify or stop your existing PostgreSQL."
-        firecrawl_error "Use FIRECRAWL_EXISTING_POSTGRES_PORT with a PostgreSQL 17 instance that has pg_cron, or disable reuse."
-        return 1
-      fi
-
-      firecrawl_configure_pg_cron
-      return 0
-    fi
-
-    firecrawl_log "PostgreSQL is already running on 127.0.0.1:${existing_port} (${existing_version:-unknown}). It will not be touched."
+  # Existing PostgreSQL on 5432 (or any other port) is never modified unless
+  # it is explicitly the project's own data directory. This keeps an
+  # administrator's PostgreSQL installation completely isolated from Firecrawl.
+  local existing_port="${FIRECRAWL_EXISTING_POSTGRES_PORT:-5432}"
+  if "$pg_isready" -h "${FIRECRAWL_HOST}" -p "${existing_port}" >/dev/null 2>&1; then
+    firecrawl_log "PostgreSQL is already running on 127.0.0.1:${existing_port}. It will not be touched."
   fi
 
-  # Project-local PostgreSQL uses a separate port so it can coexist with a
-  # Homebrew PostgreSQL service already listening on 5432.
-  if "${pg_isready}" -h 127.0.0.1 -p "${project_port}" >/dev/null 2>&1; then
-    # It may be our own previously-started project PostgreSQL.
-    local local_version
-    local_version="$("${psql}" -h 127.0.0.1 -p "${project_port}" -d postgres -Atqc 'SHOW server_version;' 2>/dev/null || true)"
-    if [[ "${local_version}" == 17.* ]]; then
-      FIRECRAWL_POSTGRES_PORT="${project_port}"
-      FIRECRAWL_POSTGRES_EXTERNAL=0
-      export FIRECRAWL_POSTGRES_PORT FIRECRAWL_POSTGRES_EXTERNAL
-      firecrawl_log "Project-local PostgreSQL 17 is already running on port ${project_port}; reusing it."
-      firecrawl_configure_pg_cron
-      return 0
-    fi
+  firecrawl_select_project_pg_port || return 1
 
-    firecrawl_error "Port ${project_port} is already occupied by another service."
-    firecrawl_error "Set FIRECRAWL_POSTGRES_PORT to a free local port."
-    return 1
+  # firecrawl_select_project_pg_port deliberately reuses the project cluster
+  # when the requested port already belongs to FIRECRAWL_POSTGRES_DATA. In
+  # that case the server is already running and MUST NOT be started again.
+  # Re-check here so this invariant cannot be broken by later initialization
+  # logic.
+  if "${pg_isready}" -h "${FIRECRAWL_HOST}" -p "${FIRECRAWL_POSTGRES_PORT}" >/dev/null 2>&1 \
+      && firecrawl_same_pg_data_dir "${FIRECRAWL_POSTGRES_PORT}"; then
+    firecrawl_log "Project-local PostgreSQL is already running on 127.0.0.1:${FIRECRAWL_POSTGRES_PORT}; skipping pg_ctl start."
+    firecrawl_configure_pg_cron || return 1
+    return 0
   fi
 
-  FIRECRAWL_POSTGRES_PORT="${project_port}"
-  FIRECRAWL_POSTGRES_EXTERNAL=0
-  export FIRECRAWL_POSTGRES_PORT FIRECRAWL_POSTGRES_EXTERNAL
-
-  firecrawl_log "Initializing project-local PostgreSQL 17 on 127.0.0.1:${FIRECRAWL_POSTGRES_PORT}..."
+  local pg_locale="${FIRECRAWL_PG_LOCALE:-C}"
+  export LC_ALL="${pg_locale}"
+  export LANG="${pg_locale}"
 
   # Never try to start a data directory created by a different PostgreSQL
-  # major version. This can happen when the runtime is reused after changing
-  # the Homebrew PostgreSQL package/version.
+  # major version. Preserve it rather than deleting user data.
   if [[ -f "${FIRECRAWL_POSTGRES_DATA}/PG_VERSION" ]]; then
     local data_major
     data_major="$(cat "${FIRECRAWL_POSTGRES_DATA}/PG_VERSION" 2>/dev/null || true)"
@@ -641,24 +734,23 @@ firecrawl_pg_init() {
       firecrawl_log "Moving stale data directory to ${stale_dir}"
       rm -rf "${stale_dir}"
       mv "${FIRECRAWL_POSTGRES_DATA}" "${stale_dir}"
+      mkdir -p "${FIRECRAWL_POSTGRES_DATA}"
+      if [[ "$(id -u)" -eq 0 && "$(uname -s)" == "Linux" ]]; then
+        chown -R "${FIRECRAWL_PG_RUN_USER}:$(id -gn "${FIRECRAWL_PG_RUN_USER}")" "${FIRECRAWL_POSTGRES_DATA}"
+      fi
     fi
   fi
-
-  # On macOS, PostgreSQL can become multithreaded during startup when
-  # libintl/setlocale resolves the process locale from an unset/invalid
-  # environment. This is especially relevant here because pg_cron is linked
-  # with Homebrew gettext. Force a known valid locale for the entire
-  # project-local PostgreSQL lifecycle.
-  local pg_locale="${FIRECRAWL_PG_LOCALE:-C}"
-  export LC_ALL="${pg_locale}"
-  export LANG="${pg_locale}"
 
   if [[ ! -f "${FIRECRAWL_POSTGRES_DATA}/PG_VERSION" ]]; then
     rm -rf "${FIRECRAWL_POSTGRES_DATA}"
     mkdir -p "${FIRECRAWL_POSTGRES_DATA}"
+    if [[ "$(id -u)" -eq 0 && "$(uname -s)" == "Linux" ]]; then
+      chown -R "${FIRECRAWL_PG_RUN_USER}:$(id -gn "${FIRECRAWL_PG_RUN_USER}")" "${FIRECRAWL_POSTGRES_DATA}"
+    fi
 
-    LC_ALL="${pg_locale}" LANG="${pg_locale}" "${initdb}" \
+    firecrawl_pg_exec "${initdb}" \
       -D "${FIRECRAWL_POSTGRES_DATA}" \
+      -U "${FIRECRAWL_PG_RUN_USER}" \
       --encoding=UTF8 \
       --locale="${pg_locale}" \
       --auth-local=trust \
@@ -669,31 +761,26 @@ firecrawl_pg_init() {
 
   local pg_log="${FIRECRAWL_LOG_DIR}/postgres.log"
   mkdir -p "${FIRECRAWL_LOG_DIR}"
+  if [[ "$(id -u)" -eq 0 && "$(uname -s)" == "Linux" ]]; then
+    chown -R "${FIRECRAWL_PG_RUN_USER}:$(id -gn "${FIRECRAWL_PG_RUN_USER}")" "${FIRECRAWL_LOG_DIR}"
+  fi
   rm -f "${pg_log}"
 
   firecrawl_log "Starting project-local PostgreSQL on 127.0.0.1:${FIRECRAWL_POSTGRES_PORT}..."
-
-  # -w makes pg_ctl wait for startup and return the real startup status.
-  # Capture the result so a PostgreSQL configuration/library failure is shown
-  # immediately instead of producing only the generic 'stopped waiting'.
-  if ! LC_ALL="${pg_locale}" LANG="${pg_locale}" "${pg_ctl}" \
+  if ! firecrawl_pg_exec "${pg_ctl}" \
     -D "${FIRECRAWL_POSTGRES_DATA}" \
     -l "${pg_log}" \
     -o "-p ${FIRECRAWL_POSTGRES_PORT} -h 127.0.0.1" \
     -w start; then
     firecrawl_error "PostgreSQL failed to start on 127.0.0.1:${FIRECRAWL_POSTGRES_PORT}."
     firecrawl_error "PostgreSQL startup log: ${pg_log}"
-    if [[ -f "${pg_log}" ]]; then
-      echo "---------------- PostgreSQL startup log ----------------" >&2
-      tail -100 "${pg_log}" >&2 || true
-      echo "--------------------------------------------------------" >&2
-    fi
+    tail -100 "${pg_log}" >&2 2>/dev/null || true
     return 1
   fi
 
   local ready=0
   for _ in {1..30}; do
-    if "${pg_isready}" -h 127.0.0.1 -p "${FIRECRAWL_POSTGRES_PORT}" >/dev/null 2>&1; then
+    if "$pg_isready" -h "${FIRECRAWL_HOST}" -p "${FIRECRAWL_POSTGRES_PORT}" >/dev/null 2>&1; then
       ready=1
       break
     fi
@@ -702,8 +789,7 @@ firecrawl_pg_init() {
 
   if [[ "${ready}" != "1" ]]; then
     firecrawl_error "Project-local PostgreSQL did not start."
-    firecrawl_error "PostgreSQL log: ${FIRECRAWL_LOG_DIR}/postgres.log"
-    tail -50 "${FIRECRAWL_LOG_DIR}/postgres.log" 2>/dev/null || true
+    tail -50 "${pg_log}" >&2 2>/dev/null || true
     return 1
   fi
 
@@ -711,28 +797,20 @@ firecrawl_pg_init() {
 }
 
 firecrawl_configure_pg_cron() {
-  local psql
-  psql="$(dirname "${PG_CONFIG}")/psql"
+  local psql="${PG_BINDIR}/psql"
+  local admin_user="${FIRECRAWL_PG_ADMIN_USER:-${FIRECRAWL_PG_RUN_USER:-postgres}}"
 
-  # Firecrawl's NuQ PostgreSQL setup uses the default `postgres` database.
-  # pg_cron is allowed in exactly one database per PostgreSQL cluster, and
-  # its cron.database_name is configured as `postgres`. Do not create a
-  # second database and do not attempt to install pg_cron into it.
   firecrawl_log "Configuring pg_cron on PostgreSQL port ${FIRECRAWL_POSTGRES_PORT}..."
 
-  # The native bootstrap uses trust authentication locally, but Firecrawl
-  # itself connects using POSTGRES_USER/POSTGRES_PASSWORD. Create that role
-  # explicitly before starting the application. Keep it a superuser because
-  # Firecrawl/NuQ performs database-level setup and the official local
-  # PostgreSQL container likewise uses its configured POSTGRES_USER as the
-  # database administrator.
-  # Create/update the Firecrawl login role using shell-expanded SQL values.
-  # The values are escaped before being inserted into the SQL string, so no
-  # psql :variable substitution is involved at all.
   local role_sql password_sql
   role_sql="$(printf '%s' "${FIRECRAWL_POSTGRES_USER}" | sed "s/'/''/g")"
   password_sql="$(printf '%s' "${FIRECRAWL_POSTGRES_PASSWORD}" | sed "s/'/''/g")"
-  "${psql}" -h 127.0.0.1 -p "${FIRECRAWL_POSTGRES_PORT}" -d postgres \
+
+  firecrawl_pg_exec "${psql}" \
+    -h "${FIRECRAWL_HOST}" \
+    -p "${FIRECRAWL_POSTGRES_PORT}" \
+    -U "${admin_user}" \
+    -d postgres \
     -v ON_ERROR_STOP=1 \
     -c "DO \$do\$ BEGIN
       IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '${role_sql}') THEN
@@ -742,15 +820,15 @@ firecrawl_configure_pg_cron() {
       END IF;
     END \$do\$;" >/dev/null
 
-  # pg_cron must be installed in the database named by cron.database_name.
-  "${psql}" -h 127.0.0.1 -p "${FIRECRAWL_POSTGRES_PORT}" -d postgres \
+  firecrawl_pg_exec "${psql}" \
+    -h "${FIRECRAWL_HOST}" \
+    -p "${FIRECRAWL_POSTGRES_PORT}" \
+    -U "${admin_user}" \
+    -d postgres \
     -v ON_ERROR_STOP=1 \
     -c "CREATE EXTENSION IF NOT EXISTS pg_cron;" >/dev/null
 
-  # Keep Firecrawl/NuQ pointed at the same database as the official
-  # self-hosted configuration: POSTGRES_DB=postgres.
   export FIRECRAWL_POSTGRES_DB="postgres"
-
   firecrawl_log "PostgreSQL 17 + pg_cron ready on 127.0.0.1:${FIRECRAWL_POSTGRES_PORT} (database: postgres, user: ${FIRECRAWL_POSTGRES_USER})"
 }
 
@@ -894,16 +972,228 @@ EOF
   return 1
 }
 
-firecrawl_rabbitmq_start() {
-  command -v rabbitmq-server >/dev/null 2>&1 || {
-    firecrawl_error "rabbitmq-server not found"
-    return 1
-  }
+firecrawl_rabbitmq_cli() {
+  local home="${FIRECRAWL_RABBITMQ_DATA}/home"
+  local cookie="${FIRECRAWL_RABBITMQ_COOKIE:-}"
+  mkdir -p "$home"
 
-  if command -v rabbitmq-diagnostics >/dev/null 2>&1 \
-      && rabbitmq-diagnostics -q -n "firecrawl@localhost" check_running >/dev/null 2>&1; then
+  if [[ -z "$cookie" ]]; then
+    firecrawl_error "RabbitMQ Erlang cookie is not initialized."
+    return 1
+  fi
+
+  # rabbitmqctl/rabbitmq-diagnostics only parse global options (-n, -q,
+  # --erlang-cookie, ...) BEFORE the subcommand; anything after the
+  # subcommand (e.g. after "check_running") is treated as that
+  # subcommand's own arguments and is silently ignored if it doesn't
+  # recognize it. --erlang-cookie must therefore come right after the
+  # binary name, not appended at the end of "$@".
+  local bin="$1"; shift
+
+  # Force the CLI VM to use exactly the same cookie as the project broker.
+  # RABBITMQ_CTL_ERL_ARGS is important when the packaged CLI otherwise reads
+  # the effective user's system cookie (for example /var/lib/rabbitmq).
+  local cli_env=(
+    "HOME=${home}"
+    "RABBITMQ_ERLANG_COOKIE=${cookie}"
+    "RABBITMQ_CTL_ERL_ARGS=-setcookie ${cookie}"
+  )
+
+  if [[ "$(uname -s)" == "Linux" && "$(id -u)" -eq 0 && "${FIRECRAWL_RABBITMQ_RUN_USER:-}" != "root" ]]; then
+    # Use `su -s /bin/sh -c` instead of `runuser` so the env assignments are
+    # set literally inside the target user's own shell invocation. This is
+    # immune to whatever the Debian rabbitmq-script-wrapper does internally
+    # (it re-execs itself via su when it thinks the caller isn't already the
+    # rabbitmq user; that inner su can reset $HOME, but the RABBITMQ_* vars
+    # below are passed as part of the executed command line, not inherited
+    # process environment, so they cannot be dropped by that hop).
+    su -s /bin/sh "${FIRECRAWL_RABBITMQ_RUN_USER}" -c \
+      "HOME=$(printf '%q' "$home") RABBITMQ_ERLANG_COOKIE=$(printf '%q' "$cookie") RABBITMQ_CTL_ERL_ARGS=$(printf '%q' "-setcookie ${cookie}") exec $(printf '%q' "$bin") --erlang-cookie $(printf '%q' "$cookie") $(printf '%q ' "$@")"
+  else
+    env "${cli_env[@]}" "$bin" --erlang-cookie "$cookie" "$@"
+  fi
+}
+
+firecrawl_rabbitmq_prepare_cookie() {
+  local home="${FIRECRAWL_RABBITMQ_DATA}/home"
+  local cookie_file="${FIRECRAWL_CONFIG_DIR}/rabbitmq.erlang.cookie"
+  local home_cookie="${home}/.erlang.cookie"
+
+  mkdir -p "$home"
+
+  if [[ -z "${FIRECRAWL_RABBITMQ_COOKIE:-}" ]]; then
+    if [[ -s "$cookie_file" ]]; then
+      FIRECRAWL_RABBITMQ_COOKIE="$(tr -d '\r\n' < "$cookie_file")"
+    elif command -v openssl >/dev/null 2>&1; then
+      FIRECRAWL_RABBITMQ_COOKIE="$(openssl rand -hex 32)"
+    elif command -v sha256sum >/dev/null 2>&1; then
+      FIRECRAWL_RABBITMQ_COOKIE="$(printf '%s|%s|%s|%s' "${PROJECT_ROOT}" "${FIRECRAWL_DIR}" "$(date +%s%N 2>/dev/null || date +%s)" "$$" | sha256sum | awk '{print $1}')"
+    else
+      FIRECRAWL_RABBITMQ_COOKIE="firecrawl${RANDOM}${RANDOM}${RANDOM}"
+    fi
+    export FIRECRAWL_RABBITMQ_COOKIE
+  fi
+
+  # Keep both the project configuration copy and the actual Erlang home
+  # cookie synchronized. The latter is what a native RabbitMQ server uses.
+  printf '%s\n' "$FIRECRAWL_RABBITMQ_COOKIE" > "$cookie_file"
+  printf '%s\n' "$FIRECRAWL_RABBITMQ_COOKIE" > "$home_cookie"
+  chmod 600 "$cookie_file" "$home_cookie"
+
+  if [[ "$(uname -s)" == "Linux" && "$(id -u)" -eq 0 ]]; then
+    local group
+    group="$(id -gn "${FIRECRAWL_RABBITMQ_RUN_USER}")"
+    chown "${FIRECRAWL_RABBITMQ_RUN_USER}:${group}" "$cookie_file" "$home_cookie"
+
+    # On Debian/Ubuntu, /usr/sbin/rabbitmq-server, rabbitmqctl and
+    # rabbitmq-diagnostics are NOT the real binaries: they are
+    # rabbitmq-script-wrapper, which re-execs itself through
+    # `su "$FIRECRAWL_RABBITMQ_RUN_USER" -c "..."` whenever the caller is
+    # not already that exact uid. That extra su hop resets $HOME to the
+    # system account's real home directory (getent passwd), independent of
+    # any HOME=... we pass via `env`. If that happens inconsistently
+    # between starting the server and running the CLI health check, the
+    # two processes can end up reading .erlang.cookie from different
+    # places even though we also pass -setcookie/--erlang-cookie
+    # explicitly, producing "Invalid challenge reply". Homebrew's plain
+    # binary has no such wrapper, which is why this only shows up on Linux.
+    #
+    # Belt-and-suspenders fix: also drop the same cookie into that
+    # account's real $HOME, so the file-based fallback always agrees with
+    # our explicit cookie regardless of which su/runuser hop wins.
+    local real_home
+    real_home="$(getent passwd "${FIRECRAWL_RABBITMQ_RUN_USER}" 2>/dev/null | cut -d: -f6)"
+    if [[ -n "${real_home}" && -d "${real_home}" && "${real_home}" != "${home}" ]]; then
+      printf '%s\n' "$FIRECRAWL_RABBITMQ_COOKIE" > "${real_home}/.erlang.cookie"
+      chmod 600 "${real_home}/.erlang.cookie"
+      chown "${FIRECRAWL_RABBITMQ_RUN_USER}:${group}" "${real_home}/.erlang.cookie"
+    fi
+  fi
+}
+
+firecrawl_rabbitmq_project_pid() {
+  local pf="${FIRECRAWL_STATE_DIR}/rabbitmq.pid"
+  [[ -s "$pf" ]] || return 1
+  local pid
+  pid="$(cat "$pf" 2>/dev/null || true)"
+  [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+  kill -0 "$pid" 2>/dev/null || return 1
+
+  local cmd
+  cmd="$(tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
+  [[ "$cmd" == *beam.smp* || "$cmd" == *rabbitmq-server* ]] || return 1
+  printf '%s\n' "$pid"
+}
+
+# Find whatever process is actually listening on the project's RabbitMQ
+# port. This is the ground-truth signal for "is a project-local broker
+# already up", and it does not depend on matching a substring inside a
+# `ps` command-line column, which silently truncates RabbitMQ's very long
+# erl invocation and can hide a real, running process.
+firecrawl_rabbitmq_port_owner_pid() {
+  local port="$1" pid=""
+  if command -v ss >/dev/null 2>&1; then
+    pid="$(ss -ltnp 2>/dev/null | awk -v p=":${port} " 'index($0,p)>0' | grep -oP 'pid=\K[0-9]+' | head -n1)"
+  fi
+  if [[ -z "$pid" ]] && command -v fuser >/dev/null 2>&1; then
+    pid="$(fuser "${port}/tcp" 2>/dev/null | awk '{print $1}' | head -n1)"
+  fi
+  if [[ -z "$pid" ]] && command -v lsof >/dev/null 2>&1; then
+    pid="$(lsof -ti tcp:"${port}" -sTCP:LISTEN 2>/dev/null | head -n1)"
+  fi
+  # ss/fuser/lsof often cannot show process info inside containers (as seen
+  # on vast.ai: the listener shows up but without a pid). Fall back to
+  # resolving the listening socket's inode via /proc/net/tcp{,6} and then
+  # finding which /proc/<pid>/fd points at it.
+  if [[ -z "$pid" ]]; then
+    local hexport inode f fd
+    hexport="$(printf '%04X' "$port")"
+    inode="$(awk -v hp=":${hexport}" '$4=="0A" && index($2,hp)>0 {print $10; exit}' /proc/net/tcp /proc/net/tcp6 2>/dev/null)"
+    if [[ -n "$inode" && "$inode" != "0" ]]; then
+      for fd in /proc/[0-9]*/fd/*; do
+        if [[ "$(readlink "$fd" 2>/dev/null)" == "socket:[${inode}]" ]]; then
+          f="${fd#/proc/}"; pid="${f%%/*}"; break
+        fi
+      done
+    fi
+  fi
+  # Last resort: an Erlang VM whose command line names our node.
+  if [[ -z "$pid" ]]; then
+    local d c
+    for d in /proc/[0-9]*; do
+      c="$(tr '\0' ' ' < "${d}/cmdline" 2>/dev/null || true)"
+      if [[ "$c" == *beam.smp* && "$c" == *"${RABBITMQ_NODENAME:-firecrawl@localhost}"* ]]; then
+        pid="${d#/proc/}"; break
+      fi
+    done
+  fi
+  [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+  printf '%s\n' "$pid"
+}
+
+firecrawl_rabbitmq_force_stop_project_node() {
+  local pids=() pid cmd
+
+  # First use our PID file when it is valid.
+  pid="$(firecrawl_rabbitmq_project_pid 2>/dev/null || true)"
+  [[ -n "$pid" ]] && pids+=("$pid")
+
+  # Ground truth: whatever is actually listening on our project's RabbitMQ
+  # port. This project owns that port exclusively, so anything bound to it
+  # is either our current broker or a stale one from an earlier run.
+  pid="$(firecrawl_rabbitmq_port_owner_pid "${FIRECRAWL_RABBITMQ_PORT}" 2>/dev/null || true)"
+  if [[ -n "$pid" ]]; then
+    cmd="$(tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
+    if [[ "$cmd" == *beam.smp* || "$cmd" == *rabbitmq-server* ]]; then
+      [[ " ${pids[*]} " == *" ${pid} "* ]] || pids+=("$pid")
+    fi
+  fi
+
+  # A RabbitMQ wrapper can ignore our PID-file override or leave a stale PID
+  # after an interrupted bootstrap. Find only Erlang/RabbitMQ processes whose
+  # command line contains this project's Mnesia directory. This cannot match
+  # the user's unrelated RabbitMQ instance because its data path is different.
+  # Read /proc/<pid>/cmdline directly rather than `ps args=`, which silently
+  # truncates long command lines and can hide a genuinely matching process.
+  for pid in /proc/[0-9]*; do
+    pid="${pid#/proc/}"
+    [[ -r "/proc/${pid}/cmdline" ]] || continue
+    cmd="$(tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
+    [[ "$cmd" == *beam.smp* ]] || continue
+    [[ "$cmd" == *"${RABBITMQ_MNESIA_BASE}"* ]] || continue
+    [[ " ${pids[*]} " == *" ${pid} "* ]] || pids+=("$pid")
+  done
+
+  if ((${#pids[@]} == 0)); then
+    rm -f "${FIRECRAWL_STATE_DIR}/rabbitmq.pid"
     return 0
   fi
+
+  for pid in "${pids[@]}"; do
+    cmd="$(ps -p "$pid" -o command= 2>/dev/null || true)"
+    firecrawl_log "Stopping project-local RabbitMQ process PID ${pid}: ${cmd}"
+    kill "$pid" 2>/dev/null || true
+  done
+
+  for _ in $(seq 1 20); do
+    local alive=0
+    for pid in "${pids[@]}"; do
+      if kill -0 "$pid" 2>/dev/null; then alive=1; break; fi
+    done
+    ((alive == 0)) && break
+    sleep 1
+  done
+
+  for pid in "${pids[@]}"; do
+    kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
+  done
+  rm -f "${FIRECRAWL_STATE_DIR}/rabbitmq.pid"
+  sleep 2
+  return 0
+}
+
+firecrawl_rabbitmq_start() {
+  command -v rabbitmq-server >/dev/null 2>&1 || { firecrawl_error "rabbitmq-server not found"; return 1; }
 
   export RABBITMQ_NODENAME="firecrawl@localhost"
   export RABBITMQ_NODE_PORT="${FIRECRAWL_RABBITMQ_PORT}"
@@ -911,26 +1201,117 @@ firecrawl_rabbitmq_start() {
   export RABBITMQ_LOG_BASE="${FIRECRAWL_LOG_DIR}/rabbitmq"
   export RABBITMQ_PID_FILE="${FIRECRAWL_STATE_DIR}/rabbitmq.pid"
   export RABBITMQ_ENABLED_PLUGINS_FILE="${FIRECRAWL_CONFIG_DIR}/rabbitmq-enabled-plugins"
+  export FIRECRAWL_RABBITMQ_RUN_USER="${FIRECRAWL_RABBITMQ_RUN_USER:-${USER:-$(id -un)}}"
 
-  mkdir -p "${RABBITMQ_MNESIA_BASE}" "${RABBITMQ_LOG_BASE}"
+  if [[ "$(uname -s)" == "Linux" && "$(id -u)" -eq 0 ]]; then
+    if id rabbitmq >/dev/null 2>&1; then FIRECRAWL_RABBITMQ_RUN_USER=rabbitmq; else FIRECRAWL_RABBITMQ_RUN_USER=firecrawl; fi
+    export FIRECRAWL_RABBITMQ_RUN_USER
+    if [[ "$FIRECRAWL_RABBITMQ_RUN_USER" == firecrawl ]] && ! id firecrawl >/dev/null 2>&1; then
+      useradd --system --home-dir "${FIRECRAWL_RABBITMQ_DATA}/home" --no-create-home --shell /usr/sbin/nologin firecrawl
+    fi
+  fi
 
-  rabbitmq-server -detached
+  mkdir -p "${RABBITMQ_MNESIA_BASE}" "${RABBITMQ_LOG_BASE}" "${FIRECRAWL_RABBITMQ_DATA}/home"
+
+  if [[ "$(uname -s)" == "Linux" && "$(id -u)" -eq 0 ]]; then
+    local group
+    group="$(id -gn "${FIRECRAWL_RABBITMQ_RUN_USER}")"
+    chown -R "${FIRECRAWL_RABBITMQ_RUN_USER}:${group}" "${FIRECRAWL_RABBITMQ_DATA}" "${FIRECRAWL_LOG_DIR}" "${FIRECRAWL_STATE_DIR}" "${FIRECRAWL_CONFIG_DIR}"
+  fi
+
+  firecrawl_rabbitmq_prepare_cookie || return 1
+
+  # If a project-local broker is already running, first authenticate with the
+  # project cookie. If authentication fails, the running node was started with
+  # a different cookie; restart ONLY that project-local node. Never touch a
+  # broker on the user's other RabbitMQ port/node.
+  if firecrawl_rabbitmq_cli rabbitmq-diagnostics -q -n "$RABBITMQ_NODENAME" check_running >/dev/null 2>&1; then
+    firecrawl_log "RabbitMQ firecrawl@localhost is already running on 127.0.0.1:${FIRECRAWL_RABBITMQ_PORT}; reusing it."
+  else
+    # Authentication failure means the node may still be alive with an old
+    # cookie. Check the project's own port directly (ground truth) rather
+    # than trusting a `ps` command-line substring match, which silently
+    # truncates RabbitMQ's very long erl invocation and can miss a real,
+    # running stale process from an earlier attempt.
+    if firecrawl_rabbitmq_project_pid >/dev/null 2>&1 || firecrawl_rabbitmq_port_owner_pid "${FIRECRAWL_RABBITMQ_PORT}" >/dev/null 2>&1; then
+      firecrawl_log "RabbitMQ is running but project-cookie authentication failed; repairing the project-local node."
+      firecrawl_rabbitmq_force_stop_project_node || {
+        firecrawl_error "Could not safely stop the stale project-local RabbitMQ process."
+        return 1
+      }
+    fi
+
+    local rabbit_env=(
+      "HOME=${FIRECRAWL_RABBITMQ_DATA}/home"
+      "RABBITMQ_NODENAME=${RABBITMQ_NODENAME}"
+      "RABBITMQ_NODE_PORT=${RABBITMQ_NODE_PORT}"
+      "RABBITMQ_MNESIA_BASE=${RABBITMQ_MNESIA_BASE}"
+      "RABBITMQ_LOG_BASE=${RABBITMQ_LOG_BASE}"
+      "RABBITMQ_PID_FILE=${RABBITMQ_PID_FILE}"
+      "RABBITMQ_ENABLED_PLUGINS_FILE=${RABBITMQ_ENABLED_PLUGINS_FILE}"
+      "RABBITMQ_ERLANG_COOKIE=${FIRECRAWL_RABBITMQ_COOKIE}"
+      "RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-setcookie ${FIRECRAWL_RABBITMQ_COOKIE}"
+    )
+
+    firecrawl_log "Starting project-local RabbitMQ firecrawl@localhost on 127.0.0.1:${FIRECRAWL_RABBITMQ_PORT}..."
+    if [[ "$(uname -s)" == "Linux" && "$(id -u)" -eq 0 ]]; then
+      # `su -c` with the env assignments baked into the command string itself
+      # (rather than relying on `env`+`runuser` process-environment
+      # inheritance) so they cannot be lost if the Debian
+      # rabbitmq-script-wrapper internally re-execs via its own su hop.
+      local env_prefix=""
+      local kv
+      for kv in "${rabbit_env[@]}"; do
+        env_prefix+="$(printf '%q=%q ' "${kv%%=*}" "${kv#*=}")"
+      done
+      su -s /bin/sh "$FIRECRAWL_RABBITMQ_RUN_USER" -c "${env_prefix}exec rabbitmq-server -detached"
+    else
+      env "${rabbit_env[@]}" rabbitmq-server -detached
+    fi
+  fi
 
   for _ in $(seq 1 60); do
-    if rabbitmq-diagnostics -q -n "${RABBITMQ_NODENAME}" check_running >/dev/null 2>&1; then
-      break
-    fi
+    if firecrawl_rabbitmq_cli rabbitmq-diagnostics -q -n "$RABBITMQ_NODENAME" check_running >/dev/null 2>&1; then break; fi
     sleep 1
   done
 
-  rabbitmq-diagnostics -q -n "${RABBITMQ_NODENAME}" check_running >/dev/null 2>&1 || {
-    firecrawl_error "RabbitMQ did not become ready."
+  firecrawl_rabbitmq_cli rabbitmq-diagnostics -q -n "$RABBITMQ_NODENAME" check_running >/dev/null 2>&1 || {
+    firecrawl_error "RabbitMQ did not become ready/authenticate with the project Erlang cookie."
+    local real_home
+    real_home="$(getent passwd "${FIRECRAWL_RABBITMQ_RUN_USER}" 2>/dev/null | cut -d: -f6)"
+    firecrawl_error "Diagnostics: run_user=${FIRECRAWL_RABBITMQ_RUN_USER} caller_uid=$(id -u) caller_home=${HOME:-unset}"
+    firecrawl_error "Diagnostics: project_home_cookie=$(tr -d '\r\n' < "${FIRECRAWL_RABBITMQ_DATA}/home/.erlang.cookie" 2>/dev/null || echo MISSING)"
+    firecrawl_error "Diagnostics: real_home=${real_home:-unknown} real_home_cookie=$(tr -d '\r\n' < "${real_home}/.erlang.cookie" 2>/dev/null || echo MISSING)"
+    firecrawl_error "Diagnostics: expected_cookie=${FIRECRAWL_RABBITMQ_COOKIE:-unset}"
+
+    # Ground truth: read the actual environment of the beam.smp process that
+    # owns our Mnesia directory, straight from /proc, rather than trusting
+    # anything we think we passed to it. If this doesn't match
+    # expected_cookie above, the broker itself never got our cookie and the
+    # bug is upstream of the CLI (server launch / su hop / stale process).
+    local live_pid
+    live_pid="$(firecrawl_rabbitmq_port_owner_pid "${FIRECRAWL_RABBITMQ_PORT}" 2>/dev/null || true)"
+    if [[ -n "$live_pid" && -r "/proc/${live_pid}/environ" ]]; then
+      firecrawl_error "Diagnostics: live pid=${live_pid} on port ${FIRECRAWL_RABBITMQ_PORT}, cmdline=$(tr '\0' ' ' < "/proc/${live_pid}/cmdline" 2>/dev/null | cut -c1-200)"
+      firecrawl_error "Diagnostics: live pid started_at=$(ps -o lstart= -p "$live_pid" 2>/dev/null)"
+      firecrawl_error "Diagnostics: live process RABBITMQ_ERLANG_COOKIE=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^RABBITMQ_ERLANG_COOKIE=' || echo NOT_SET)"
+      firecrawl_error "Diagnostics: live process RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=' || echo NOT_SET)"
+      firecrawl_error "Diagnostics: live process HOME=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^HOME=' || echo NOT_SET)"
+      if [[ -n "$live_pid" ]]; then
+        firecrawl_error "Diagnostics: this looks like a STALE process from an earlier run. Force-stopping it now and it will be replaced on the next retry."
+        firecrawl_rabbitmq_force_stop_project_node || true
+      fi
+    else
+      firecrawl_error "Diagnostics: no process found owning port ${FIRECRAWL_RABBITMQ_PORT} (or /proc/<pid>/environ unreadable)."
+    fi
+    firecrawl_error "Diagnostics: listeners on port ${FIRECRAWL_RABBITMQ_PORT}: $(ss -ltnp 2>/dev/null | grep ":${FIRECRAWL_RABBITMQ_PORT} " || echo none)"
+
+    tail -100 "${FIRECRAWL_LOG_DIR}/rabbitmq"/* 2>/dev/null || true
     return 1
   }
 
-  # Local-only broker credentials.
-  rabbitmqctl -n "${RABBITMQ_NODENAME}" add_user "${FIRECRAWL_POSTGRES_USER}" "${FIRECRAWL_POSTGRES_PASSWORD}" >/dev/null 2>&1 || true
-  rabbitmqctl -n "${RABBITMQ_NODENAME}" set_permissions -p / "${FIRECRAWL_POSTGRES_USER}" ".*" ".*" ".*" >/dev/null 2>&1 || true
+  firecrawl_rabbitmq_cli rabbitmqctl -n "$RABBITMQ_NODENAME" add_user "${FIRECRAWL_POSTGRES_USER}" "${FIRECRAWL_POSTGRES_PASSWORD}" >/dev/null 2>&1 || true
+  firecrawl_rabbitmq_cli rabbitmqctl -n "$RABBITMQ_NODENAME" set_permissions -p / "${FIRECRAWL_POSTGRES_USER}" ".*" ".*" ".*" >/dev/null 2>&1 || true
 }
 
 firecrawl_write_env() {
@@ -956,10 +1337,6 @@ NUQ_DATABASE_URL=postgresql://${FIRECRAWL_POSTGRES_USER}:${FIRECRAWL_POSTGRES_PA
 NUQ_RABBITMQ_URL=amqp://${FIRECRAWL_POSTGRES_USER}:${FIRECRAWL_POSTGRES_PASSWORD}@${FIRECRAWL_HOST}:${FIRECRAWL_RABBITMQ_PORT}
 NUQ_BACKEND=pg
 PLAYWRIGHT_BROWSERS_PATH=${FIRECRAWL_PLAYWRIGHT_CACHE}
-# Firecrawl v2.11.0 uses DuckDuckGo when SearXNG is not configured.
-# Route self-hosted search through the project's SearXNG instance instead.
-SEARXNG_ENDPOINT=http://${FIRECRAWL_HOST}:8888
-SEARXNG_CATEGORIES=general
 LOGGING_LEVEL=info
 EOF
 }
@@ -987,18 +1364,34 @@ firecrawl_build_native() {
   )
 
   # napi-rs generates the platform .node addon alongside the JS wrapper.
-  if [[ "$(uname -s)" == "Darwin" ]]; then
-    if [[ "$(uname -m)" == "arm64" ]]; then
-      find "${native_dir}" -maxdepth 1 -name 'firecrawl-rs.darwin-arm64.node' -print -quit | grep -q . || {
-        firecrawl_error "Rust native build completed without the macOS arm64 firecrawl-rs addon."
-        return 1
-      }
-    else
-      find "${native_dir}" -maxdepth 1 -name 'firecrawl-rs.darwin-x64.node' -print -quit | grep -q . || {
-        firecrawl_error "Rust native build completed without the macOS x64 firecrawl-rs addon."
-        return 1
-      }
-    fi
+  # Validate the native N-API addon for the actual host architecture.
+  # Apple Silicon must use darwin-arm64; Intel macOS uses darwin-x64.
+  # Do not assume x64 on Darwin.
+  local native_target=""
+  case "$(uname -s):$(uname -m)" in
+    Darwin:arm64)
+      native_target="darwin-arm64"
+      ;;
+    Darwin:x86_64)
+      native_target="darwin-x64"
+      ;;
+    Linux:x86_64|Linux:amd64)
+      native_target="linux-x64-gnu"
+      ;;
+    Linux:aarch64|Linux:arm64)
+      native_target="linux-arm64-gnu"
+      ;;
+    *)
+      firecrawl_error "Unsupported native addon platform: $(uname -s) $(uname -m)"
+      return 1
+      ;;
+  esac
+
+  local expected_native_addon="${native_dir}/firecrawl-rs.${native_target}.node"
+  if [[ ! -f "${expected_native_addon}" ]]; then
+    firecrawl_error "Rust native build completed without the ${native_target} firecrawl-rs addon."
+    firecrawl_error "Expected: ${expected_native_addon}"
+    return 1
   fi
 
   [[ -f "${native_module}" ]] || {
@@ -1059,46 +1452,6 @@ firecrawl_start_playwright() {
   done
 
   firecrawl_error "Playwright service did not start listening on port ${FIRECRAWL_PLAYWRIGHT_PORT}."
-  return 1
-}
-
-firecrawl_check_searxng() {
-  local response
-  response="$(curl -fsS --max-time 10 -G \
-    "http://${FIRECRAWL_HOST}:8888/search" \
-    --data-urlencode "q=Axis Bank" \
-    --data-urlencode "format=json" 2>/dev/null || true)"
-
-  if printf '%s' "${response}" | grep -Eq '"results"[[:space:]]*:[[:space:]]*\[[^]]*[^]]\]'; then
-    firecrawl_log "SearXNG search is healthy on http://${FIRECRAWL_HOST}:8888."
-    return 0
-  fi
-
-  firecrawl_error "SearXNG search is not returning results on http://${FIRECRAWL_HOST}:8888."
-  return 1
-}
-
-firecrawl_search_smoke_test() {
-  local response count
-  response="$(curl -fsS --max-time 30 -X POST \
-    "http://${FIRECRAWL_HOST}:${FIRECRAWL_PORT}/v1/search" \
-    -H 'Content-Type: application/json' \
-    --data '{"query":"Axis Bank","limit":3}' 2>/dev/null || true)"
-
-  count="$(printf '%s' "${response}" | sed -n 's/.*"data"[[:space:]]*:[[:space:]]*\[\([^]]*\)\].*/\1/p' | tr -cd '{' | wc -c | tr -d ' ')"
-
-  if [[ "${count}" =~ ^[1-9][0-9]*$ ]]; then
-    firecrawl_log "Firecrawl search smoke test passed (${count} result objects)."
-    return 0
-  fi
-
-  firecrawl_error "Firecrawl search smoke test failed: expected at least one result from /v1/search."
-  firecrawl_error "Response: ${response:-<empty>}"
-  if [[ -f "${FIRECRAWL_LOG_DIR}/api.log" ]]; then
-    echo "---------------- Firecrawl search failure log ----------------" >&2
-    grep -Ei 'search|searx|duckduckgo|error|abort' "${FIRECRAWL_LOG_DIR}/api.log" | tail -80 >&2 || true
-    echo "--------------------------------------------------------------" >&2
-  fi
   return 1
 }
 
@@ -1167,9 +1520,7 @@ prepare_firecrawl() {
   firecrawl_build_playwright || return 1
   firecrawl_start_playwright || return 1
   firecrawl_start_api || return 1
-  firecrawl_check_searxng || return 1
-  firecrawl_search_smoke_test || return 1
-  firecrawl_log "Firecrawl native stack is ready and search is verified."
+  firecrawl_log "Firecrawl native stack is ready."
 }
 
 firecrawl_stop() {
@@ -1208,7 +1559,8 @@ firecrawl_stop() {
   fi
 
   if command -v rabbitmqctl >/dev/null 2>&1; then
-    rabbitmqctl -n "${RABBITMQ_NODENAME:-firecrawl@localhost}" stop >/dev/null 2>&1 || true
+    firecrawl_rabbitmq_prepare_cookie >/dev/null 2>&1 || true
+    firecrawl_rabbitmq_cli rabbitmqctl -n "${RABBITMQ_NODENAME:-firecrawl@localhost}" stop >/dev/null 2>&1 || true
   fi
 
   firecrawl_log "Firecrawl services stopped."
