@@ -480,6 +480,30 @@ firecrawl_same_pg_data_dir() {
   [[ -n "$expected_abs" && "$expected_abs" == "$actual_abs" ]]
 }
 
+# PostgreSQL's own postmaster.pid, inside our project's data directory,
+# records the pid and port of whatever process currently owns that
+# directory (line 1 = pid, line 4 = port). Because it lives inside
+# ${FIRECRAWL_POSTGRES_DATA}, which only this project ever writes to, it
+# unambiguously answers "is a live postmaster already using MY data
+# directory" without needing to authenticate into it. This matters because
+# firecrawl_same_pg_data_dir (below) requires a successful psql login, which
+# can fail for reasons unrelated to whether it's actually our own server
+# (password rotated, pg_hba.conf, the server still finishing recovery) -
+# treating an auth failure as "this is some other, unrelated PostgreSQL"
+# then makes the script start a second postmaster against the SAME already
+#-locked data directory, which PostgreSQL correctly refuses to do.
+firecrawl_project_pg_live_port() {
+  local pidfile="${FIRECRAWL_POSTGRES_DATA}/postmaster.pid"
+  [[ -s "$pidfile" ]] || return 1
+  local pid port
+  pid="$(sed -n '1p' "$pidfile" 2>/dev/null)"
+  port="$(sed -n '4p' "$pidfile" 2>/dev/null)"
+  [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+  kill -0 "$pid" 2>/dev/null || return 1
+  [[ "$port" =~ ^[0-9]+$ ]] || return 1
+  printf '%s\n' "$port"
+}
+
 firecrawl_select_project_pg_port() {
   local requested="${FIRECRAWL_POSTGRES_PORT:-5433}"
   local start="${requested}"
@@ -489,6 +513,20 @@ firecrawl_select_project_pg_port() {
     firecrawl_error "Invalid FIRECRAWL_POSTGRES_PORT: ${requested}"
     return 1
   }
+
+  # Ground truth first: is a live postmaster already sitting on our own data
+  # directory (regardless of which port it's actually bound to - a previous
+  # run may have picked a fallback port)? If so, always reuse it; starting a
+  # second instance against the same directory cannot work.
+  local live_port
+  live_port="$(firecrawl_project_pg_live_port 2>/dev/null || true)"
+  if [[ -n "$live_port" ]]; then
+    FIRECRAWL_POSTGRES_PORT="$live_port"
+    FIRECRAWL_POSTGRES_EXTERNAL=0
+    export FIRECRAWL_POSTGRES_PORT FIRECRAWL_POSTGRES_EXTERNAL
+    firecrawl_log "Project-local PostgreSQL is already running (data directory lock held by a live process) on 127.0.0.1:${live_port}; reusing it."
+    return 0
+  fi
 
   # Reuse only the project's own PostgreSQL cluster. Never modify an unrelated
   # PostgreSQL server merely because it happens to be version 17.
@@ -787,9 +825,14 @@ firecrawl_pg_init() {
   # when the requested port already belongs to FIRECRAWL_POSTGRES_DATA. In
   # that case the server is already running and MUST NOT be started again.
   # Re-check here so this invariant cannot be broken by later initialization
-  # logic.
-  if "${pg_isready}" -h "${FIRECRAWL_HOST}" -p "${FIRECRAWL_POSTGRES_PORT}" >/dev/null 2>&1 \
-      && firecrawl_same_pg_data_dir "${FIRECRAWL_POSTGRES_PORT}"; then
+  # logic. Use the same postmaster.pid-based detector as port selection
+  # first: it needs no authentication and cannot disagree with the decision
+  # already made above. The pg_isready+SHOW data_directory check is kept
+  # only as a fallback for the rare case where postmaster.pid was removed
+  # out-of-band while the server is still actually running.
+  if firecrawl_project_pg_live_port >/dev/null 2>&1 \
+      || ( "${pg_isready}" -h "${FIRECRAWL_HOST}" -p "${FIRECRAWL_POSTGRES_PORT}" >/dev/null 2>&1 \
+           && firecrawl_same_pg_data_dir "${FIRECRAWL_POSTGRES_PORT}" ); then
     firecrawl_log "Project-local PostgreSQL is already running on 127.0.0.1:${FIRECRAWL_POSTGRES_PORT}; skipping pg_ctl start."
     firecrawl_configure_pg_cron || return 1
     return 0
@@ -1147,6 +1190,20 @@ firecrawl_rabbitmq_prepare_cookie() {
   fi
 }
 
+firecrawl_pid_cmdline() {
+  # Cross-platform "give me this pid's full command line". Linux reads
+  # /proc/<pid>/cmdline directly (never truncated); everything else (macOS,
+  # or if /proc isn't there) falls back to `ps`. The `-r` test below never
+  # attempts to open a nonexistent /proc, so it can't trigger bash's
+  # redirection-open error message on non-Linux systems.
+  local pid="$1"
+  if [[ "$(uname -s)" == "Linux" && -r "/proc/${pid}/cmdline" ]]; then
+    tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null
+  else
+    ps -ww -p "$pid" -o command= 2>/dev/null
+  fi
+}
+
 firecrawl_rabbitmq_project_pid() {
   local pf="${FIRECRAWL_STATE_DIR}/rabbitmq.pid"
   [[ -s "$pf" ]] || return 1
@@ -1156,7 +1213,7 @@ firecrawl_rabbitmq_project_pid() {
   kill -0 "$pid" 2>/dev/null || return 1
 
   local cmd
-  cmd="$(tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
+  cmd="$(firecrawl_pid_cmdline "$pid")"
   [[ "$cmd" == *beam.smp* || "$cmd" == *rabbitmq-server* ]] || return 1
   printf '%s\n' "$pid"
 }
@@ -1177,32 +1234,42 @@ firecrawl_rabbitmq_port_owner_pid() {
   if [[ -z "$pid" ]] && command -v lsof >/dev/null 2>&1; then
     pid="$(lsof -ti tcp:"${port}" -sTCP:LISTEN 2>/dev/null | head -n1)"
   fi
-  # ss/fuser/lsof often cannot show process info inside containers (as seen
-  # on vast.ai: the listener shows up but without a pid). Fall back to
-  # resolving the listening socket's inode via /proc/net/tcp{,6} and then
-  # finding which /proc/<pid>/fd points at it.
-  if [[ -z "$pid" ]]; then
-    local hexport inode f fd
+
+  if [[ -z "$pid" && "$(uname -s)" == "Linux" ]]; then
+    # ss/fuser/lsof often cannot show process info inside containers (as seen
+    # on vast.ai: the listener shows up but without a pid). Fall back to
+    # resolving the listening socket's inode via /proc/net/tcp{,6} and then
+    # finding which /proc/<pid>/fd points at it. Linux-only: /proc doesn't
+    # exist elsewhere.
+    local hexport inode fd
     hexport="$(printf '%04X' "$port")"
     inode="$(awk -v hp=":${hexport}" '$4=="0A" && index($2,hp)>0 {print $10; exit}' /proc/net/tcp /proc/net/tcp6 2>/dev/null)"
     if [[ -n "$inode" && "$inode" != "0" ]]; then
+      shopt -s nullglob
       for fd in /proc/[0-9]*/fd/*; do
         if [[ "$(readlink "$fd" 2>/dev/null)" == "socket:[${inode}]" ]]; then
-          f="${fd#/proc/}"; pid="${f%%/*}"; break
+          pid="$(basename "$(dirname "$(dirname "$fd")")")"
+          break
+        fi
+      done
+      shopt -u nullglob
+    fi
+  fi
+
+  if [[ -z "$pid" ]]; then
+    # Last resort, works on both Linux and macOS: an Erlang VM whose command
+    # line names our node.
+    local candidate c
+    if command -v pgrep >/dev/null 2>&1; then
+      for candidate in $(pgrep -f beam.smp 2>/dev/null); do
+        c="$(firecrawl_pid_cmdline "$candidate")"
+        if [[ "$c" == *"${RABBITMQ_NODENAME:-firecrawl@localhost}"* ]]; then
+          pid="$candidate"; break
         fi
       done
     fi
   fi
-  # Last resort: an Erlang VM whose command line names our node.
-  if [[ -z "$pid" ]]; then
-    local d c
-    for d in /proc/[0-9]*; do
-      c="$(tr '\0' ' ' < "${d}/cmdline" 2>/dev/null || true)"
-      if [[ "$c" == *beam.smp* && "$c" == *"${RABBITMQ_NODENAME:-firecrawl@localhost}"* ]]; then
-        pid="${d#/proc/}"; break
-      fi
-    done
-  fi
+
   [[ "$pid" =~ ^[0-9]+$ ]] || return 1
   printf '%s\n' "$pid"
 }
@@ -1219,7 +1286,7 @@ firecrawl_rabbitmq_force_stop_project_node() {
   # is either our current broker or a stale one from an earlier run.
   pid="$(firecrawl_rabbitmq_port_owner_pid "${FIRECRAWL_RABBITMQ_PORT}" 2>/dev/null || true)"
   if [[ -n "$pid" ]]; then
-    cmd="$(tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
+    cmd="$(firecrawl_pid_cmdline "$pid")"
     if [[ "$cmd" == *beam.smp* || "$cmd" == *rabbitmq-server* ]]; then
       [[ " ${pids[*]} " == *" ${pid} "* ]] || pids+=("$pid")
     fi
@@ -1229,16 +1296,25 @@ firecrawl_rabbitmq_force_stop_project_node() {
   # after an interrupted bootstrap. Find only Erlang/RabbitMQ processes whose
   # command line contains this project's Mnesia directory. This cannot match
   # the user's unrelated RabbitMQ instance because its data path is different.
-  # Read /proc/<pid>/cmdline directly rather than `ps args=`, which silently
-  # truncates long command lines and can hide a genuinely matching process.
-  for pid in /proc/[0-9]*; do
-    pid="${pid#/proc/}"
-    [[ -r "/proc/${pid}/cmdline" ]] || continue
-    cmd="$(tr '\0' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
-    [[ "$cmd" == *beam.smp* ]] || continue
-    [[ "$cmd" == *"${RABBITMQ_MNESIA_BASE}"* ]] || continue
-    [[ " ${pids[*]} " == *" ${pid} "* ]] || pids+=("$pid")
-  done
+  if [[ "$(uname -s)" == "Linux" ]]; then
+    # Read /proc/<pid>/cmdline directly rather than `ps args=`, which silently
+    # truncates long command lines and can hide a genuinely matching process.
+    shopt -s nullglob
+    for pid in /proc/[0-9]*; do
+      pid="${pid#/proc/}"
+      cmd="$(firecrawl_pid_cmdline "$pid")"
+      [[ "$cmd" == *beam.smp* ]] || continue
+      [[ "$cmd" == *"${RABBITMQ_MNESIA_BASE}"* ]] || continue
+      [[ " ${pids[*]} " == *" ${pid} "* ]] || pids+=("$pid")
+    done
+    shopt -u nullglob
+  elif command -v pgrep >/dev/null 2>&1; then
+    for pid in $(pgrep -f beam.smp 2>/dev/null); do
+      cmd="$(firecrawl_pid_cmdline "$pid")"
+      [[ "$cmd" == *"${RABBITMQ_MNESIA_BASE}"* ]] || continue
+      [[ " ${pids[*]} " == *" ${pid} "* ]] || pids+=("$pid")
+    done
+  fi
 
   if ((${#pids[@]} == 0)); then
     rm -f "${FIRECRAWL_STATE_DIR}/rabbitmq.pid"
@@ -1353,34 +1429,45 @@ firecrawl_rabbitmq_start() {
 
   firecrawl_rabbitmq_cli rabbitmq-diagnostics -q -n "$RABBITMQ_NODENAME" check_running >/dev/null 2>&1 || {
     firecrawl_error "RabbitMQ did not become ready/authenticate with the project Erlang cookie."
-    local real_home
-    real_home="$(getent passwd "${FIRECRAWL_RABBITMQ_RUN_USER}" 2>/dev/null | cut -d: -f6)"
     firecrawl_error "Diagnostics: run_user=${FIRECRAWL_RABBITMQ_RUN_USER} caller_uid=$(id -u) caller_home=${HOME:-unset}"
     firecrawl_error "Diagnostics: project_home_cookie=$(tr -d '\r\n' < "${FIRECRAWL_RABBITMQ_DATA}/home/.erlang.cookie" 2>/dev/null || echo MISSING)"
-    firecrawl_error "Diagnostics: real_home=${real_home:-unknown} real_home_cookie=$(tr -d '\r\n' < "${real_home}/.erlang.cookie" 2>/dev/null || echo MISSING)"
+    if [[ "$(uname -s)" == "Linux" ]]; then
+      local real_home
+      real_home="$(getent passwd "${FIRECRAWL_RABBITMQ_RUN_USER}" 2>/dev/null | cut -d: -f6)"
+      if [[ -n "$real_home" ]]; then
+        firecrawl_error "Diagnostics: real_home=${real_home} real_home_cookie=$(tr -d '\r\n' < "${real_home}/.erlang.cookie" 2>/dev/null || echo MISSING)"
+      else
+        firecrawl_error "Diagnostics: real_home=unknown (getent found no entry for ${FIRECRAWL_RABBITMQ_RUN_USER})"
+      fi
+    fi
     firecrawl_error "Diagnostics: expected_cookie=${FIRECRAWL_RABBITMQ_COOKIE:-unset}"
 
-    # Ground truth: read the actual environment of the beam.smp process that
-    # owns our Mnesia directory, straight from /proc, rather than trusting
-    # anything we think we passed to it. If this doesn't match
-    # expected_cookie above, the broker itself never got our cookie and the
-    # bug is upstream of the CLI (server launch / su hop / stale process).
+    # Ground truth: read the actual environment of the broker process that
+    # owns our port, rather than trusting anything we think we passed to it.
+    # If this doesn't match expected_cookie above, the broker itself never
+    # got our cookie and the bug is upstream of the CLI (server launch / su
+    # hop / stale process). /proc/<pid>/environ only exists on Linux; macOS
+    # has no equivalent, so we report what we can there (cmdline via ps).
     local live_pid
     live_pid="$(firecrawl_rabbitmq_port_owner_pid "${FIRECRAWL_RABBITMQ_PORT}" 2>/dev/null || true)"
-    if [[ -n "$live_pid" && -r "/proc/${live_pid}/environ" ]]; then
-      firecrawl_error "Diagnostics: live pid=${live_pid} on port ${FIRECRAWL_RABBITMQ_PORT}, cmdline=$(tr '\0' ' ' < "/proc/${live_pid}/cmdline" 2>/dev/null | cut -c1-200)"
+    if [[ -n "$live_pid" ]]; then
+      firecrawl_error "Diagnostics: live pid=${live_pid} on port ${FIRECRAWL_RABBITMQ_PORT}, cmdline=$(firecrawl_pid_cmdline "$live_pid" | cut -c1-200)"
       firecrawl_error "Diagnostics: live pid started_at=$(ps -o lstart= -p "$live_pid" 2>/dev/null)"
-      firecrawl_error "Diagnostics: live process RABBITMQ_ERLANG_COOKIE=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^RABBITMQ_ERLANG_COOKIE=' || echo NOT_SET)"
-      firecrawl_error "Diagnostics: live process RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=' || echo NOT_SET)"
-      firecrawl_error "Diagnostics: live process HOME=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^HOME=' || echo NOT_SET)"
-      if [[ -n "$live_pid" ]]; then
-        firecrawl_error "Diagnostics: this looks like a STALE process from an earlier run. Force-stopping it now and it will be replaced on the next retry."
-        firecrawl_rabbitmq_force_stop_project_node || true
+      if [[ "$(uname -s)" == "Linux" && -r "/proc/${live_pid}/environ" ]]; then
+        firecrawl_error "Diagnostics: live process RABBITMQ_ERLANG_COOKIE=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^RABBITMQ_ERLANG_COOKIE=' || echo NOT_SET)"
+        firecrawl_error "Diagnostics: live process RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=' || echo NOT_SET)"
+        firecrawl_error "Diagnostics: live process HOME=$(tr '\0' '\n' < "/proc/${live_pid}/environ" 2>/dev/null | grep -m1 '^HOME=' || echo NOT_SET)"
       fi
+      firecrawl_error "Diagnostics: this looks like a STALE process from an earlier run. Force-stopping it now and it will be replaced on the next retry."
+      firecrawl_rabbitmq_force_stop_project_node || true
     else
-      firecrawl_error "Diagnostics: no process found owning port ${FIRECRAWL_RABBITMQ_PORT} (or /proc/<pid>/environ unreadable)."
+      firecrawl_error "Diagnostics: no process found owning port ${FIRECRAWL_RABBITMQ_PORT}."
     fi
-    firecrawl_error "Diagnostics: listeners on port ${FIRECRAWL_RABBITMQ_PORT}: $(ss -ltnp 2>/dev/null | grep ":${FIRECRAWL_RABBITMQ_PORT} " || echo none)"
+    if command -v ss >/dev/null 2>&1; then
+      firecrawl_error "Diagnostics: listeners on port ${FIRECRAWL_RABBITMQ_PORT}: $(ss -ltn 2>/dev/null | grep ":${FIRECRAWL_RABBITMQ_PORT} " || echo none)"
+    elif command -v lsof >/dev/null 2>&1; then
+      firecrawl_error "Diagnostics: listeners on port ${FIRECRAWL_RABBITMQ_PORT}: $(lsof -iTCP:"${FIRECRAWL_RABBITMQ_PORT}" -sTCP:LISTEN 2>/dev/null || echo none)"
+    fi
 
     tail -100 "${FIRECRAWL_LOG_DIR}/rabbitmq"/* 2>/dev/null || true
     return 1

@@ -116,14 +116,19 @@ public class FirecrawlTools {
         the actual page contents.
         """)
     public MapData searchWebsite(@NonNull String website, @NonNull String query) {
+        log.info("Searching website {} for query {}",website,query);
 
-        return firecrawlService.map(
+        MapData data = firecrawlService.map(
                 website,
                 MapOptions.builder()
                         .search(query)
                         .limit(DEFAULT_WEBSITE_SEARCH_LIMIT)
                         .build()
         );
+
+        log.info("Links detected for searchable websites. {}",data.getLinks());
+
+        return data;
     }
 
     /**
@@ -153,6 +158,7 @@ public class FirecrawlTools {
         Returns the main page content as markdown.
         """)
     public Document scrapeWebPage(@NonNull String url) {
+        log.info("Scraping the URL: {}",url);
 
         return firecrawlService.scrape(
                 url,
