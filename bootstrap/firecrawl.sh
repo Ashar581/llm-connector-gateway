@@ -221,6 +221,74 @@ firecrawl_ensure_rust() {
   }
 }
 
+firecrawl_go_version_ok() {
+  # True if `go` is on PATH and is at least 1.23 (Firecrawl's go-html-to-md
+  # needs a modern toolchain; distro packages such as Ubuntu 24.04's 1.22 are
+  # too old to rely on).
+  command -v go >/dev/null 2>&1 || return 1
+  local v major minor
+  v="$(go env GOVERSION 2>/dev/null | sed 's/^go//')"
+  major="${v%%.*}"; minor="${v#*.}"; minor="${minor%%.*}"
+  [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ ]] || return 1
+  (( major > 1 || (major == 1 && minor >= 23) ))
+}
+
+firecrawl_ensure_go() {
+  # Firecrawl's API startup runs `go mod tidy` in sharedLibs/go-html-to-md
+  # and builds it; without Go it dies with "go: not found" (exit 127).
+  local go_local="${FIRECRAWL_DIR}/go-toolchain"
+  [[ -x "${go_local}/go/bin/go" ]] && export PATH="${go_local}/go/bin:${PATH}"
+
+  if firecrawl_go_version_ok; then
+    firecrawl_log "Using Go: $(go version)"
+    return 0
+  fi
+
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    firecrawl_brew_init || return 1
+    firecrawl_log "Installing Homebrew formula: go"
+    brew install go
+    hash -r 2>/dev/null || true
+  else
+    local arch goarch gover tarball
+    arch="$(uname -m)"
+    case "$arch" in
+      x86_64|amd64)  goarch=amd64 ;;
+      aarch64|arm64) goarch=arm64 ;;
+      *) firecrawl_error "Unsupported CPU architecture for Go install: ${arch}"; return 1 ;;
+    esac
+
+    # Ask go.dev for the current stable release instead of hard-coding one.
+    gover="$(curl -fsSL 'https://go.dev/VERSION?m=text' 2>/dev/null | head -n1 | tr -d '\r')"
+    [[ "$gover" =~ ^go1\.[0-9]+(\.[0-9]+)?$ ]] || {
+      firecrawl_error "Could not determine the latest Go version from go.dev (got: '${gover}')."
+      return 1
+    }
+
+    tarball="${gover}.linux-${goarch}.tar.gz"
+    firecrawl_log "Installing Go ${gover} (${goarch}) into ${go_local}..."
+    mkdir -p "${go_local}"
+    curl -fsSL "https://go.dev/dl/${tarball}" -o "${go_local}/${tarball}" || {
+      firecrawl_error "Failed to download https://go.dev/dl/${tarball}"
+      return 1
+    }
+    rm -rf "${go_local}/go"
+    tar -C "${go_local}" -xzf "${go_local}/${tarball}" || {
+      firecrawl_error "Failed to extract ${tarball}"
+      return 1
+    }
+    rm -f "${go_local}/${tarball}"
+    export PATH="${go_local}/go/bin:${PATH}"
+    hash -r 2>/dev/null || true
+  fi
+
+  firecrawl_go_version_ok || {
+    firecrawl_error "Go installation failed or is older than 1.23 (found: $(go version 2>/dev/null || echo none))."
+    return 1
+  }
+  firecrawl_log "Go ready: $(go version)"
+}
+
 firecrawl_ensure_node_pnpm() {
   if [[ "$(uname -s)" == "Darwin" ]]; then
     firecrawl_install_mac_prereqs || return 1
@@ -1514,6 +1582,7 @@ prepare_firecrawl() {
   firecrawl_prepare_dirs
   firecrawl_ensure_node_pnpm || return 1
   firecrawl_ensure_rust || return 1
+  firecrawl_ensure_go || return 1
   firecrawl_require git || return 1
   firecrawl_clone || return 1
   firecrawl_install_js || return 1
