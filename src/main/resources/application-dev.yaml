@@ -259,9 +259,9 @@ firecrawl:
   api-key: ${FIRECRAWL_API_KEY:ashar581}
   api-url: ${FIRECRAWL_API_URL:http://localhost:3002}
 
-  timeout-ms: ${FIRECRAWL_TIMEOUT_MS:300000}
+  timeout-ms: ${FIRECRAWL_TIMEOUT_MS:60000}
   max-retries: ${FIRECRAWL_MAX_RETRIES:3}
-  backoff-factor: ${FIRECRAWL_BACKOFF_FACTOR:0.5}
+  backoff-factor: ${FIRECRAWL_BACKOFF_FACTOR:1.0}
 
 api-key : DS-AN581-SS018-2904-1911
 admin:
