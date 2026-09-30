@@ -254,6 +254,16 @@ llm:
           base-url: https://api.openai.com
           api-path: /v1/chat/completions
           active: true
+        - id: gpt-4.1-mini
+          type:
+            - web
+            - browser
+          provider: openai
+          api-key: ${OPEN_AI_KEY}
+          model-name: gpt-4.1-mini
+          base-url: https://api.openai.com
+          api-path: /v1/chat/completions
+          active: true
 
 firecrawl:
   api-key: ${FIRECRAWL_API_KEY:ashar581}
