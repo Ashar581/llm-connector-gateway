@@ -16,7 +16,7 @@ public enum LlmModels {
     EMBED_V3("embed-v2"),
     EMBED_M3("embed-m3"),
     GEMMA_4("gemma-4"),
-    GPT_4o_MINI("gpt-4o-mini");
+    GPT_4o_MINI("gpt-4.1-mini");
 
     private final String id;
 
