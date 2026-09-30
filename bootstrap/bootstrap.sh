@@ -86,7 +86,7 @@ main() {
     # The backend is selected automatically by platform.sh.
     # --------------------------------------------------------
 
-    prepare_llama
+#    prepare_llama
 
     # --------------------------------------------------------
     # 4. Download required GGUF models
@@ -95,7 +95,7 @@ main() {
     # Interrupted downloads can resume.
     # --------------------------------------------------------
 
-#    download_models
+    download_models
 
     # --------------------------------------------------------
     # 5. Install/configure/start SearXNG
