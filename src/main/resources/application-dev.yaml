@@ -157,7 +157,6 @@ llm:
           type:
             - vision
             - classification
-            - browser
           base-url: http://localhost:7076
           api-path: /v1/chat/completions
           api-key: ashar581
