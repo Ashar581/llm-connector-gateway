@@ -95,7 +95,7 @@ main() {
     # Interrupted downloads can resume.
     # --------------------------------------------------------
 
-    download_models
+#    download_models
 
     # --------------------------------------------------------
     # 5. Install/configure/start SearXNG
