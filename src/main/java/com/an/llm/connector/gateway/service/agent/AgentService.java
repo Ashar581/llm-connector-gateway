@@ -258,6 +258,7 @@ public class AgentService {
         request.setTopK(agentConfiguration.getTopK());
         request.setSimilarityThreshold(agentConfiguration.getSimilarityThreshold());
         request.setEnablePrivateMode(agentConfiguration.getEnablePrivateMode());
+        request.setChatHistory(request.getChatHistory());
         //setting agent name for stats
         request.setAgentName(aiRequest.getAgent());
 
@@ -284,6 +285,7 @@ public class AgentService {
         request.setTopK(agentConfiguration.getTopK());
         request.setSimilarityThreshold(agentConfiguration.getSimilarityThreshold());
         request.setEnablePrivateMode(agentConfiguration.getEnablePrivateMode());
+        request.setChatHistory(request.getChatHistory());
         //setting agent name for stats
         request.setAgentName(aiRequest.getAgent());
 
