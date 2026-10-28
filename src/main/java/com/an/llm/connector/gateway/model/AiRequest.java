@@ -1,6 +1,8 @@
 package com.an.llm.connector.gateway.model;
 
+import com.an.llm.connector.gateway.util.JsonUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -22,4 +24,15 @@ public class AiRequest {
     private List<ChatHistory> chatHistory;
     //only for handling forms.
     private String chatHistoryForForm;
+
+    public void setChatHistoryForForm(String chatHistoryForForm) {
+        this.chatHistoryForForm = chatHistoryForForm;
+
+        if (chatHistoryForForm != null && !chatHistoryForForm.isBlank()) {
+            this.chatHistory = JsonUtils.deserializeString(
+                    chatHistoryForForm,
+                    new TypeReference<>() {}
+            );
+        }
+    }
 }
