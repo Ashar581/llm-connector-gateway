@@ -75,8 +75,8 @@ export const TYPE_FIELD_CONFIGS = {
         isFileType: true,
         supportsStream: true, // RAG handles files AND can stream its response
         icon: "📚",
-        endpoint: "/v3/rag/ask", // TODO: confirm the actual RAG ingestion/query endpoint with backend
-        streamEndpoint: "/v3/rag/stream/ask", // TODO: confirm the actual RAG streaming endpoint with backend
+        endpoint: "/v5/rag/ask", // TODO: confirm the actual RAG ingestion/query endpoint with backend
+        streamEndpoint: "/v5/rag/stream/ask", // TODO: confirm the actual RAG streaming endpoint with backend
         accept: ".pdf,.doc,.docx,.txt,.md,.csv,.pptx,.ppt",
         fileValidator: (f) => /\.(pdf|docx?|txt|md|csv|ppt|pptx)$/i.test(f.name),
         fileRejectMessage: "RAG only accepts PDF, DOC/DOCX, TXT, MD, PPT or CSV files",
