@@ -41,6 +41,9 @@ export FIRECRAWL_RABBITMQ_DATA="${FIRECRAWL_DIR}/rabbitmq-data"
 export FIRECRAWL_PGCRON_SRC="${FIRECRAWL_DIR}/pg_cron"
 export FIRECRAWL_PGCRON_INSTALL="${FIRECRAWL_DIR}/pg_cron-install"
 
+export FIRECRAWL_GO_VERSION="${FIRECRAWL_GO_VERSION:-1.24.6}"
+export FIRECRAWL_GO_ROOT="${FIRECRAWL_DIR}/go-toolchain"
+
 export FIRECRAWL_HOST="${FIRECRAWL_HOST:-127.0.0.1}"
 export FIRECRAWL_PORT="${FIRECRAWL_PORT:-3002}"
 export FIRECRAWL_PLAYWRIGHT_PORT="${FIRECRAWL_PLAYWRIGHT_PORT:-3003}"
@@ -217,6 +220,118 @@ firecrawl_ensure_rust() {
   export PATH="${HOME}/.cargo/bin:${PATH}"
   command -v cargo >/dev/null 2>&1 || {
     firecrawl_error "Rust installation failed."
+    return 1
+  }
+}
+
+firecrawl_go_minor_ok() {
+  # Succeeds if the given `go` binary is 1.24 or newer.
+  local bin="$1" v major minor
+  [[ -x "$bin" ]] || return 1
+  v="$("$bin" env GOVERSION 2>/dev/null | sed 's/^go//' || true)"
+  major="$(printf '%s' "$v" | cut -d. -f1)"
+  minor="$(printf '%s' "$v" | cut -d. -f2)"
+  [[ "$major" == "1" && "$minor" =~ ^[0-9]+$ && "$minor" -ge 24 ]]
+}
+
+firecrawl_ensure_go() {
+  local sys_go local_go="${FIRECRAWL_GO_ROOT}/go/bin/go"
+
+  # cgo (-buildmode=c-shared) needs a C compiler.
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    xcode-select -p >/dev/null 2>&1 || {
+      firecrawl_error "Xcode Command Line Tools are required (run: xcode-select --install)."
+      return 1
+    }
+  else
+    command -v "${CC:-cc}" >/dev/null 2>&1 || {
+      firecrawl_error "A C compiler is required for the Go shared library (install build-essential)."
+      return 1
+    }
+  fi
+
+  sys_go="$(command -v go 2>/dev/null || true)"
+  if [[ -n "$sys_go" ]] && firecrawl_go_minor_ok "$sys_go"; then
+    firecrawl_log "Using system Go: $sys_go ($("$sys_go" version))"
+  elif firecrawl_go_minor_ok "$local_go"; then
+    export PATH="${FIRECRAWL_GO_ROOT}/go/bin:${PATH}"
+    firecrawl_log "Using project-local Go: $("$local_go" version)"
+  else
+    firecrawl_require curl || return 1
+    firecrawl_require tar || return 1
+
+    local goos goarch
+    case "$(uname -s)" in
+      Darwin) goos="darwin" ;;
+      Linux)  goos="linux" ;;
+      *) firecrawl_error "Unsupported OS for Go install: $(uname -s)"; return 1 ;;
+    esac
+    case "$(uname -m)" in
+      arm64|aarch64) goarch="arm64" ;;
+      x86_64|amd64)  goarch="amd64" ;;
+      *) firecrawl_error "Unsupported CPU for Go install: $(uname -m)"; return 1 ;;
+    esac
+
+    local tarball="go${FIRECRAWL_GO_VERSION}.${goos}-${goarch}.tar.gz"
+    local tmp="${FIRECRAWL_DIR}/${tarball}.part"
+    firecrawl_log "Downloading Go ${FIRECRAWL_GO_VERSION} (${goos}/${goarch})..."
+    rm -f "$tmp"
+    curl -fL --retry 3 -o "$tmp" "https://go.dev/dl/${tarball}" || {
+      rm -f "$tmp"
+      firecrawl_error "Failed to download https://go.dev/dl/${tarball}"
+      return 1
+    }
+
+    rm -rf "${FIRECRAWL_GO_ROOT}"
+    mkdir -p "${FIRECRAWL_GO_ROOT}"
+    tar -C "${FIRECRAWL_GO_ROOT}" -xzf "$tmp" || {
+      rm -f "$tmp"
+      firecrawl_error "Failed to extract Go toolchain."
+      return 1
+    }
+    rm -f "$tmp"
+
+    export PATH="${FIRECRAWL_GO_ROOT}/go/bin:${PATH}"
+    firecrawl_log "Installed project-local Go: $("$local_go" version)"
+  fi
+
+  hash -r 2>/dev/null || true
+  command -v go >/dev/null 2>&1 || { firecrawl_error "go is unavailable after setup."; return 1; }
+
+  # Keep all Go state inside the project runtime.
+  export GOPATH="${FIRECRAWL_DIR}/gopath"
+  export GOCACHE="${FIRECRAWL_DIR}/go-cache"
+  export GOMODCACHE="${GOPATH}/pkg/mod"
+  export GOTOOLCHAIN="${GOTOOLCHAIN:-auto}"   # lets go.mod request a newer toolchain
+  export GOFLAGS="${GOFLAGS:--mod=mod}"
+  export CGO_ENABLED=1
+  mkdir -p "${GOPATH}" "${GOCACHE}"
+}
+
+firecrawl_build_go_lib() {
+  # The API harness also does this at start, but building it here fails
+  # early with a clear error and makes the later harness step a no-op.
+  # Firecrawl loads html-to-markdown.so on every platform (including macOS),
+  # so the output name is .so regardless of OS.
+  local dir="${FIRECRAWL_SRC}/apps/api/sharedLibs/go-html-to-md"
+
+  [[ -d "$dir" ]] || {
+    firecrawl_log "Go shared lib directory not found (${dir}); leaving it to the harness."
+    return 0
+  }
+
+  if [[ -f "${dir}/html-to-markdown.so" ]]; then
+    firecrawl_log "Go html-to-markdown library already built."
+    return 0
+  fi
+
+  firecrawl_log "Building Go html-to-markdown shared library..."
+  (
+    cd "$dir"
+    go mod tidy
+    go build -o html-to-markdown.so -buildmode=c-shared html-to-markdown.go
+  ) || {
+    firecrawl_error "Go html-to-markdown build failed."
     return 1
   }
 }
@@ -1601,9 +1716,11 @@ prepare_firecrawl() {
   firecrawl_prepare_dirs
   firecrawl_ensure_node_pnpm || return 1
   firecrawl_ensure_rust || return 1
+  firecrawl_ensure_go || return 1
   firecrawl_require git || return 1
   firecrawl_clone || return 1
   firecrawl_install_js || return 1
+  firecrawl_build_go_lib || return 1
   firecrawl_build_pg_cron || return 1
   firecrawl_pg_init || return 1
   firecrawl_apply_nuq || return 1
