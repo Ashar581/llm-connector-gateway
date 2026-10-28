@@ -9,12 +9,9 @@ import com.an.llm.connector.gateway.model.LlmConnectorRequest;
 import com.an.llm.connector.gateway.model.classification.ClassificationResponse;
 import com.an.llm.connector.gateway.repository.AgentConfigurationRepository;
 import com.an.llm.connector.gateway.service.LlmConfigService;
-import com.an.llm.connector.gateway.service.ai.EmbeddingServiceV2;
-import com.an.llm.connector.gateway.service.ai.RagServiceV3;
-import com.an.llm.connector.gateway.service.ai.RagServiceV4;
+import com.an.llm.connector.gateway.service.ai.*;
 import com.an.llm.connector.gateway.service.classification.ClassificationOrchestrator;
 import com.an.llm.connector.gateway.service.factory.AiBeanFactory;
-import com.an.llm.connector.gateway.service.ai.VisionServiceV2;
 import com.an.llm.connector.gateway.service.stats.SystemConsumptionStatsSvc;
 import com.an.llm.connector.gateway.service.web.WebSearchService;
 import com.an.llm.connector.gateway.service.web.search.FirecrawlService;
@@ -49,6 +46,7 @@ public class AgentService {
     private final SystemConsumptionStatsSvc systemConsumptionStatsSvc;
     private final RagServiceV3 ragServiceV3;
     private final RagServiceV4 ragServiceV4;
+    private final RagServiceV5 ragServiceV5;
     private final WebSearchService webSearchService;
     private final LlmConfigService llmConfigService;
     private final FirecrawlService firecrawlService;
@@ -263,7 +261,7 @@ public class AgentService {
         //setting agent name for stats
         request.setAgentName(aiRequest.getAgent());
 
-        return ragServiceV4.chat(request, IngestionMode.AGENT);
+        return ragServiceV5.chat(request, IngestionMode.AGENT);
     }
 
     private Flux<@NonNull String> generateStreamRagResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest) {
@@ -289,7 +287,7 @@ public class AgentService {
         //setting agent name for stats
         request.setAgentName(aiRequest.getAgent());
 
-        return ragServiceV4.chatStream(request, IngestionMode.AGENT);
+        return ragServiceV5.chatStream(request, IngestionMode.AGENT);
     }
 
     private String generateWebResponse(AgentConfigurationEntity agentConfiguration, AiRequest aiRequest){
