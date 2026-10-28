@@ -95,7 +95,7 @@ main() {
     # Interrupted downloads can resume.
     # --------------------------------------------------------
 
-    download_models
+#    download_models
 
     # --------------------------------------------------------
     # 5. Install/configure/start SearXNG
@@ -133,21 +133,21 @@ main() {
     # runtime/firecrawl. Set FIRECRAWL_ENABLED=0 to skip it.
     # --------------------------------------------------------
 
-    if [[ "${FIRECRAWL_ENABLED:-1}" == "1" ]]; then
-
-        log "Preparing Firecrawl native stack."
-
-        if ! prepare_firecrawl; then
-            fail "Firecrawl preparation failed. See ${FIRECRAWL_LOG_DIR}."
-        fi
-
-        success "Firecrawl preparation completed."
-
-    else
-
-        warning "Firecrawl is disabled (FIRECRAWL_ENABLED=${FIRECRAWL_ENABLED})."
-
-    fi
+#    if [[ "${FIRECRAWL_ENABLED:-1}" == "1" ]]; then
+#
+#        log "Preparing Firecrawl native stack."
+#
+#        if ! prepare_firecrawl; then
+#            fail "Firecrawl preparation failed. See ${FIRECRAWL_LOG_DIR}."
+#        fi
+#
+#        success "Firecrawl preparation completed."
+#
+#    else
+#
+#        warning "Firecrawl is disabled (FIRECRAWL_ENABLED=${FIRECRAWL_ENABLED})."
+#
+#    fi
 
 
     # --------------------------------------------------------

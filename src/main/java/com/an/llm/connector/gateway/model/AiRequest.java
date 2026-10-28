@@ -18,4 +18,8 @@ public class AiRequest {
     @NotNull(message = "Query is mandatory.")
     private String query;
     private List<MultipartFile> files;
+    private boolean chatHistoryEnabled;
+    private List<ChatHistory> chatHistory;
+    //only for handling forms.
+    private String chatHistoryForForm;
 }
