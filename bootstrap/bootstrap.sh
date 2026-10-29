@@ -21,6 +21,7 @@ source "${SCRIPT_DIR}/llama.sh"
 source "${SCRIPT_DIR}/models.sh"
 source "${SCRIPT_DIR}/searxng.sh"
 source "${SCRIPT_DIR}/firecrawl.sh"
+source "${SCRIPT_DIR}/n8n-custom.sh"
 
 
 # ============================================================
@@ -150,6 +151,18 @@ main() {
     fi
 
 
+
+    if [[ "${N8N_ENABLED:-1}" == "1" ]]; then
+        if ( start_n8n ); then
+            success "n8n preparation completed."
+        else
+            warning "n8n preparation failed. Continuing without n8n."
+        fi
+    else
+        warning "n8n is disabled (N8N_ENABLED=${N8N_ENABLED})."
+    fi
+
+
     # --------------------------------------------------------
     # Bootstrap completed
     # --------------------------------------------------------
@@ -170,6 +183,9 @@ main() {
     info "SearXNG   : http://127.0.0.1:${SEARXNG_PORT}"
     if [[ "${FIRECRAWL_ENABLED:-1}" == "1" ]]; then
         info "Firecrawl : http://127.0.0.1:${FIRECRAWL_PORT}"
+    fi
+    if [[ "${N8N_ENABLED:-1}" == "1" ]]; then
+        info "n8n       : http://127.0.0.1:${N8N_PORT}"
     fi
     info "Backend   : ${LLAMA_BACKEND}"
 

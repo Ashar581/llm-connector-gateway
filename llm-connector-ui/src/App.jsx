@@ -108,11 +108,25 @@ const SettingsIcon = () => (
   </svg>
 );
 
+// Workflow icon - represents n8n automation nodes and connections
+const WorkflowIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" />
+    <rect x="14" y="3" width="7" height="7" />
+    <rect x="3" y="14" width="7" height="7" />
+    <rect x="14" y="14" width="7" height="7" />
+    <line x1="17" y1="3" x2="21" y2="7" />
+    <line x1="7" y1="17" x2="17" y2="7" />
+  </svg>
+);
+
 const baseDesktopNavLinks = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/agents", label: "Agents" },
   { to: "/stats", label: "Stats" },
   { to: "/playground", label: "Playground" },
+  { to: "/workflows", label: "Workflows" },
   { to: "/settings", label: "Settings" },
 ];
 
@@ -121,6 +135,7 @@ const baseMobileNavLinks = [
   { to: "/agents", label: "Agents", Icon: CpuIcon },
   { to: "/stats", label: "Stats", Icon: AnalyticsIcon },
   { to: "/playground", label: "Play", Icon: PlayIcon },
+  { to: "/workflows", label: "Workflows", Icon: WorkflowIcon },
   { to: "/settings", label: "Settings", Icon: SettingsIcon },
 ];
 

@@ -65,9 +65,8 @@ public class AppSecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                             .contentSecurityPolicy(policy -> policy
                                     .policyDirectives("default-src 'self'; " +
-                                            "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com")
-
-                            )
+                                            "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com; " +
+                                            "frame-src 'self' http://localhost:5678;")
                         .httpStrictTransportSecurity(transport ->  transport
                                 .includeSubDomains(true)
                         )
@@ -80,7 +79,7 @@ public class AppSecurityConfig {
                 .addFilterBefore(new RefreshTokenFilter(jwtTokenWrapperService,userService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtGeneratorFilter(jwtTokenWrapperService,authenticationService,userService),UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtValidatorFilter, UsernamePasswordAuthenticationFilter.class)
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults()));
 
         return httpSecurity.build();
     }

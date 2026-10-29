@@ -4,6 +4,7 @@ import App from "../App";
 import Home from "../pages/Home";
 import Agents from "../pages/Agents";
 import Playground from "../pages/Playground";
+import Workflows from "../pages/Workflows";
 import Settings from "../pages/Settings";
 import Stats from "../pages/Stats";
 import Profile from "../pages/Profile";
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { index: true, element: <RbacRoute routePath="/"><Home /></RbacRoute> },
       { path: "agents", element: <RbacRoute routePath="/agents"><Agents /></RbacRoute> },
       { path: "playground", element: <RbacRoute routePath="/playground"><Playground /></RbacRoute> },
+      { path: "workflows", element: <RbacRoute routePath="/workflows"><Workflows /></RbacRoute> },
       { path: "settings", element: <Settings /> },
       { path: "profile", element: <Profile /> },
       { path: "stats", element: <RbacRoute routePath="/stats"><Stats /></RbacRoute> },

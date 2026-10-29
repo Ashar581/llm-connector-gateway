@@ -37,8 +37,9 @@ export const ROUTE_ACCESS_POLL_INTERVAL_MS = 30000;
 export const MANAGEABLE_ROUTES = [
     { path: "/", label: "Dashboard" },
     { path: "/agents", label: "Agents" },
-    { path: "/stats", label: "Stats" },
     { path: "/playground", label: "Playground" },
+    { path: "/workflows", label: "Workflows" },
+    { path: "/stats", label: "Stats" },
 ];
 
 /**
