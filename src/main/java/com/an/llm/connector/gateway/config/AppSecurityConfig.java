@@ -63,14 +63,17 @@ public class AppSecurityConfig {
                 )
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                            .contentSecurityPolicy(policy -> policy
-                                    .policyDirectives(
-                                            "default-src 'self'; " +
-                                                    "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com; " +
-                                                    "frame-src 'self' http://localhost:5678;"
-                                    )
-
-                            )
+                        .contentSecurityPolicy(policy -> policy
+                                .policyDirectives(
+                                        "default-src 'self'; " +
+                                                "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com http://localhost:5678 ws://localhost:5678; " +
+                                                "frame-src 'self' http://localhost:5678; " +
+                                                "style-src 'self' 'unsafe-inline'; " +
+                                                "img-src 'self' data: blob: http://localhost:5678; " +
+                                                "font-src 'self' data: http://localhost:5678; " +
+                                                "script-src 'self';"
+                                )
+                        )
                         .httpStrictTransportSecurity(transport ->  transport
                                 .includeSubDomains(true)
                         )
