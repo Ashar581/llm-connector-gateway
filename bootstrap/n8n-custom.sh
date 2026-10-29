@@ -369,6 +369,40 @@ _n8n_is_built() {
        && -d "${REPO_ROOT}/packages/cli/dist/config" ]]
 }
 
+# Some packages ship a lezer grammar and expect the parser to be generated before
+# `cm-buildhelper` runs (root cause of: "Could not resolve './parser'"). That step
+# is skipped in some installs, so generate any missing parser here. Idempotent.
+_n8n_generate_lezer_parsers() {
+    local pkg="${REPO_ROOT}/packages/@n8n/codemirror-lang-html"
+    [[ -d "$pkg" ]] || return 0
+    [[ -f "$pkg/src/grammar/parser.js" || -f "$pkg/src/grammar/parser.ts" ]] && return 0
+
+    _n8n_log "Generating missing lezer parser for @n8n/codemirror-lang-html..."
+    ( cd "$pkg" || exit 1
+
+      # 1) the package's own generate/prepare script, if it has one
+      local s
+      for s in generate prepare; do
+          if grep -Eq "\"${s}\"[[:space:]]*:" package.json 2>/dev/null; then
+              pnpm run "$s" >>"${N8N_LOG_DIR}/build.log" 2>&1 || true
+              [[ -f src/grammar/parser.js ]] && exit 0
+          fi
+      done
+
+      # 2) run lezer-generator directly on the grammar file
+      local grammar gen
+      grammar="$(find src -name '*.grammar' 2>/dev/null | head -n1 || true)"
+      [[ -n "$grammar" ]] || { echo "no .grammar file found under $pkg/src" >&2; exit 1; }
+      gen="$(find "${REPO_ROOT}/node_modules/.pnpm" -path '*@lezer/generator/dist/lezer-generator.cjs' 2>/dev/null | head -n1 || true)"
+      if [[ -n "$gen" ]]; then
+          node "$gen" "$grammar" -o "$(dirname "$grammar")/parser"
+      else
+          pnpm exec lezer-generator "$grammar" -o "$(dirname "$grammar")/parser"
+      fi
+    ) || { _n8n_warning "Could not generate the lezer parser automatically."; return 1; }
+    _n8n_success "Generated lezer parser."
+}
+
 do_build() {
     if [[ "${N8N_SKIP_BUILD:-0}" == "1" ]]; then
         _n8n_log "Skipping build (N8N_SKIP_BUILD=1)."
@@ -379,6 +413,8 @@ do_build() {
     mkdir -p "$N8N_LOG_DIR"
     export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=8192}"
     export CI=true
+
+    _n8n_generate_lezer_parsers || true
 
     if pnpm build > "${N8N_LOG_DIR}/build.log" 2>&1; then
         _n8n_success "Build complete."
