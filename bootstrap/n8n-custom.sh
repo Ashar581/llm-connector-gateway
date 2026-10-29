@@ -33,6 +33,9 @@
 #   GENERIC_TIMEZONE=UTC         default timezone
 #   N8N_FRAME_ANCESTORS="*"      who may embed n8n in an <iframe> (space separated CSP
 #                                sources, e.g. "'self' https://app.example.com http://localhost:*")
+#   N8N_BASE_PATH=/n8n           serve n8n under a sub-path (for a reverse proxy at /n8n)
+#   N8N_PUBLIC_URL=https://h/n8n public URL as the browser sees it (sets editor/webhook URL)
+#   N8N_LISTEN_ADDRESS=0.0.0.0   bind address (default 127.0.0.1)
 #   N8N_ALLOW_IFRAME=0           don't strip X-Frame-Options from the n8n server
 #
 # Needs: curl, git, tar (everything else is installed privately).
@@ -466,6 +469,20 @@ _ensure_key() {
 # Start / stop / status / logs
 # ------------------------------------------------------------
 
+# Sub-path support, e.g. N8N_BASE_PATH=/n8n when a reverse proxy serves n8n at /n8n
+_n8n_base_path() {
+    local bp="${N8N_BASE_PATH:-}"
+    bp="${bp#"${bp%%[!/]*}"}"      # strip leading slashes
+    bp="${bp%"${bp##*[!/]}"}"      # strip trailing slashes
+    [[ -n "$bp" ]] && echo "/${bp}" || echo ""
+}
+
+_n8n_http_ok() {
+    local bp; bp="$(_n8n_base_path)"
+    curl -fsS -o /dev/null "http://127.0.0.1:${N8N_PORT}${bp}/healthz" 2>/dev/null \
+        || { [[ -n "$bp" ]] && curl -fsS -o /dev/null "http://127.0.0.1:${N8N_PORT}/healthz" 2>/dev/null; }
+}
+
 # n8n sends "X-Frame-Options: sameorigin" via helmet in production mode, which makes
 # browsers show "localhost refused to connect" inside an <iframe>. Turn that header
 # off in the compiled server (idempotent; re-applied after every rebuild).
@@ -487,15 +504,17 @@ _n8n_allow_iframe() {
 _n8n_check_embedding() {
     [[ "${N8N_ALLOW_IFRAME:-1}" == "0" ]] && return 0
     local h
-    h="$(curl -s -D - -o /dev/null "http://127.0.0.1:${N8N_PORT}/" 2>/dev/null | tr -d '\r' || true)"
+    h="$(curl -s -D - -o /dev/null "http://127.0.0.1:${N8N_PORT}$(_n8n_base_path)/" 2>/dev/null | tr -d '\r' || true)"
     if grep -qi '^x-frame-options:' <<< "$h"; then
         _n8n_warning "n8n still sends X-Frame-Options; iframe embedding may be blocked: $(grep -i '^x-frame-options:' <<< "$h" | head -n1)"
     fi
     if grep -qi 'frame-ancestors' <<< "$h"; then
         _n8n_success "iframe embedding allowed (CSP frame-ancestors set)."
     else
-        _n8n_warning "No CSP frame-ancestors header seen. Check N8N_FRAME_ANCESTORS / N8N_CONTENT_SECURITY_POLICY."
+        _n8n_info "No CSP frame-ancestors header (fine: X-Frame-Options is off, so n8n allows framing)."
     fi
+    _n8n_info "iframe reminder: the BROWSER must reach n8n. 'localhost' in an iframe means the viewer's own machine."
+    _n8n_info "On a remote host use a same-origin proxy: N8N_BASE_PATH=/n8n and iframe src=/n8n/"
 }
 
 start_n8n() {
@@ -537,12 +556,29 @@ start_n8n() {
         N8N_ENCRYPTION_KEY="$(cat "$N8N_KEY_FILE")"
         export N8N_ENCRYPTION_KEY
 
-        export N8N_LISTEN_ADDRESS="127.0.0.1"
+        # 127.0.0.1 = reachable only from this machine. On a remote host (vast.ai etc.) the
+        # browser is NOT on this machine: put a same-origin reverse proxy in front
+        # (N8N_BASE_PATH=/n8n) or set N8N_LISTEN_ADDRESS=0.0.0.0 and expose the port.
+        export N8N_LISTEN_ADDRESS="${N8N_LISTEN_ADDRESS:-127.0.0.1}"
         export N8N_PORT="$N8N_PORT"
         export N8N_PROTOCOL="http"
         export N8N_HOST="127.0.0.1"
-        export N8N_EDITOR_BASE_URL="${N8N_EDITOR_BASE_URL:-http://127.0.0.1:${N8N_PORT}}"
-        export WEBHOOK_URL="${WEBHOOK_URL:-http://127.0.0.1:${N8N_PORT}/}"
+        local _bp; _bp="$(_n8n_base_path)"
+        if [[ -n "$_bp" ]]; then
+            export N8N_PATH="${_bp}/"
+            # Behind a plain HTTP proxy (e.g. Spring Boot) use SSE for live updates instead of
+            # websockets, so the proxy needs no websocket support. Override with N8N_PUSH_BACKEND.
+            export N8N_PUSH_BACKEND="${N8N_PUSH_BACKEND:-sse}"
+        fi
+        if [[ -n "${N8N_PUBLIC_URL:-}" ]]; then
+            # public URL as the browser sees it, e.g. https://my-host/n8n
+            export N8N_EDITOR_BASE_URL="${N8N_EDITOR_BASE_URL:-${N8N_PUBLIC_URL%/}}"
+            export WEBHOOK_URL="${WEBHOOK_URL:-${N8N_PUBLIC_URL%/}/}"
+            export N8N_PROXY_HOPS="${N8N_PROXY_HOPS:-1}"
+        else
+            export N8N_EDITOR_BASE_URL="${N8N_EDITOR_BASE_URL:-http://127.0.0.1:${N8N_PORT}${_bp}}"
+            export WEBHOOK_URL="${WEBHOOK_URL:-http://127.0.0.1:${N8N_PORT}${_bp}/}"
+        fi
         export N8N_SECURE_COOKIE="${N8N_SECURE_COOKIE:-false}"
 
         export N8N_DIAGNOSTICS_ENABLED="false"
@@ -590,7 +626,7 @@ start_n8n() {
             tail -n 20 "$N8N_LOG_FILE" >&2 || true
             return 1
         fi
-        if curl -fsS -o /dev/null "http://127.0.0.1:${N8N_PORT}/healthz" 2>/dev/null; then
+        if _n8n_http_ok; then
             _n8n_success "n8n is up: http://127.0.0.1:${N8N_PORT}"
             _n8n_check_embedding
             return 0
