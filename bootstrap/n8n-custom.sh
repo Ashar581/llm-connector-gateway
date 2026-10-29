@@ -31,6 +31,9 @@
 #   N8N_LOG_LEVEL=info           n8n log level (debug, info, warn, error)
 #   N8N_PNPM_VERSION=...         force a pnpm version (default: repo's packageManager)
 #   GENERIC_TIMEZONE=UTC         default timezone
+#   N8N_FRAME_ANCESTORS="*"      who may embed n8n in an <iframe> (space separated CSP
+#                                sources, e.g. "'self' https://app.example.com http://localhost:*")
+#   N8N_ALLOW_IFRAME=0           don't strip X-Frame-Options from the n8n server
 #
 # Needs: curl, git, tar (everything else is installed privately).
 # Platforms: Ubuntu/Debian (vast.ai containers, x64/arm64), macOS (Intel + Apple
@@ -463,6 +466,38 @@ _ensure_key() {
 # Start / stop / status / logs
 # ------------------------------------------------------------
 
+# n8n sends "X-Frame-Options: sameorigin" via helmet in production mode, which makes
+# browsers show "localhost refused to connect" inside an <iframe>. Turn that header
+# off in the compiled server (idempotent; re-applied after every rebuild).
+# Skip with N8N_ALLOW_IFRAME=0.
+_n8n_allow_iframe() {
+    [[ "${N8N_ALLOW_IFRAME:-1}" == "0" ]] && return 0
+    local f="${REPO_ROOT}/packages/cli/dist/server.js"
+    [[ -f "$f" ]] || return 0
+    if grep -Eq "action:[[:space:]]*['\"]sameorigin['\"]" "$f" 2>/dev/null; then
+        if command -v perl >/dev/null 2>&1; then
+            perl -pi -e 's/\{\s*action:\s*([\x27"])sameorigin\1\s*\}/false/g' "$f" \
+                && _n8n_log "Disabled X-Frame-Options in n8n server (iframe embedding enabled)."
+        else
+            _n8n_warning "perl not found; cannot patch X-Frame-Options (CSP frame-ancestors still applies)."
+        fi
+    fi
+}
+
+_n8n_check_embedding() {
+    [[ "${N8N_ALLOW_IFRAME:-1}" == "0" ]] && return 0
+    local h
+    h="$(curl -s -D - -o /dev/null "http://127.0.0.1:${N8N_PORT}/" 2>/dev/null | tr -d '\r' || true)"
+    if grep -qi '^x-frame-options:' <<< "$h"; then
+        _n8n_warning "n8n still sends X-Frame-Options; iframe embedding may be blocked: $(grep -i '^x-frame-options:' <<< "$h" | head -n1)"
+    fi
+    if grep -qi 'frame-ancestors' <<< "$h"; then
+        _n8n_success "iframe embedding allowed (CSP frame-ancestors set)."
+    else
+        _n8n_warning "No CSP frame-ancestors header seen. Check N8N_FRAME_ANCESTORS / N8N_CONTENT_SECURITY_POLICY."
+    fi
+}
+
 start_n8n() {
     if _pid_alive; then
         _n8n_log "n8n already running (pid $(cat "$N8N_PID_FILE"))."
@@ -493,6 +528,8 @@ start_n8n() {
         return 1
     fi
 
+    _n8n_allow_iframe
+
     _n8n_log "Starting n8n on http://127.0.0.1:${N8N_PORT}"
 
     (
@@ -516,7 +553,18 @@ start_n8n() {
 
         export N8N_PUBLIC_API_DISABLED="false"
         export N8N_RUNNERS_ENABLED="true"
-        export N8N_CONTENT_SECURITY_POLICY="frame-ancestors 'self' http://localhost:* http://127.0.0.1:*"
+        # iframe embedding: n8n reads this as JSON (helmet directives). The old plain
+        # string was not valid JSON, so n8n ignored it and X-Frame-Options won.
+        if [[ -z "${N8N_CONTENT_SECURITY_POLICY:-}" ]]; then
+            local _fa_list _fa_json="" _fa_src
+            local -a _fa_arr
+            _fa_list="${N8N_FRAME_ANCESTORS:-*}"
+            read -r -a _fa_arr <<< "$_fa_list"      # read -a: no glob expansion of '*'
+            for _fa_src in "${_fa_arr[@]}"; do
+                _fa_json="${_fa_json:+${_fa_json},}\"${_fa_src}\""
+            done
+            export N8N_CONTENT_SECURITY_POLICY="{\"frame-ancestors\":[${_fa_json}]}"
+        fi
 
         export N8N_RELEASE_TYPE="stable"
         export GENERIC_TIMEZONE="${GENERIC_TIMEZONE:-UTC}"
@@ -544,6 +592,7 @@ start_n8n() {
         fi
         if curl -fsS -o /dev/null "http://127.0.0.1:${N8N_PORT}/healthz" 2>/dev/null; then
             _n8n_success "n8n is up: http://127.0.0.1:${N8N_PORT}"
+            _n8n_check_embedding
             return 0
         fi
         sleep 1
