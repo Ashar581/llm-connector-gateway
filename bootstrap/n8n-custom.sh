@@ -2,21 +2,19 @@
 # ============================================================
 # Ashar n8n Edition - Custom Monorepo Runner
 #
-# Builds and runs the custom n8n monorepo (with Agent & Scraper Agent nodes)
-# locally under runtime/n8n.
+# Builds and runs the custom n8n monorepo (with Agent & Scraper Agent nodes).
 #
-#   runtime/n8n/
-#     data/            n8n user folder (SQLite DB, config, credentials)
-#     logs/n8n.log
-#     n8n.pid
-#     encryption.key   generated once, reused forever
+#   <runtime>/
+#     node/              private Node.js 24 + pnpm
+#     n8n-repo/          the cloned monorepo (when not run from inside it)
+#     n8n/
+#       data/            n8n user folder (SQLite DB, config, credentials)
+#       logs/            n8n.log, install.log, build.log
+#       n8n.pid
+#       encryption.key   generated once, reused forever
 #
-# The n8n binary itself runs from the built monorepo at:
-#   packages/cli/bin/n8n   (via scripts/os-normalize.mjs)
-#
-# Supports: macOS Intel/Apple Silicon, Ubuntu/Debian (x64, arm64, armv7l),
-#           Windows 10/11 (Git Bash, MSYS2, WSL)
-# Needs:    curl, and either pnpm or corepack (Node is installed by the script)
+# Runtime dir resolution:
+#   $RUNTIME_DIR (set by bootstrap)  ->  else <script-dir>/../runtime
 #
 # Usage:
 #   ./n8n-custom.sh [start|stop|restart|status|logs|build|install]
@@ -26,194 +24,254 @@
 #   N8N_REPO_URL=https://github.com/Ashar581/llm-connector-n8n.git
 #   N8N_REPO_ROOT=...            override where the repo is located
 #   N8N_START_TIMEOUT=120        seconds to wait for readiness
-#   N8N_HOME=...                 override runtime location (default: <repo>/runtime/n8n)
+#   N8N_HOME=...                 override runtime location (default: <runtime>/n8n)
 #   N8N_SKIP_BUILD=1             skip pnpm build (use existing dist)
 #   N8N_SKIP_INSTALL=1           skip pnpm install
 #   N8N_DATA_DIR=...             override n8n user data folder
 #   N8N_LOG_LEVEL=info           n8n log level (debug, info, warn, error)
+#   N8N_PNPM_VERSION=...         force a pnpm version (default: repo's packageManager)
 #   GENERIC_TIMEZONE=UTC         default timezone
+#
+# Needs: curl, git, tar (everything else is installed privately).
+# NOTE: no `set -e` at file level, so this file is safe to `source` from bootstrap.
 # ============================================================
-
-set -Eeuo pipefail
 
 # ------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------
 
-# BASH_SOURCE[0] is unset when sourced from certain shells; fall back to $0
 _SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
-# Use our own prefixed helpers to avoid collision with bootstrap's common.sh
 _n8n_log()     { printf '[n8n] %s\n' "$*"; }
 _n8n_info()    { printf '[n8n] %s\n' "$*"; }
 _n8n_success() { printf '[n8n] OK: %s\n' "$*"; }
 _n8n_warning() { printf '[n8n] WARN: %s\n' "$*" >&2; }
 _n8n_fail()    { printf '[n8n] ERROR: %s\n' "$*" >&2; return 1; }
 
-# Determine the n8n monorepo root:
-# 1. Explicit override via N8N_REPO_ROOT
-# 2. If RUNTIME_DIR is set (from bootstrap), use ${RUNTIME_DIR}/n8n-repo
-# 3. Fallback: script directory (for standalone use inside the repo)
-if [[ -n "${N8N_REPO_ROOT:-}" ]]; then
-    REPO_ROOT="${N8N_REPO_ROOT}"
-elif [[ -n "${RUNTIME_DIR:-}" ]]; then
-    REPO_ROOT="${RUNTIME_DIR}/n8n-repo"
-else
-    REPO_ROOT="${_SCRIPT_DIR}"
-fi
-
-# ------------------------------------------------------------
-# Platform detection
-# ------------------------------------------------------------
-# uname reports "Linux" inside WSL, so WSL is handled by the linux branch.
-# Native Windows shells (Git Bash, MSYS2, Cygwin) report MSYS_NT-*,
-# MINGW*, or CYGWIN* and need the windows branch.
 _is_windows() {
-    local u
-    u="$(uname -s 2>/dev/null || echo "")"
-    case "$u" in
-        msys*|mingw*|cygwin*|MSYS_*|MINGW*|CYGWIN*) return 0 ;;
+    case "$(uname -s 2>/dev/null || echo "")" in
+        MSYS*|MINGW*|CYGWIN*|msys*|mingw*|cygwin*) return 0 ;;
         *) return 1 ;;
     esac
 }
 
-# PATH separator for the current shell (: on Unix, ; on Windows shells)
-if _is_windows; then
-    _PATH_SEP=";"
-    _NPM_CMD="npm.cmd"
+# Git Bash / MSYS2 / Cygwin all use ':' inside bash, so ':' everywhere.
+if _is_windows; then _NPM_CMD="npm.cmd"; else _NPM_CMD="npm"; fi
+
+# ------------------------------------------------------------
+# Locations
+# ------------------------------------------------------------
+
+_looks_like_n8n_repo() {
+    [[ -f "$1/package.json" && -d "$1/packages/cli" ]]
+}
+
+# Runtime base (holds node/, n8n/ and, by default, n8n-repo/).
+# It must NEVER be the repo checkout itself or the script directory, because a
+# stale-checkout cleanup would otherwise take the runtime (or the script) with it.
+if [[ -n "${RUNTIME_DIR:-}" ]]; then
+    _RUNTIME_BASE="${RUNTIME_DIR}"
+elif _looks_like_n8n_repo "${_SCRIPT_DIR}"; then
+    _RUNTIME_BASE="${_SCRIPT_DIR}/runtime"
 else
-    _PATH_SEP=":"
-    _NPM_CMD="npm"
+    _RUNTIME_BASE="$(cd "${_SCRIPT_DIR}/.." && pwd)/runtime"
 fi
 
-# ------------------------------------------------------------
-# Private Node.js Runtime (Node 24)
-# ------------------------------------------------------------
+if [[ -n "${N8N_REPO_ROOT:-}" ]]; then
+    REPO_ROOT="${N8N_REPO_ROOT}"
+elif _looks_like_n8n_repo "${_SCRIPT_DIR}"; then
+    REPO_ROOT="${_SCRIPT_DIR}"
+else
+    REPO_ROOT="${_RUNTIME_BASE}/n8n-repo"
+fi
 
-_NODE_DIR="${REPO_ROOT}/runtime/node"
+_NODE_DIR="${_RUNTIME_BASE}/node"
 _NODE_VERSION="24.11.0"
+_PNPM_FALLBACK="10"   # used only if the repo has no packageManager field
 
-# Download the Node.js archive for the current platform. Returns 0 and
-# exports _NODE_ARCHIVE (path), _NODE_EXTRACT_CMD on success.
+N8N_HOME="${N8N_HOME:-${_RUNTIME_BASE}/n8n}"
+N8N_LOG_DIR="${N8N_HOME}/logs"
+N8N_LOG_FILE="${N8N_LOG_DIR}/n8n.log"
+N8N_PORT="${N8N_PORT:-5678}"
+N8N_START_TIMEOUT="${N8N_START_TIMEOUT:-120}"
+N8N_DATA_DIR="${N8N_DATA_DIR:-${N8N_HOME}/data}"
+N8N_PID_FILE="${N8N_HOME}/n8n.pid"
+N8N_KEY_FILE="${N8N_HOME}/encryption.key"
+N8N_BIN="${REPO_ROOT}/packages/cli/bin/n8n"
+
+# ------------------------------------------------------------
+# Prereqs (auto-install via apt when running as root on Debian/Ubuntu)
+# ------------------------------------------------------------
+
+_n8n_need_cmd() {
+    local cmd="$1" pkg="${2:-$1}"
+    command -v "$cmd" >/dev/null 2>&1 && return 0
+    if [[ "$(id -u)" == "0" ]] && command -v apt-get >/dev/null 2>&1; then
+        _n8n_warning "'${cmd}' not found. Installing '${pkg}' via apt-get..."
+        DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" >/dev/null 2>&1 \
+            || { apt-get update >/dev/null 2>&1 \
+                 && DEBIAN_FRONTEND=noninteractive apt-get install -y "$pkg" >/dev/null 2>&1; } \
+            || true
+        command -v "$cmd" >/dev/null 2>&1 && return 0
+    fi
+    _n8n_fail "'${cmd}' is required but not installed."
+}
+
+_check_prereqs() {
+    _n8n_need_cmd curl || return 1
+    _n8n_need_cmd git  || return 1
+    _n8n_need_cmd tar  || return 1
+    if _is_windows; then :; fi
+    return 0
+}
+
+# ------------------------------------------------------------
+# Clone
+# ------------------------------------------------------------
+
+_n8n_ensure_repo() {
+    if [[ -f "${REPO_ROOT}/package.json" && -d "${REPO_ROOT}/.git" ]]; then
+        return 0
+    fi
+
+    # Never rm -rf: move a broken/non-empty directory aside instead.
+    if [[ -e "${REPO_ROOT}" ]] && [[ -n "$(ls -A "${REPO_ROOT}" 2>/dev/null || true)" ]]; then
+        local aside="${REPO_ROOT}.stale-$(date +%s)"
+        _n8n_warning "${REPO_ROOT} is not a valid n8n checkout. Moving it to ${aside}"
+        mv "${REPO_ROOT}" "${aside}" || { _n8n_fail "Could not move ${REPO_ROOT} aside."; return 1; }
+    fi
+
+    _n8n_log "Cloning n8n repo into ${REPO_ROOT}..."
+    mkdir -p "$(dirname "${REPO_ROOT}")"
+    git clone --depth 1 "${N8N_REPO_URL:-https://github.com/Ashar581/llm-connector-n8n.git}" "${REPO_ROOT}" \
+        || { _n8n_fail "Failed to clone n8n repo"; return 1; }
+    _n8n_success "Cloned n8n repo to ${REPO_ROOT}"
+}
+
+# ------------------------------------------------------------
+# Private Node.js + pnpm
+# ------------------------------------------------------------
+
+_n8n_node_bin() {
+    if   [[ -x "${_NODE_DIR}/bin/node"  ]]; then echo "${_NODE_DIR}/bin/node"
+    elif [[ -x "${_NODE_DIR}/node.exe"  ]]; then echo "${_NODE_DIR}/node.exe"
+    else echo ""
+    fi
+}
+
 _n8n_node_archive_url() {
-    local os arch url ext
+    local os arch ext
     os="$(uname -s | tr '[:upper:]' '[:lower:]')"
     arch="$(uname -m)"
-
-    # Normalise architectures to Node's naming
     case "$arch" in
         x86_64|amd64|AMD64) arch="x64" ;;
-        aarch64|arm64)       arch="arm64" ;;
-        armv7l|armv7)        arch="armv7l" ;;
-        i386|i686)           arch="x86" ;;
+        aarch64|arm64)      arch="arm64" ;;
+        armv7l|armv7)       arch="armv7l" ;;
+        i386|i686)          arch="x86" ;;
     esac
 
     if _is_windows; then
-        # On Windows uname -s is msys/mingw/cygwin; Node names the platform win
-        os="win"
-        ext="zip"
-        url="https://nodejs.org/dist/v${_NODE_VERSION}/node-v${_NODE_VERSION}-win-${arch}.zip"
+        os="win"; ext="zip"
     else
         case "$os" in
-            darwin) ext="tar.gz" ;;
-            linux)  ext="tar.xz" ;;
-            *) _n8n_fail "Unsupported OS: $os" ;;
+            darwin|linux) ext="tar.gz" ;;
+            *) _n8n_fail "Unsupported OS: $os"; return 1 ;;
         esac
-        url="https://nodejs.org/dist/v${_NODE_VERSION}/node-v${_NODE_VERSION}-${os}-${arch}.${ext}"
     fi
 
-    _NODE_ARCHIVE="/tmp/node-v${_NODE_VERSION}-${os}-${arch}.${ext}"
-    _NODE_URL="$url"
+    _NODE_URL="https://nodejs.org/dist/v${_NODE_VERSION}/node-v${_NODE_VERSION}-${os}-${arch}.${ext}"
+    _NODE_ARCHIVE="${TMPDIR:-/tmp}/node-v${_NODE_VERSION}-${os}-${arch}.${ext}"
 }
 
 _n8n_extract_node() {
     _n8n_log "Extracting Node.js to ${_NODE_DIR}..."
+    rm -rf "${_NODE_DIR}"
     mkdir -p "${_NODE_DIR}"
     if _is_windows; then
-        # unzip is available in Git Bash/MSYS2; fall back to powershell
         if command -v unzip >/dev/null 2>&1; then
-            unzip -q -o "${_NODE_ARCHIVE}" -C "${_NODE_DIR}" \
-                || _n8n_fail "Failed to extract Node.js"
-            # zip strips the top-level dir; move contents up if present
-            local top
-            top="$(ls -A "${_NODE_DIR}" 2>/dev/null | head -n1 || true)"
-            if [[ -n "$top" && -d "${_NODE_DIR}/${top}" ]]; then
-                mv "${_NODE_DIR}/${top}"/* "${_NODE_DIR}/" 2>/dev/null || true
-                rm -rf "${_NODE_DIR}/${top}"
-            fi
+            unzip -q -o "${_NODE_ARCHIVE}" -d "${_NODE_DIR}" \
+                || { _n8n_fail "Failed to extract Node.js"; return 1; }
         else
             powershell -Command "Expand-Archive -Path '${_NODE_ARCHIVE}' -DestinationPath '${_NODE_DIR}' -Force" \
-                || _n8n_fail "Failed to extract Node.js"
+                || { _n8n_fail "Failed to extract Node.js"; return 1; }
+        fi
+        # zip has a top-level node-vX-win-x64/ dir; move its contents up
+        local top
+        top="$(ls -A "${_NODE_DIR}" 2>/dev/null | head -n1 || true)"
+        if [[ -n "$top" && -d "${_NODE_DIR}/${top}" ]]; then
+            mv "${_NODE_DIR}/${top}"/* "${_NODE_DIR}/" 2>/dev/null || true
+            rm -rf "${_NODE_DIR:?}/${top}"
         fi
     else
-        if [[ "${_NODE_URL}" == *.tar.xz ]]; then
-            tar -xJf "${_NODE_ARCHIVE}" -C "${_NODE_DIR}" --strip-components=1 \
-                || _n8n_fail "Failed to extract Node.js"
-        else
-            tar -xzf "${_NODE_ARCHIVE}" -C "${_NODE_DIR}" --strip-components=1 \
-                || _n8n_fail "Failed to extract Node.js"
-        fi
+        tar -xzf "${_NODE_ARCHIVE}" -C "${_NODE_DIR}" --strip-components=1 \
+            || { _n8n_fail "Failed to extract Node.js"; return 1; }
     fi
     rm -f "${_NODE_ARCHIVE}"
 }
 
 _n8n_install_private_node() {
-    _n8n_node_archive_url
-    _n8n_log "Downloading private Node.js ${_NODE_VERSION} for ${_NODE_URL##*/}..."
-    curl -fsSL "$_NODE_URL" -o "${_NODE_ARCHIVE}" || _n8n_fail "Failed to download Node.js"
-    _n8n_extract_node
+    _n8n_node_archive_url || return 1
+    _n8n_log "Downloading Node.js ${_NODE_VERSION} (${_NODE_URL##*/})..."
+    curl -fSL --retry 3 --retry-delay 2 "$_NODE_URL" -o "${_NODE_ARCHIVE}" \
+        || { rm -f "${_NODE_ARCHIVE}"; _n8n_fail "Failed to download ${_NODE_URL}"; return 1; }
+    _n8n_extract_node || return 1
+    _n8n_success "Private Node.js ${_NODE_VERSION} installed at ${_NODE_DIR}"
+}
 
-    # Enable corepack and install pnpm
-    export PATH="${_NODE_DIR}/bin${_PATH_SEP}${PATH}"
-    _n8n_log "Installing pnpm via corepack..."
-    corepack enable
-    corepack prepare pnpm@12.4.2 --activate || "${_NPM_CMD}" install -g pnpm@12.4.2
+# pnpm version: explicit override > repo's packageManager field > fallback
+_n8n_pnpm_version() {
+    if [[ -n "${N8N_PNPM_VERSION:-}" ]]; then echo "${N8N_PNPM_VERSION}"; return; fi
+    local v=""
+    if [[ -f "${REPO_ROOT}/package.json" ]]; then
+        v="$(sed -n 's/.*"packageManager"[[:space:]]*:[[:space:]]*"pnpm@\([^"+]*\).*/\1/p' \
+             "${REPO_ROOT}/package.json" | head -n1 || true)"
+    fi
+    echo "${v:-${_PNPM_FALLBACK}}"
+}
 
-    _n8n_success "Private Node.js runtime installed at ${_NODE_DIR}"
+_n8n_ensure_pnpm() {
+    local npm_bin="${_NODE_DIR}/bin/npm"
+    [[ -x "$npm_bin" ]] || npm_bin="${_NODE_DIR}/${_NPM_CMD}"
+
+    if [[ -e "${_NODE_DIR}/bin/pnpm" || -e "${_NODE_DIR}/pnpm.cmd" ]] \
+       && pnpm --version >/dev/null 2>&1; then
+        _n8n_info "Using pnpm $(pnpm --version)"
+        return 0
+    fi
+
+    local want; want="$(_n8n_pnpm_version)"
+    _n8n_log "Installing pnpm@${want} with the private Node's npm..."
+    "$npm_bin" install -g "pnpm@${want}" >/dev/null \
+        || { _n8n_fail "Failed to install pnpm@${want}."; return 1; }
+    hash -r 2>/dev/null || true
+    pnpm --version >/dev/null 2>&1 \
+        || { _n8n_fail "pnpm still not working after install. PATH=$PATH"; return 1; }
+    _n8n_info "Using pnpm $(pnpm --version)"
 }
 
 _n8n_ensure_node() {
-    # The node binary lives at bin/node (Unix) or node.exe (Windows)
-    if [[ ! -x "${_NODE_DIR}/bin/node" && ! -x "${_NODE_DIR}/node.exe" ]]; then
-        _n8n_install_private_node
+    local nb major=""
+    nb="$(_n8n_node_bin)"
+    [[ -n "$nb" ]] && major="$("$nb" -v 2>/dev/null | sed 's/^v//; s/\..*//' || true)"
+
+    if [[ -z "$major" || ! "$major" =~ ^[0-9]+$ || "$major" -lt 24 ]]; then
+        _n8n_install_private_node || return 1
     fi
-    export PATH="${_NODE_DIR}/bin${_PATH_SEP}${REPO_ROOT}/node_modules/.bin${_PATH_SEP}${PATH}"
+
+    export PATH="${_NODE_DIR}/bin:${REPO_ROOT}/node_modules/.bin:${PATH}"
+    _is_windows && export PATH="${_NODE_DIR}:${PATH}"
+    _n8n_ensure_pnpm
 }
 
-# Ensure node is available before we do anything else
-_n8n_ensure_node
-
-# Auto-clone the repo if it doesn't exist, or if the existing path is not a
-# valid checkout (a stale/broken directory left by an interrupted previous
-# run). git refuses to clone into a non-empty directory, so clear it first.
-if [[ ! -f "${REPO_ROOT}/package.json" || ! -d "${REPO_ROOT}/.git" ]]; then
-    if [[ -e "${REPO_ROOT}" ]]; then
-        _n8n_warning "Existing path ${REPO_ROOT} is not a valid n8n repo. Removing it before clone..."
-        rm -rf "${REPO_ROOT}"
-    fi
-    _n8n_log "n8n repo not found at ${REPO_ROOT}. Cloning..."
-    mkdir -p "$(dirname "${REPO_ROOT}")"
-    git clone "${N8N_REPO_URL:-https://github.com/Ashar581/llm-connector-n8n.git}" "${REPO_ROOT}" \
-        || _n8n_fail "Failed to clone n8n repo"
-    _n8n_success "Cloned n8n repo to ${REPO_ROOT}"
-fi
-
-# ------------------------------------------------------------
-# Configuration
-# ------------------------------------------------------------
-
-N8N_HOME="${N8N_HOME:-${REPO_ROOT}/runtime/n8n}"
-N8N_PORT="${N8N_PORT:-5678}"
-N8N_START_TIMEOUT="${N8N_START_TIMEOUT:-120}"
-N8N_DATA_DIR="${N8N_DATA_DIR:-${N8N_HOME}/data}"
-N8N_LOG_DIR="${N8N_HOME}/logs"
-N8N_LOG_FILE="${N8N_LOG_DIR}/n8n.log"
-N8N_PID_FILE="${N8N_HOME}/n8n.pid"
-N8N_KEY_FILE="${N8N_HOME}/encryption.key"
-
-# Built n8n entry point (after pnpm build)
-N8N_BIN="${REPO_ROOT}/packages/cli/bin/n8n"
-N8N_OS_NORMALIZE="${REPO_ROOT}/scripts/os-normalize.mjs"
+# One-time setup: prereqs -> repo -> node -> pnpm. Idempotent.
+_N8N_INIT_DONE=0
+_n8n_init() {
+    [[ "$_N8N_INIT_DONE" == "1" ]] && return 0
+    _check_prereqs    || return 1
+    _n8n_ensure_repo  || return 1
+    _n8n_ensure_node  || return 1
+    _N8N_INIT_DONE=1
+}
 
 # ------------------------------------------------------------
 # Small helpers
@@ -221,7 +279,6 @@ N8N_OS_NORMALIZE="${REPO_ROOT}/scripts/os-normalize.mjs"
 
 _port_in_use() {
     if _is_windows; then
-        # netstat is available on Windows; fall back to a curl health probe
         if command -v netstat >/dev/null 2>&1; then
             netstat -ano 2>/dev/null | grep -q ":$1 " && return 0
             return 1
@@ -238,35 +295,9 @@ _pid_alive() {
     pid="$(cat "$N8N_PID_FILE" 2>/dev/null || true)"
     [[ -n "$pid" ]] || return 1
     if _is_windows; then
-        # tasklist shows running processes; the PID column is the 2nd field
         tasklist 2>/dev/null | awk '{print $2}' | grep -qx "$pid"
     else
         kill -0 "$pid" 2>/dev/null
-    fi
-}
-
-_check_prereqs() {
-    # pnpm and curl are genuinely required; Node is not, because the script
-    # installs its own private Node 24 runtime. A system Node >=24 is fine to
-    # use instead, but its absence must not block the script.
-    command -v curl >/dev/null 2>&1 || _n8n_fail "curl is required."
-    if command -v pnpm >/dev/null 2>&1; then
-        _n8n_info "Using system pnpm: $(pnpm -v)"
-    elif command -v corepack >/dev/null 2>&1; then
-        _n8n_info "pnpm not found; will install via corepack during Node setup."
-    else
-        _n8n_fail "pnpm not found and corepack unavailable. Install Node.js >=24 first."
-    fi
-    if command -v node >/dev/null 2>&1; then
-        local node_major
-        node_major="$(node -v | sed 's/^v//; s/\..*//')"
-        if (( node_major >= 24 )); then
-            _n8n_info "Using system Node.js $(node -v)"
-        else
-            _n8n_info "System Node.js $(node -v) is too old; will install private Node ${_NODE_VERSION}."
-        fi
-    else
-        _n8n_info "No system Node.js found; will install private Node ${_NODE_VERSION}."
     fi
 }
 
@@ -279,16 +310,19 @@ do_install() {
         _n8n_log "Skipping pnpm install (N8N_SKIP_INSTALL=1)."
         return 0
     fi
-    _n8n_log "Installing dependencies with pnpm..."
-    cd "$REPO_ROOT"
-    # --frozen-lockfile fails if the lockfile is out of sync with the
-    # package.json (e.g. after a branch switch). Fall back to a normal
-    # install so a stale lockfile never blocks the script.
-    if ! pnpm install --frozen-lockfile; then
-        _n8n_warning "Frozen install failed; retrying with a normal pnpm install..."
-        pnpm install || _n8n_fail "pnpm install failed."
+    _n8n_log "Installing dependencies with pnpm (log: ${N8N_LOG_DIR}/install.log)..."
+    cd "$REPO_ROOT" || return 1
+    mkdir -p "$N8N_LOG_DIR"
+    # CI=true stops pnpm from prompting (it aborts without a TTY otherwise).
+    if CI=true pnpm install --frozen-lockfile > "${N8N_LOG_DIR}/install.log" 2>&1; then
+        _n8n_success "Dependencies installed."
+    elif CI=true pnpm install > "${N8N_LOG_DIR}/install.log" 2>&1; then
+        _n8n_success "Dependencies installed (lockfile was out of sync)."
+    else
+        _n8n_fail "pnpm install failed. See ${N8N_LOG_DIR}/install.log"
+        tail -n 20 "${N8N_LOG_DIR}/install.log" >&2 || true
+        return 1
     fi
-    _n8n_success "Dependencies installed."
 }
 
 do_build() {
@@ -296,32 +330,26 @@ do_build() {
         _n8n_log "Skipping build (N8N_SKIP_BUILD=1)."
         return 0
     fi
-    _n8n_log "Building monorepo (this may take a few minutes)..."
-    cd "$REPO_ROOT"
+    _n8n_log "Building monorepo - this can take a long time (log: ${N8N_LOG_DIR}/build.log)..."
+    cd "$REPO_ROOT" || return 1
     mkdir -p "$N8N_LOG_DIR"
-    # A build failure is not fatal: an existing dist/ from a prior run may
-    # still launch, and the start path surfaces the real problem via the log.
-    if pnpm build > "${N8N_LOG_DIR}/build.log" 2>&1; then
+    if NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=8192}" CI=true \
+         pnpm build > "${N8N_LOG_DIR}/build.log" 2>&1; then
         _n8n_success "Build complete."
     else
-        _n8n_warning "Build failed (see ${N8N_LOG_DIR}/build.log). Continuing..."
+        _n8n_warning "Build failed (see ${N8N_LOG_DIR}/build.log)."
+        tail -n 20 "${N8N_LOG_DIR}/build.log" >&2 || true
         return 1
     fi
 }
 
 ensure_built() {
-    # bin/n8n is checked into the repo, so it always exists. We must also
-    # verify that node_modules was actually installed (otherwise require()
-    # fails with MODULE_NOT_FOUND) and that dist/ was built.
-    if [[ ! -x "$N8N_BIN" || ! -f "$N8N_OS_NORMALIZE" \
-        || ! -d "${REPO_ROOT}/node_modules" || ! -d "${REPO_ROOT}/packages/cli/dist" ]]; then
+    if [[ ! -f "$N8N_BIN" || ! -d "${REPO_ROOT}/node_modules" \
+          || ! -d "${REPO_ROOT}/packages/cli/dist" ]]; then
         _n8n_log "Built artifacts not found. Running install + build..."
-        do_install
-        # A build failure must not abort the script: an existing dist/ from a
-        # previous run may still work, and the start path reports the real
-        # failure via the log instead of a misleading clone error.
+        do_install || return 1
         if ! do_build; then
-            _n8n_warning "Build failed. Continuing with any existing build artifacts..."
+            _n8n_warning "Continuing with any existing build artifacts..."
         fi
     else
         _n8n_log "Using existing build at ${N8N_BIN}"
@@ -356,19 +384,32 @@ start_n8n() {
         return 1
     fi
 
+    _n8n_init || return 1
     _ensure_key
     mkdir -p "$N8N_DATA_DIR" "$N8N_LOG_DIR"
 
-    ensure_built
+    ensure_built || return 1
+
+    local node_bin node_major
+    node_bin="$(_n8n_node_bin)"
+    node_major="$("$node_bin" -v 2>/dev/null | sed 's/^v//; s/\..*//' || true)"
+    if [[ -z "$node_bin" || ! "$node_major" =~ ^[0-9]+$ || "$node_major" -lt 24 ]]; then
+        _n8n_fail "Private Node ${_NODE_VERSION} missing or too old (found: ${node_major:-none})."
+        return 1
+    fi
+
+    if [[ ! -f "$N8N_BIN" ]]; then
+        _n8n_fail "n8n entry point not found: ${N8N_BIN}"
+        return 1
+    fi
 
     _n8n_log "Starting n8n on http://127.0.0.1:${N8N_PORT}"
 
     (
         export N8N_USER_FOLDER="$N8N_DATA_DIR"
-        export N8N_ENCRYPTION_KEY
         N8N_ENCRYPTION_KEY="$(cat "$N8N_KEY_FILE")"
+        export N8N_ENCRYPTION_KEY
 
-        # Network: bind to localhost only
         export N8N_LISTEN_ADDRESS="127.0.0.1"
         export N8N_PORT="$N8N_PORT"
         export N8N_PROTOCOL="http"
@@ -377,49 +418,38 @@ start_n8n() {
         export WEBHOOK_URL="${WEBHOOK_URL:-http://127.0.0.1:${N8N_PORT}/}"
         export N8N_SECURE_COOKIE="${N8N_SECURE_COOKIE:-false}"
 
-        # Quiet, offline-friendly defaults
         export N8N_DIAGNOSTICS_ENABLED="false"
         export N8N_VERSION_NOTIFICATIONS_ENABLED="false"
         export N8N_PERSONALIZATION_ENABLED="false"
         export N8N_HIRING_BANNER_ENABLED="false"
         export N8N_TEMPLATES_ENABLED="${N8N_TEMPLATES_ENABLED:-true}"
 
-        # Public REST API
         export N8N_PUBLIC_API_DISABLED="false"
-
-        # Task runners for Code nodes
         export N8N_RUNNERS_ENABLED="true"
-
-        # Allow embedding in iframe
         export N8N_CONTENT_SECURITY_POLICY="frame-ancestors 'self' http://localhost:* http://127.0.0.1:*"
 
         export N8N_RELEASE_TYPE="stable"
         export GENERIC_TIMEZONE="${GENERIC_TIMEZONE:-UTC}"
 
-        # Keep the DB small: prune old executions
         export EXECUTIONS_DATA_PRUNE="true"
         export EXECUTIONS_DATA_MAX_AGE="${EXECUTIONS_DATA_MAX_AGE:-168}"
-
-        # Log level
         export N8N_LOG_LEVEL="${N8N_LOG_LEVEL:-info}"
 
         cd "$REPO_ROOT"
-        # Run the n8n CLI directly. The bin/n8n is a Node script with a shebang,
-        # so we don't need os-normalize.mjs (which runs in-process via zx and
-        # would block the PID file from being written).
+        # Always launch with the private Node 24 (system Node 22 breaks this n8n).
         if command -v nohup >/dev/null 2>&1; then
-            nohup "$N8N_BIN" start >>"$N8N_LOG_FILE" 2>&1 &
+            nohup "$node_bin" "$N8N_BIN" start >>"$N8N_LOG_FILE" 2>&1 < /dev/null &
         else
-            "$N8N_BIN" start >>"$N8N_LOG_FILE" 2>&1 &
+            "$node_bin" "$N8N_BIN" start >>"$N8N_LOG_FILE" 2>&1 < /dev/null &
         fi
         echo $! > "$N8N_PID_FILE"
     )
 
-    # Wait for readiness
     local i
     for (( i = 0; i < N8N_START_TIMEOUT; i++ )); do
         if ! _pid_alive; then
-            _n8n_fail "n8n exited during startup. See ${N8N_LOG_FILE}"
+            _n8n_fail "n8n exited during startup. Last log lines:"
+            tail -n 20 "$N8N_LOG_FILE" >&2 || true
             return 1
         fi
         if curl -fsS -o /dev/null "http://127.0.0.1:${N8N_PORT}/healthz" 2>/dev/null; then
@@ -488,44 +518,18 @@ logs_n8n() {
 # Commands
 # ------------------------------------------------------------
 
-cmd_install() {
-    _check_prereqs
-    do_install
-}
-
-cmd_build() {
-    _check_prereqs
-    do_build
-}
-
-cmd_start() {
-    _check_prereqs
-    start_n8n
-}
-
-cmd_stop() {
-    stop_n8n
-}
-
-cmd_restart() {
-    stop_n8n
-    start_n8n
-}
-
-cmd_status() {
-    status_n8n
-}
-
-cmd_logs() {
-    logs_n8n
-}
+cmd_install() { _n8n_init || return 1; do_install; }
+cmd_build()   { _n8n_init || return 1; do_build; }
+cmd_start()   { start_n8n; }
+cmd_stop()    { stop_n8n; }
+cmd_restart() { stop_n8n; start_n8n; }
+cmd_status()  { status_n8n; }
+cmd_logs()    { logs_n8n; }
 
 # ------------------------------------------------------------
 # Standalone CLI (only when executed, not when sourced)
 # ------------------------------------------------------------
 
-# When sourced, BASH_SOURCE[0] is the script path; when executed, it's $0.
-# Use a guard that works in both cases.
 _is_sourced() { [[ "${BASH_SOURCE[0]:-$0}" != "$0" ]]; }
 if ! _is_sourced; then
     set -Eeuo pipefail
@@ -542,37 +546,18 @@ if ! _is_sourced; then
         cat <<EOF
 Usage: $0 [install|build|start|stop|restart|status|logs]
 
-Commands:
-  install   Run pnpm install (fetch dependencies)
-  build     Run pnpm build (compile TypeScript)
-  start     Install (if needed), build (if needed), and start n8n
-  stop      Stop running n8n
+  install   Run pnpm install
+  build     Run pnpm build
+  start     Clone/install/build if needed, then start n8n (default)
+  stop      Stop n8n
   restart   Stop and start n8n
-  status    Show n8n process status
-  logs      Tail n8n log file
-
-Environment:
-  N8N_PORT=5678              Port to bind (default: 5678)
-  N8N_REPO_URL=...           Git repo to clone (default: https://github.com/Ashar581/llm-connector-n8n.git)
-  N8N_REPO_ROOT=...          Override repo location (default: <script-dir> or \$RUNTIME_DIR/n8n-repo)
-  N8N_HOME=...               Runtime directory (default: ./runtime/n8n)
-  N8N_DATA_DIR=...           n8n user data folder (default: \$N8N_HOME/data)
-  N8N_START_TIMEOUT=120      Startup wait seconds (default: 120)
-  N8N_SKIP_INSTALL=1         Skip pnpm install
-  N8N_SKIP_BUILD=1           Skip pnpm build
-  N8N_LOG_LEVEL=info         n8n log level (debug|info|warn|error)
-  GENERIC_TIMEZONE=UTC       Default timezone
-
-Notes:
-  The script installs its own private Node.js 24 runtime under runtime/node,
-  so a system Node.js is optional. On Windows it uses unzip/powershell for the
-  archive and taskkill/netstat for process management.
+  status    Show process status
+  logs      Tail the n8n log
 
 Examples:
-  $0 start                    # Full startup (install+build+run)
-  N8N_PORT=5679 $0 start      # Custom port
-  N8N_SKIP_BUILD=1 $0 start   # Quick restart using existing build
-  $0 logs                     # Follow logs
+  $0 start
+  N8N_PORT=5679 $0 start
+  N8N_SKIP_BUILD=1 $0 start
 EOF
         exit 2
         ;;
