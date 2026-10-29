@@ -64,8 +64,7 @@ public class AppSecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                             .contentSecurityPolicy(policy -> policy
-                                    .policyDirectives("default-src 'self'")
-                            )
+                                    .policyDirectives("default-src 'self'; frame-src 'self' http://localhost:5678;")                            )
                         .httpStrictTransportSecurity(transport ->  transport
                                 .includeSubDomains(true)
                         )
