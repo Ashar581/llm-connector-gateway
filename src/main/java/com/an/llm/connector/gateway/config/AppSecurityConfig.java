@@ -66,6 +66,8 @@ public class AppSecurityConfig {
                             .contentSecurityPolicy(policy -> policy
                                     .policyDirectives("default-src 'self'; " +
                                             "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com")
+
+                            )
                         .httpStrictTransportSecurity(transport ->  transport
                                 .includeSubDomains(true)
                         )
@@ -78,7 +80,7 @@ public class AppSecurityConfig {
                 .addFilterBefore(new RefreshTokenFilter(jwtTokenWrapperService,userService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtGeneratorFilter(jwtTokenWrapperService,authenticationService,userService),UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtValidatorFilter, UsernamePasswordAuthenticationFilter.class)
-                .httpBasic(Customizer.withDefaults()));
+                .httpBasic(Customizer.withDefaults());
 
         return httpSecurity.build();
     }
