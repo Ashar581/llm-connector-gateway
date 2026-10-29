@@ -33,6 +33,8 @@
 #   GENERIC_TIMEZONE=UTC         default timezone
 #
 # Needs: curl, git, tar (everything else is installed privately).
+# Platforms: Ubuntu/Debian (vast.ai containers, x64/arm64), macOS (Intel + Apple
+#            Silicon; works with the stock bash 3.2), Windows Git Bash/MSYS2.
 # NOTE: no `set -e` at file level, so this file is safe to `source` from bootstrap.
 # ============================================================
 
@@ -117,11 +119,33 @@ _n8n_need_cmd() {
     _n8n_fail "'${cmd}' is required but not installed."
 }
 
+# Native-module toolchain (python3 + make + g++). Best-effort, never fatal.
+_n8n_ensure_toolchain() {
+    _is_windows && return 0
+    case "$(uname -s)" in
+        Darwin)
+            xcode-select -p >/dev/null 2>&1 \
+                || _n8n_warning "Xcode Command Line Tools missing. Run: xcode-select --install"
+            ;;
+        Linux)
+            _n8n_need_cmd python3 python3     >/dev/null 2>&1 || _n8n_warning "python3 missing; native modules may fail to build."
+            _n8n_need_cmd make build-essential >/dev/null 2>&1 || _n8n_warning "make missing; native modules may fail to build."
+            _n8n_need_cmd g++ build-essential  >/dev/null 2>&1 || _n8n_warning "g++ missing; native modules may fail to build."
+            ;;
+    esac
+    return 0
+}
+
 _check_prereqs() {
+    if [[ "$(uname -s)" == "Darwin" ]] && ! command -v git >/dev/null 2>&1; then
+        _n8n_fail "git not found. Run: xcode-select --install   (or: brew install git)"
+        return 1
+    fi
+    _n8n_need_cmd ca-certificates >/dev/null 2>&1 || true
     _n8n_need_cmd curl || return 1
     _n8n_need_cmd git  || return 1
     _n8n_need_cmd tar  || return 1
-    if _is_windows; then :; fi
+    _n8n_ensure_toolchain
     return 0
 }
 
@@ -325,6 +349,26 @@ do_install() {
     fi
 }
 
+# Print the real reason a turbo build failed (the summary alone hides it).
+_n8n_show_build_error() {
+    local log="${N8N_LOG_DIR}/build.log" failed pkg
+    failed="$(sed -n 's/^[[:space:]]*Failed:[[:space:]]*//p' "$log" 2>/dev/null | head -n1 || true)"
+    _n8n_warning "---- build error (full log: ${log}) ----"
+    if [[ -n "$failed" ]]; then
+        pkg="${failed%%#*}"
+        _n8n_warning "Failed task: ${failed}"
+        grep -F "${pkg}:" "$log" 2>/dev/null | tail -n 40 >&2 || true
+    else
+        tail -n 40 "$log" >&2 || true
+    fi
+    _n8n_warning "-----------------------------------------"
+}
+
+_n8n_is_built() {
+    [[ -f "$N8N_BIN" && -d "${REPO_ROOT}/node_modules" \
+       && -d "${REPO_ROOT}/packages/cli/dist/config" ]]
+}
+
 do_build() {
     if [[ "${N8N_SKIP_BUILD:-0}" == "1" ]]; then
         _n8n_log "Skipping build (N8N_SKIP_BUILD=1)."
@@ -333,26 +377,36 @@ do_build() {
     _n8n_log "Building monorepo - this can take a long time (log: ${N8N_LOG_DIR}/build.log)..."
     cd "$REPO_ROOT" || return 1
     mkdir -p "$N8N_LOG_DIR"
-    if NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=8192}" CI=true \
-         pnpm build > "${N8N_LOG_DIR}/build.log" 2>&1; then
+    export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=8192}"
+    export CI=true
+
+    if pnpm build > "${N8N_LOG_DIR}/build.log" 2>&1; then
         _n8n_success "Build complete."
-    else
-        _n8n_warning "Build failed (see ${N8N_LOG_DIR}/build.log)."
-        tail -n 20 "${N8N_LOG_DIR}/build.log" >&2 || true
-        return 1
+        return 0
     fi
+    _n8n_show_build_error
+
+    # Retry serially: parallel builds hit races / OOM in small containers.
+    _n8n_warning "Retrying build with --concurrency=1 ..."
+    if pnpm build --concurrency=1 > "${N8N_LOG_DIR}/build.log" 2>&1; then
+        _n8n_success "Build complete (serial)."
+        return 0
+    fi
+    _n8n_show_build_error
+    return 1
 }
 
 ensure_built() {
-    if [[ ! -f "$N8N_BIN" || ! -d "${REPO_ROOT}/node_modules" \
-          || ! -d "${REPO_ROOT}/packages/cli/dist" ]]; then
-        _n8n_log "Built artifacts not found. Running install + build..."
-        do_install || return 1
-        if ! do_build; then
-            _n8n_warning "Continuing with any existing build artifacts..."
-        fi
-    else
+    if _n8n_is_built; then
         _n8n_log "Using existing build at ${N8N_BIN}"
+        return 0
+    fi
+    _n8n_log "Built artifacts not found. Running install + build..."
+    do_install || return 1
+    do_build   || true
+    if ! _n8n_is_built; then
+        _n8n_fail "Build did not produce packages/cli/dist. Fix the error above (see ${N8N_LOG_DIR}/build.log) and re-run."
+        return 1
     fi
 }
 
