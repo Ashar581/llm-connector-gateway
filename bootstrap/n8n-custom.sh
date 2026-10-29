@@ -33,6 +33,8 @@
 #   GENERIC_TIMEZONE=UTC         default timezone
 #   N8N_FRAME_ANCESTORS="*"      who may embed n8n in an <iframe> (space separated CSP
 #                                sources, e.g. "'self' https://app.example.com http://localhost:*")
+#   N8N_PROXY_PORT=8081         port of the front proxy (point ngrok here). N8N_PROXY=0 disables it
+#   GATEWAY_PORT=8080            Spring Boot port (auto-detected from application.properties)
 #   N8N_BASE_PATH=/n8n           sub-path n8n is served under (default /n8n, for the Spring Boot
 #                                proxy; set N8N_BASE_PATH="" to serve at / like stock n8n)
 #   N8N_PUBLIC_URL=https://h/n8n public URL as the browser sees it (sets editor/webhook URL)
@@ -518,9 +520,158 @@ _n8n_check_embedding() {
     _n8n_info "On a remote host use a same-origin proxy: N8N_BASE_PATH=/n8n and iframe src=/n8n/"
 }
 
+# ------------------------------------------------------------
+# Front proxy (so ONE public URL serves both the gateway UI and n8n)
+#
+#   ngrok --> proxy :N8N_PROXY_PORT --+--> /n8n/*  -> n8n     127.0.0.1:N8N_PORT
+#                                     +--> others  -> Spring  127.0.0.1:GATEWAY_PORT
+#
+# The iframe then loads /n8n/ from the same origin as the UI, so no backend change
+# is needed (frame-src 'self' already allows it) and Spring Security headers never
+# touch n8n responses. Disable with N8N_PROXY=0.
+# ------------------------------------------------------------
+
+N8N_PROXY_PID_FILE="${N8N_HOME}/proxy.pid"
+N8N_PROXY_JS="${N8N_HOME}/n8n-proxy.js"
+N8N_PROXY_LOG="${N8N_LOG_DIR}/proxy.log"
+
+# Spring Boot port: $GATEWAY_PORT, else server.port from application.properties/yml, else 8080
+_n8n_gateway_port() {
+    if [[ -n "${GATEWAY_PORT:-}" ]]; then echo "$GATEWAY_PORT"; return; fi
+    local root p f
+    root="$(dirname "${_RUNTIME_BASE}")"
+    for f in "$root"/src/main/resources/application*.properties "$root"/src/main/resources/application*.yml \
+             "$root"/src/main/resources/application*.yaml "$root"/application*.properties; do
+        [[ -f "$f" ]] || continue
+        p="$(sed -n 's/^[[:space:]]*server\.port[[:space:]]*[=:][[:space:]]*\([0-9]\{2,5\}\).*/\1/p' "$f" | head -n1 || true)"
+        [[ -z "$p" ]] && p="$(sed -n 's/^[[:space:]]*port:[[:space:]]*\([0-9]\{2,5\}\)[[:space:]]*$/\1/p' "$f" | head -n1 || true)"
+        [[ -n "$p" ]] && { echo "$p"; return; }
+    done
+    echo 8080
+}
+
+_n8n_proxy_port() { echo "${N8N_PROXY_PORT:-8081}"; }
+
+_n8n_proxy_alive() {
+    [[ -f "$N8N_PROXY_PID_FILE" ]] || return 1
+    local pid; pid="$(cat "$N8N_PROXY_PID_FILE" 2>/dev/null || true)"
+    [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null
+}
+
+_n8n_write_proxy_js() {
+    mkdir -p "$N8N_HOME"
+    cat > "$N8N_PROXY_JS" <<'JS'
+// Tiny dependency-free reverse proxy: /n8n -> n8n, everything else -> Spring Boot.
+const http = require('http');
+const net = require('net');
+
+const LISTEN = Number(process.env.PROXY_PORT);
+const SPRING = Number(process.env.GATEWAY_PORT);
+const N8N = Number(process.env.N8N_PORT);
+const BASE = process.env.N8N_BASE_PATH || '/n8n';
+
+const isN8n = (url) => url === BASE || url.startsWith(BASE + '/') || url.startsWith(BASE + '?');
+const target = (url) => (isN8n(url) ? N8N : SPRING);
+
+function fwdHeaders(req) {
+  const h = Object.assign({}, req.headers);              // Host is preserved on purpose
+  const ip = req.socket.remoteAddress;
+  h['x-forwarded-for'] = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'] + ', ' + ip : ip;
+  if (!h['x-forwarded-proto']) h['x-forwarded-proto'] = 'http';
+  if (!h['x-forwarded-host'] && req.headers.host) h['x-forwarded-host'] = req.headers.host;
+  return h;
+}
+
+const server = http.createServer((req, res) => {
+  if (req.url === BASE) {                                // /n8n -> /n8n/
+    res.writeHead(302, { Location: BASE + '/' });
+    return res.end();
+  }
+  const up = http.request(
+    { host: '127.0.0.1', port: target(req.url), method: req.method, path: req.url, headers: fwdHeaders(req) },
+    (ur) => {
+      res.writeHead(ur.statusCode, ur.statusMessage, ur.headers);
+      ur.pipe(res);                                      // streams: SSE stays live
+    }
+  );
+  up.on('error', (e) => {
+    if (!res.headersSent) res.writeHead(502, { 'Content-Type': 'text/plain' });
+    res.end('Bad gateway: ' + e.message + '\n');
+  });
+  req.on('aborted', () => up.destroy());
+  req.pipe(up);
+});
+
+server.on('upgrade', (req, socket, head) => {            // websockets (n8n or Spring)
+  const up = net.connect(target(req.url), '127.0.0.1', () => {
+    const lines = [req.method + ' ' + req.url + ' HTTP/' + req.httpVersion];
+    for (let i = 0; i < req.rawHeaders.length; i += 2) lines.push(req.rawHeaders[i] + ': ' + req.rawHeaders[i + 1]);
+    up.write(lines.join('\r\n') + '\r\n\r\n');
+    if (head && head.length) up.write(head);
+    socket.pipe(up).pipe(socket);
+  });
+  up.on('error', () => socket.destroy());
+  socket.on('error', () => up.destroy());
+});
+
+server.listen(LISTEN, '127.0.0.1', () =>
+  console.log('proxy :' + LISTEN + '  ' + BASE + '/* -> n8n:' + N8N + '   other -> spring:' + SPRING));
+JS
+}
+
+_n8n_ngrok_hint() {
+    local pp="$1" addr
+    addr="$(curl -s -m 2 http://127.0.0.1:4040/api/tunnels 2>/dev/null | grep -o '"addr":"[^"]*"' | head -n1 || true)"
+    if [[ -z "$addr" ]]; then
+        _n8n_info "ngrok: point it at the proxy port:  ngrok http ${pp}   (static domain: ngrok http --url=<your-domain> ${pp})"
+    elif [[ "$addr" == *":${pp}\"" ]]; then
+        _n8n_success "ngrok already forwards to the proxy (port ${pp})."
+    else
+        _n8n_warning "ngrok currently forwards to ${addr#*:}. Restart it pointing at ${pp}:  ngrok http ${pp}"
+    fi
+}
+
+_n8n_start_proxy() {
+    [[ "${N8N_PROXY:-1}" == "0" ]] && return 0
+    [[ -n "$(_n8n_base_path)" ]] || return 0          # proxy only makes sense with a base path
+    local pp gp node_bin
+    pp="$(_n8n_proxy_port)"; gp="$(_n8n_gateway_port)"
+    node_bin="$(_n8n_node_bin)"
+    [[ -n "$node_bin" ]] || { _n8n_warning "No private Node; cannot start the front proxy."; return 0; }
+
+    if _n8n_proxy_alive; then _n8n_ngrok_hint "$pp"; return 0; fi
+    if _port_in_use "$pp"; then
+        _n8n_warning "Proxy port ${pp} is busy. Set N8N_PROXY_PORT to another port."
+        return 0
+    fi
+
+    _n8n_write_proxy_js
+    mkdir -p "$N8N_LOG_DIR"
+    (
+        export PROXY_PORT="$pp" GATEWAY_PORT="$gp" N8N_PORT="$N8N_PORT" N8N_BASE_PATH="$(_n8n_base_path)"
+        nohup "$node_bin" "$N8N_PROXY_JS" >>"$N8N_PROXY_LOG" 2>&1 < /dev/null &
+        echo $! > "$N8N_PROXY_PID_FILE"
+    )
+    sleep 1
+    if _n8n_proxy_alive && _port_in_use "$pp"; then
+        _n8n_success "Front proxy up on :${pp}  (/n8n -> n8n:${N8N_PORT}, rest -> Spring:${gp})"
+        _n8n_ngrok_hint "$pp"
+    else
+        _n8n_warning "Front proxy failed to start. See ${N8N_PROXY_LOG}"
+    fi
+}
+
+_n8n_stop_proxy() {
+    _n8n_proxy_alive || { rm -f "$N8N_PROXY_PID_FILE"; return 0; }
+    kill "$(cat "$N8N_PROXY_PID_FILE")" 2>/dev/null || true
+    rm -f "$N8N_PROXY_PID_FILE"
+    _n8n_log "Front proxy stopped."
+}
+
 start_n8n() {
     if _pid_alive; then
         _n8n_log "n8n already running (pid $(cat "$N8N_PID_FILE"))."
+        _n8n_start_proxy
         return 0
     fi
 
@@ -632,6 +783,7 @@ start_n8n() {
         if _n8n_http_ok; then
             _n8n_success "n8n is up: http://127.0.0.1:${N8N_PORT}"
             _n8n_check_embedding
+            _n8n_start_proxy
             return 0
         fi
         sleep 1
@@ -642,6 +794,7 @@ start_n8n() {
 }
 
 stop_n8n() {
+    _n8n_stop_proxy
     if ! _pid_alive; then
         _n8n_log "n8n is not running."
         rm -f "$N8N_PID_FILE"
@@ -678,6 +831,9 @@ stop_n8n() {
 status_n8n() {
     if _pid_alive; then
         _n8n_info "n8n running (pid $(cat "$N8N_PID_FILE")) on http://127.0.0.1:${N8N_PORT}"
+        if _n8n_proxy_alive; then
+            _n8n_info "front proxy running on :$(_n8n_proxy_port) (/n8n -> n8n, rest -> Spring :$(_n8n_gateway_port))"
+        fi
     else
         _n8n_info "n8n not running."
         return 1
