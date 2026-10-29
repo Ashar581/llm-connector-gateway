@@ -66,7 +66,7 @@ public class AppSecurityConfig {
                             .contentSecurityPolicy(policy -> policy
                                     .policyDirectives(
                                             "default-src 'self'; " +
-                                                    "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com; " +
+                                                    "connect-src 'self' https://transparent-suzann-limy.ngrok-free.dev; " +
                                                     "frame-src 'self' http://localhost:5678;"
                                     )
 

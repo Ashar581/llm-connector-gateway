@@ -33,7 +33,8 @@
 #   GENERIC_TIMEZONE=UTC         default timezone
 #   N8N_FRAME_ANCESTORS="*"      who may embed n8n in an <iframe> (space separated CSP
 #                                sources, e.g. "'self' https://app.example.com http://localhost:*")
-#   N8N_BASE_PATH=/n8n           serve n8n under a sub-path (for a reverse proxy at /n8n)
+#   N8N_BASE_PATH=/n8n           sub-path n8n is served under (default /n8n, for the Spring Boot
+#                                proxy; set N8N_BASE_PATH="" to serve at / like stock n8n)
 #   N8N_PUBLIC_URL=https://h/n8n public URL as the browser sees it (sets editor/webhook URL)
 #   N8N_LISTEN_ADDRESS=0.0.0.0   bind address (default 127.0.0.1)
 #   N8N_ALLOW_IFRAME=0           don't strip X-Frame-Options from the n8n server
@@ -471,7 +472,7 @@ _ensure_key() {
 
 # Sub-path support, e.g. N8N_BASE_PATH=/n8n when a reverse proxy serves n8n at /n8n
 _n8n_base_path() {
-    local bp="${N8N_BASE_PATH:-}"
+    local bp="${N8N_BASE_PATH-/n8n}"   # unset -> /n8n ; N8N_BASE_PATH="" -> serve at /
     bp="${bp#"${bp%%[!/]*}"}"      # strip leading slashes
     bp="${bp%"${bp##*[!/]}"}"      # strip trailing slashes
     [[ -n "$bp" ]] && echo "/${bp}" || echo ""
@@ -569,6 +570,8 @@ start_n8n() {
             # Behind a plain HTTP proxy (e.g. Spring Boot) use SSE for live updates instead of
             # websockets, so the proxy needs no websocket support. Override with N8N_PUSH_BACKEND.
             export N8N_PUSH_BACKEND="${N8N_PUSH_BACKEND:-sse}"
+            # Requests arrive via a proxy (Cloudflare tunnel -> Spring Boot): trust 1 hop
+            export N8N_PROXY_HOPS="${N8N_PROXY_HOPS:-1}"
         fi
         if [[ -n "${N8N_PUBLIC_URL:-}" ]]; then
             # public URL as the browser sees it, e.g. https://my-host/n8n
@@ -689,6 +692,31 @@ logs_n8n() {
     fi
 }
 
+# Print everything needed to debug "localhost refused to connect" in an iframe.
+doctor_n8n() {
+    local bp host base ver
+    bp="$(_n8n_base_path)"
+    ver="$(sed -n 's/^[[:space:]]*"version":[[:space:]]*"\([^"]*\)".*/\1/p' \
+           "${REPO_ROOT}/packages/cli/package.json" 2>/dev/null | head -n1 || true)"
+    _n8n_info "n8n version      : ${ver:-unknown}"
+    _n8n_info "process running  : $(_pid_alive && echo "yes (pid $(cat "$N8N_PID_FILE"))" || echo no)"
+    _n8n_info "base path        : ${bp:-/}"
+    _n8n_info "listening on port ${N8N_PORT}:"
+    { ss -ltn 2>/dev/null || netstat -an 2>/dev/null | grep LISTEN || true; } | grep -E "[:.]${N8N_PORT}[[:space:]]" \
+        | sed 's/^/    /' || true
+    for host in 127.0.0.1 localhost "[::1]"; do
+        base="http://${host}:${N8N_PORT}${bp}/"
+        _n8n_info "GET ${base}"
+        curl -g -s -m 5 -D - -o /dev/null "$base" 2>&1 | tr -d '\r' \
+            | grep -iE '^(HTTP/|location:|x-frame-options:|content-security-policy|cross-origin-|set-cookie:)' \
+            | sed 's/^/    /' || true
+        curl -g -s -m 5 -o /dev/null "$base" || echo "    (no response from ${host})"
+    done
+    _n8n_info "Next: open http://localhost:${N8N_PORT}${bp}/ directly in the SAME browser that shows your gateway."
+    _n8n_info "      - loads  -> framing/headers problem (send me the browser console message)"
+    _n8n_info "      - refused -> the browser cannot reach this host's port ${N8N_PORT} (remote box / tunnel): use the /n8n same-origin proxy"
+}
+
 # ------------------------------------------------------------
 # Commands
 # ------------------------------------------------------------
@@ -700,6 +728,7 @@ cmd_stop()    { stop_n8n; }
 cmd_restart() { stop_n8n; start_n8n; }
 cmd_status()  { status_n8n; }
 cmd_logs()    { logs_n8n; }
+cmd_doctor()  { doctor_n8n; }
 
 # ------------------------------------------------------------
 # Standalone CLI (only when executed, not when sourced)
@@ -717,9 +746,10 @@ if ! _is_sourced; then
     restart)   cmd_restart ;;
     status)    cmd_status ;;
     logs)      cmd_logs ;;
+    doctor)    cmd_doctor ;;
     *)
         cat <<EOF
-Usage: $0 [install|build|start|stop|restart|status|logs]
+Usage: $0 [install|build|start|stop|restart|status|logs|doctor]
 
   install   Run pnpm install
   build     Run pnpm build
@@ -728,6 +758,7 @@ Usage: $0 [install|build|start|stop|restart|status|logs]
   restart   Stop and start n8n
   status    Show process status
   logs      Tail the n8n log
+  doctor    Print version, listeners and response headers (iframe debugging)
 
 Examples:
   $0 start
