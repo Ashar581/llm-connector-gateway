@@ -65,8 +65,7 @@ public class AppSecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                             .contentSecurityPolicy(policy -> policy
                                     .policyDirectives("default-src 'self'; " +
-                                            "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com; " +
-                                            "frame-src 'self' http://localhost:5678;")
+                                            "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com")
                         .httpStrictTransportSecurity(transport ->  transport
                                 .includeSubDomains(true)
                         )
