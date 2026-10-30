@@ -37,7 +37,8 @@
 #   GATEWAY_PORT=8080            Spring Boot port (auto-detected from application.properties)
 #   N8N_BASE_PATH=/n8n           sub-path n8n is served under (default /n8n, for the Spring Boot
 #                                proxy; set N8N_BASE_PATH="" to serve at / like stock n8n)
-#   N8N_PUBLIC_URL=https://h/n8n public URL as the browser sees it (sets editor/webhook URL)
+#   N8N_PUBLIC_URL=...           public URL as the browser sees it (default: your ngrok domain + /n8n;
+#                                set N8N_PUBLIC_URL="" to disable)
 #   N8N_LISTEN_ADDRESS=0.0.0.0   bind address (default 127.0.0.1)
 #   N8N_ALLOW_IFRAME=0           don't strip X-Frame-Options from the n8n server
 #
@@ -95,6 +96,10 @@ elif _looks_like_n8n_repo "${_SCRIPT_DIR}"; then
 else
     REPO_ROOT="${_RUNTIME_BASE}/n8n-repo"
 fi
+
+# Public URL of n8n as the browser sees it (your ngrok domain + /n8n). Used for n8n's editor and
+# webhook URLs. Override with N8N_PUBLIC_URL=..., or disable with N8N_PUBLIC_URL="".
+N8N_PUBLIC_URL="${N8N_PUBLIC_URL-https://transparent-suzann-limy.ngrok-free.dev/n8n}"
 
 _NODE_DIR="${_RUNTIME_BASE}/node"
 _NODE_VERSION="24.11.0"
@@ -631,9 +636,39 @@ _n8n_ngrok_hint() {
     fi
 }
 
+# The built UI hardcodes http://localhost:5678 as the iframe URL, which from a remote
+# browser points at the viewer's own machine ("localhost refused to connect").
+# Rewrite it to the same-origin /n8n path in any built UI bundle under the project, so no
+# frontend rebuild is needed. Idempotent; skip with N8N_PATCH_UI=0. Hard-refresh the browser after.
+_n8n_patch_ui_url() {
+    [[ "${N8N_PATCH_UI:-1}" == "0" ]] && return 0
+    local bp root f n=0
+    bp="$(_n8n_base_path)"
+    [[ -n "$bp" ]] || return 0
+    root="$(dirname "${_RUNTIME_BASE}")"
+    while IFS= read -r f; do
+        [[ -n "$f" ]] || continue
+        if command -v perl >/dev/null 2>&1; then
+            perl -pi -e "s#https?://(localhost|127\.0\.0\.1):${N8N_PORT}#${bp}#g" "$f" || continue
+        else
+            sed "s#https\{0,1\}://\(localhost\|127\.0\.0\.1\):${N8N_PORT}#${bp}#g" "$f" > "$f.tmp" && mv "$f.tmp" "$f" || continue
+        fi
+        _n8n_log "Patched UI bundle: ${f#"$root"/}  (iframe URL -> ${bp})"
+        n=$((n + 1))
+    done < <(find "$root" \( -name node_modules -o -name .git -o -name runtime \) -prune -o \
+                  -type f -name '*.js' -path '*assets*' -print 2>/dev/null \
+             | xargs grep -lE "(localhost|127\.0\.0\.1):${N8N_PORT}" 2>/dev/null || true)
+    if (( n == 0 )); then
+        _n8n_info "UI patch: no bundle with localhost:${N8N_PORT} found (already patched, or built with VITE_N8N_BASE_URL=${bp})."
+    else
+        _n8n_warning "Patched ${n} UI file(s). Restart Spring Boot / rebuild the jar if the UI is packaged, then hard-refresh the browser."
+    fi
+}
+
 _n8n_start_proxy() {
     [[ "${N8N_PROXY:-1}" == "0" ]] && return 0
     [[ -n "$(_n8n_base_path)" ]] || return 0          # proxy only makes sense with a base path
+    _n8n_patch_ui_url
     local pp gp node_bin
     pp="$(_n8n_proxy_port)"; gp="$(_n8n_gateway_port)"
     node_bin="$(_n8n_node_bin)"
