@@ -77,7 +77,7 @@ public class AppSecurityConfig {
                 )
                 .authorizeHttpRequests(authorization -> authorization
                         .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC).permitAll()
-                        .requestMatchers("/","/ui/**", "/index.html", "/assets/**", "/favicon.ico","/api/llm/v1/users/auth/login","/api/llm/v1/settings/**","/api/llm/v1/users/change-password").permitAll()
+                        .requestMatchers("/","/ui/**", "/index.html", "/assets/**", "/favicon.ico","/n8n/**","/api/llm/v1/users/auth/login","/api/llm/v1/settings/**","/api/llm/v1/users/change-password").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new RefreshTokenFilter(jwtTokenWrapperService,userService), UsernamePasswordAuthenticationFilter.class)
