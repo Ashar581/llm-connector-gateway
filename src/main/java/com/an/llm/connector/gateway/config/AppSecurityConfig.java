@@ -65,7 +65,7 @@ public class AppSecurityConfig {
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                             .contentSecurityPolicy(policy -> policy
                                     .policyDirectives("default-src 'self'; " +
-                                            "connect-src 'self' https://vernon-vii-things-plastic.trycloudflare.com")
+                                            "connect-src 'self' https://transparent-suzann-limy.ngrok-free.dev")
 
                             )
                         .httpStrictTransportSecurity(transport ->  transport
