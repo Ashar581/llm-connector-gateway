@@ -41,6 +41,9 @@ export FIRECRAWL_RABBITMQ_DATA="${FIRECRAWL_DIR}/rabbitmq-data"
 export FIRECRAWL_PGCRON_SRC="${FIRECRAWL_DIR}/pg_cron"
 export FIRECRAWL_PGCRON_INSTALL="${FIRECRAWL_DIR}/pg_cron-install"
 
+export FIRECRAWL_GO_VERSION="${FIRECRAWL_GO_VERSION:-1.24.6}"
+export FIRECRAWL_GO_ROOT="${FIRECRAWL_DIR}/go-toolchain"
+
 export FIRECRAWL_HOST="${FIRECRAWL_HOST:-127.0.0.1}"
 export FIRECRAWL_PORT="${FIRECRAWL_PORT:-3002}"
 export FIRECRAWL_PLAYWRIGHT_PORT="${FIRECRAWL_PLAYWRIGHT_PORT:-3003}"
@@ -79,56 +82,6 @@ firecrawl_prepare_dirs() {
     "${FIRECRAWL_POSTGRES_DATA}" \
     "${FIRECRAWL_REDIS_DATA}" \
     "${FIRECRAWL_RABBITMQ_DATA}"
-}
-
-# ------------------------------------------------------------
-# [ADDED] Resource diagnostics + retry for Node commands.
-#
-# Node aborts with no message ("Aborted", exit 134), or prints
-# "pthread_create: Resource temporarily unavailable", when the container is
-# out of pids/threads (or memory). These helpers make that visible and give
-# the command a second chance with fewer V8 worker threads.
-# ------------------------------------------------------------
-firecrawl_report_limits() {
-  local pmax pcur
-  pmax="$(cat /sys/fs/cgroup/pids.max 2>/dev/null || cat /sys/fs/cgroup/pids/pids.max 2>/dev/null || echo n/a)"
-  pcur="$(cat /sys/fs/cgroup/pids.current 2>/dev/null || cat /sys/fs/cgroup/pids/pids.current 2>/dev/null || echo n/a)"
-  firecrawl_log "Resource headroom: pids ${pcur}/${pmax}, ulimit -u $(ulimit -u 2>/dev/null || echo n/a), threads in use $(ps -eo nlwp= 2>/dev/null | awk '{s+=$1} END {print s+0}')"
-  if command -v free >/dev/null 2>&1; then
-    firecrawl_log "Memory: $(free -m | awk '/^Mem:/ {print $7" MB available of "$2" MB"}')"
-  fi
-}
-
-# Warn (never block) at the start of a bootstrap if the pid/thread limit is nearly used up.
-firecrawl_preflight_resources() {
-  [[ "$(uname -s)" == "Linux" ]] || return 0
-  local pmax pcur
-  pmax="$(cat /sys/fs/cgroup/pids.max 2>/dev/null || cat /sys/fs/cgroup/pids/pids.max 2>/dev/null || true)"
-  pcur="$(cat /sys/fs/cgroup/pids.current 2>/dev/null || cat /sys/fs/cgroup/pids/pids.current 2>/dev/null || true)"
-  if [[ "$pmax" =~ ^[0-9]+$ && "$pcur" =~ ^[0-9]+$ ]]; then
-    if (( pmax - pcur < 300 )); then
-      firecrawl_log "WARNING: only $(( pmax - pcur )) process/thread slots left (${pcur}/${pmax} in use). Node may fail with 'pthread_create: Resource temporarily unavailable'."
-      firecrawl_log "WARNING: stop leftovers first (old mvn/java, node/turbo, n8n: bash bootstrap/n8n-custom.sh stop) and re-run."
-    fi
-  fi
-}
-
-# Run a command (usually Node/pnpm based). If it fails, retry up to 3 times; the later attempts use
-# fewer V8 worker threads. Exit 134/139 (abort/segfault) also prints the resource headroom.
-firecrawl_node_retry() {
-  local attempt rc
-  for attempt in 1 2 3; do
-    if [[ "$attempt" == "1" ]]; then
-      "$@" && return 0
-    else
-      NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS} }--v8-pool-size=1" UV_THREADPOOL_SIZE=1 "$@" && return 0
-    fi
-    rc=$?
-    firecrawl_log "Command failed (exit ${rc}), attempt ${attempt}/3: $*"
-    if (( rc == 134 || rc == 139 )); then firecrawl_report_limits; fi
-    sleep $(( attempt * 3 ))
-  done
-  return 1
 }
 
 firecrawl_brew_init() {
@@ -271,173 +224,118 @@ firecrawl_ensure_rust() {
   }
 }
 
-firecrawl_go_version_ok() {
-  # True if `go` is on PATH and is at least 1.23 (Firecrawl's go-html-to-md
-  # needs a modern toolchain; distro packages such as Ubuntu 24.04's 1.22 are
-  # too old to rely on).
-  command -v go >/dev/null 2>&1 || return 1
-  local v major minor
-  v="$(go env GOVERSION 2>/dev/null | sed 's/^go//')"
-  major="${v%%.*}"; minor="${v#*.}"; minor="${minor%%.*}"
-  [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ ]] || return 1
-  (( major > 1 || (major == 1 && minor >= 23) ))
+firecrawl_go_minor_ok() {
+  # Succeeds if the given `go` binary is 1.24 or newer.
+  local bin="$1" v major minor
+  [[ -x "$bin" ]] || return 1
+  v="$("$bin" env GOVERSION 2>/dev/null | sed 's/^go//' || true)"
+  major="$(printf '%s' "$v" | cut -d. -f1)"
+  minor="$(printf '%s' "$v" | cut -d. -f2)"
+  [[ "$major" == "1" && "$minor" =~ ^[0-9]+$ && "$minor" -ge 24 ]]
 }
 
 firecrawl_ensure_go() {
-  # Firecrawl's API startup runs `go mod tidy` in sharedLibs/go-html-to-md
-  # and builds it; without Go it dies with "go: not found" (exit 127).
-  local go_local="${FIRECRAWL_DIR}/go-toolchain"
-  [[ -x "${go_local}/go/bin/go" ]] && export PATH="${go_local}/go/bin:${PATH}"
+  local sys_go local_go="${FIRECRAWL_GO_ROOT}/go/bin/go"
 
-  if firecrawl_go_version_ok; then
-    firecrawl_log "Using Go: $(go version)"
-    return 0
-  fi
-
+  # cgo (-buildmode=c-shared) needs a C compiler.
   if [[ "$(uname -s)" == "Darwin" ]]; then
-    firecrawl_brew_init || return 1
-    firecrawl_log "Installing Homebrew formula: go"
-    brew install go
-    hash -r 2>/dev/null || true
-  else
-    local arch goarch gover tarball
-    arch="$(uname -m)"
-    case "$arch" in
-      x86_64|amd64)  goarch=amd64 ;;
-      aarch64|arm64) goarch=arm64 ;;
-      *) firecrawl_error "Unsupported CPU architecture for Go install: ${arch}"; return 1 ;;
-    esac
-
-    # Ask go.dev for the current stable release instead of hard-coding one.
-    gover="$(curl -fsSL 'https://go.dev/VERSION?m=text' 2>/dev/null | head -n1 | tr -d '\r')"
-    [[ "$gover" =~ ^go1\.[0-9]+(\.[0-9]+)?$ ]] || {
-      firecrawl_error "Could not determine the latest Go version from go.dev (got: '${gover}')."
+    xcode-select -p >/dev/null 2>&1 || {
+      firecrawl_error "Xcode Command Line Tools are required (run: xcode-select --install)."
       return 1
     }
+  else
+    command -v "${CC:-cc}" >/dev/null 2>&1 || {
+      firecrawl_error "A C compiler is required for the Go shared library (install build-essential)."
+      return 1
+    }
+  fi
 
-    tarball="${gover}.linux-${goarch}.tar.gz"
-    firecrawl_log "Installing Go ${gover} (${goarch}) into ${go_local}..."
-    mkdir -p "${go_local}"
-    curl -fsSL "https://go.dev/dl/${tarball}" -o "${go_local}/${tarball}" || {
+  sys_go="$(command -v go 2>/dev/null || true)"
+  if [[ -n "$sys_go" ]] && firecrawl_go_minor_ok "$sys_go"; then
+    firecrawl_log "Using system Go: $sys_go ($("$sys_go" version))"
+  elif firecrawl_go_minor_ok "$local_go"; then
+    export PATH="${FIRECRAWL_GO_ROOT}/go/bin:${PATH}"
+    firecrawl_log "Using project-local Go: $("$local_go" version)"
+  else
+    firecrawl_require curl || return 1
+    firecrawl_require tar || return 1
+
+    local goos goarch
+    case "$(uname -s)" in
+      Darwin) goos="darwin" ;;
+      Linux)  goos="linux" ;;
+      *) firecrawl_error "Unsupported OS for Go install: $(uname -s)"; return 1 ;;
+    esac
+    case "$(uname -m)" in
+      arm64|aarch64) goarch="arm64" ;;
+      x86_64|amd64)  goarch="amd64" ;;
+      *) firecrawl_error "Unsupported CPU for Go install: $(uname -m)"; return 1 ;;
+    esac
+
+    local tarball="go${FIRECRAWL_GO_VERSION}.${goos}-${goarch}.tar.gz"
+    local tmp="${FIRECRAWL_DIR}/${tarball}.part"
+    firecrawl_log "Downloading Go ${FIRECRAWL_GO_VERSION} (${goos}/${goarch})..."
+    rm -f "$tmp"
+    curl -fL --retry 3 -o "$tmp" "https://go.dev/dl/${tarball}" || {
+      rm -f "$tmp"
       firecrawl_error "Failed to download https://go.dev/dl/${tarball}"
       return 1
     }
-    rm -rf "${go_local}/go"
-    tar -C "${go_local}" -xzf "${go_local}/${tarball}" || {
-      firecrawl_error "Failed to extract ${tarball}"
+
+    rm -rf "${FIRECRAWL_GO_ROOT}"
+    mkdir -p "${FIRECRAWL_GO_ROOT}"
+    tar -C "${FIRECRAWL_GO_ROOT}" -xzf "$tmp" || {
+      rm -f "$tmp"
+      firecrawl_error "Failed to extract Go toolchain."
       return 1
     }
-    rm -f "${go_local}/${tarball}"
-    export PATH="${go_local}/go/bin:${PATH}"
-    hash -r 2>/dev/null || true
+    rm -f "$tmp"
+
+    export PATH="${FIRECRAWL_GO_ROOT}/go/bin:${PATH}"
+    firecrawl_log "Installed project-local Go: $("$local_go" version)"
   fi
 
-  firecrawl_go_version_ok || {
-    firecrawl_error "Go installation failed or is older than 1.23 (found: $(go version 2>/dev/null || echo none))."
-    return 1
-  }
-  firecrawl_log "Go ready: $(go version)"
+  hash -r 2>/dev/null || true
+  command -v go >/dev/null 2>&1 || { firecrawl_error "go is unavailable after setup."; return 1; }
+
+  # Keep all Go state inside the project runtime.
+  export GOPATH="${FIRECRAWL_DIR}/gopath"
+  export GOCACHE="${FIRECRAWL_DIR}/go-cache"
+  export GOMODCACHE="${GOPATH}/pkg/mod"
+  export GOTOOLCHAIN="${GOTOOLCHAIN:-auto}"   # lets go.mod request a newer toolchain
+  export GOFLAGS="${GOFLAGS:--mod=mod}"
+  export CGO_ENABLED=1
+  mkdir -p "${GOPATH}" "${GOCACHE}"
 }
 
-# ------------------------------------------------------------
-# [CHANGED] pnpm 10.16.1 (pinned by Firecrawl v2.11.0), installed with npm into a project-local
-# prefix. Deliberately NOT corepack: `corepack enable` / `corepack prepare` were what died with
-# "Aborted". A previous `corepack enable` may also have left a pnpm shim in /usr/bin that crashes
-# the same way, so the project-local pnpm is put FIRST on PATH.
-# ------------------------------------------------------------
-firecrawl_ensure_pnpm() {
-  local want="10.16.1"
-  local prefix="${FIRECRAWL_DIR}/pnpm-cli"
-  local bin_dir="${prefix}/bin"
-  local node_bin npm_root pnpm_entry got
+firecrawl_build_go_lib() {
+  # The API harness also does this at start, but building it here fails
+  # early with a clear error and makes the later harness step a no-op.
+  # Firecrawl loads html-to-markdown.so on every platform (including macOS),
+  # so the output name is .so regardless of OS.
+  local dir="${FIRECRAWL_SRC}/apps/api/sharedLibs/go-html-to-md"
 
-  node_bin="$(command -v node 2>/dev/null || true)"
-  [[ -n "${node_bin}" && -x "${node_bin}" ]] || {
-    firecrawl_error "Cannot install pnpm: Node.js executable was not found."
-    return 1
+  [[ -d "$dir" ]] || {
+    firecrawl_log "Go shared lib directory not found (${dir}); leaving it to the harness."
+    return 0
   }
 
-  mkdir -p "${prefix}" "${bin_dir}" "${FIRECRAWL_LOG_DIR}"
-  export PATH="${bin_dir}:${PATH}"
-  hash -r 2>/dev/null || true
-
-  # A previous npm attempt may have installed the package but failed to
-  # create the global executable shim (for example after Node aborted with
-  # exit 134). Validate the actual package, not just the shim.
-  npm_root="$(npm root --global --prefix "${prefix}" 2>/dev/null || true)"
-  pnpm_entry=""
-  if [[ -n "${npm_root}" && -f "${npm_root}/pnpm/bin/pnpm.cjs" ]]; then
-    pnpm_entry="${npm_root}/pnpm/bin/pnpm.cjs"
-  elif [[ -f "${prefix}/lib/node_modules/pnpm/bin/pnpm.cjs" ]]; then
-    pnpm_entry="${prefix}/lib/node_modules/pnpm/bin/pnpm.cjs"
-  elif [[ -f "${prefix}/node_modules/pnpm/bin/pnpm.cjs" ]]; then
-    pnpm_entry="${prefix}/node_modules/pnpm/bin/pnpm.cjs"
+  if [[ -f "${dir}/html-to-markdown.so" ]]; then
+    firecrawl_log "Go html-to-markdown library already built."
+    return 0
   fi
 
-  if [[ -n "${pnpm_entry}" ]]; then
-    got="$("${node_bin}" "${pnpm_entry}" --version 2>/dev/null || true)"
-    if [[ "${got}" == "${want}" ]]; then
-      # npm's global bin-link creation is not reliable in every environment.
-      # Create a deterministic project-local launcher ourselves.
-      printf '#!/usr/bin/env bash\nexec %q %q "$@"\n' \
-        "${node_bin}" "${pnpm_entry}" > "${bin_dir}/pnpm"
-      chmod 755 "${bin_dir}/pnpm"
-      hash -r 2>/dev/null || true
-      firecrawl_log "Using pnpm ${want} (${bin_dir}/pnpm; package ${pnpm_entry})"
-      return 0
-    fi
-  fi
-
-  firecrawl_log "Installing pnpm ${want} into project runtime ${prefix}..."
-  # --bin-links=true asks npm to create the normal shim. We still construct
-  # our own shim below because some npm builds complete package installation
-  # but omit prefix/bin links.
-  firecrawl_node_retry npm install --global --prefix "${prefix}" \
-    --bin-links=true --no-audit --no-fund --loglevel=error "pnpm@${want}" || {
-    firecrawl_error "npm could not install pnpm ${want}."
-    firecrawl_report_limits
-    firecrawl_error "Check ${FIRECRAWL_LOG_DIR}/bootstrap.log and available process/thread limits."
+  firecrawl_log "Building Go html-to-markdown shared library..."
+  (
+    cd "$dir"
+    go mod tidy
+    go build -o html-to-markdown.so -buildmode=c-shared html-to-markdown.go
+  ) || {
+    firecrawl_error "Go html-to-markdown build failed."
     return 1
   }
-
-  hash -r 2>/dev/null || true
-  npm_root="$(npm root --global --prefix "${prefix}" 2>/dev/null || true)"
-  pnpm_entry=""
-  if [[ -n "${npm_root}" && -f "${npm_root}/pnpm/bin/pnpm.cjs" ]]; then
-    pnpm_entry="${npm_root}/pnpm/bin/pnpm.cjs"
-  elif [[ -f "${prefix}/lib/node_modules/pnpm/bin/pnpm.cjs" ]]; then
-    pnpm_entry="${prefix}/lib/node_modules/pnpm/bin/pnpm.cjs"
-  elif [[ -f "${prefix}/node_modules/pnpm/bin/pnpm.cjs" ]]; then
-    pnpm_entry="${prefix}/node_modules/pnpm/bin/pnpm.cjs"
-  fi
-
-  if [[ -z "${pnpm_entry}" ]]; then
-    firecrawl_error "npm reported success, but pnpm's CLI file was not found under ${prefix}."
-    firecrawl_error "npm global root: ${npm_root:-unavailable}"
-    firecrawl_error "Contents of install prefix: $(find "${prefix}" -type f 2>/dev/null | head -30 | tr '\n' ' ')"
-    return 1
-  fi
-
-  got="$("${node_bin}" "${pnpm_entry}" --version 2>/dev/null || true)"
-  [[ "${got}" == "${want}" ]] || {
-    firecrawl_error "Expected pnpm ${want}; package at ${pnpm_entry} reported '${got:-nothing}'."
-    return 1
-  }
-
-  # Do not depend on npm's platform-specific global symlink behaviour.
-  printf '#!/usr/bin/env bash\nexec %q %q "$@"\n' \
-    "${node_bin}" "${pnpm_entry}" > "${bin_dir}/pnpm"
-  chmod 755 "${bin_dir}/pnpm"
-  hash -r 2>/dev/null || true
-
-  got="$("${bin_dir}/pnpm" --version 2>/dev/null || true)"
-  [[ "${got}" == "${want}" ]] || {
-    firecrawl_error "Created pnpm launcher failed validation; expected ${want}, found '${got:-nothing}'."
-    return 1
-  }
-
-  firecrawl_log "pnpm ${want} ready (${bin_dir}/pnpm)."
 }
+
 firecrawl_ensure_node_pnpm() {
   if [[ "$(uname -s)" == "Darwin" ]]; then
     firecrawl_install_mac_prereqs || return 1
@@ -458,7 +356,25 @@ firecrawl_ensure_node_pnpm() {
     return 1
   }
 
-  firecrawl_ensure_pnpm || return 1
+  # Firecrawl v2.11.0 pins pnpm 10.16.1 in apps/api/package.json.
+  # Keep the version deterministic.
+  if command -v corepack >/dev/null 2>&1; then
+    corepack enable
+    corepack prepare pnpm@10.16.1 --activate
+  else
+    npm install --global pnpm@10.16.1
+  fi
+
+  hash -r 2>/dev/null || true
+  command -v pnpm >/dev/null 2>&1 || {
+    firecrawl_error "pnpm is unavailable after activation."
+    return 1
+  }
+
+  [[ "$(pnpm --version)" == "10.16.1" ]] || {
+    firecrawl_error "Expected pnpm 10.16.1; found $(pnpm --version)."
+    return 1
+  }
 
   export PNPM_HOME="${FIRECRAWL_DIR}/pnpm-home"
   mkdir -p "${PNPM_HOME}"
@@ -495,13 +411,13 @@ firecrawl_install_js() {
     firecrawl_log "Installing Firecrawl API dependencies (FoundationDB scripts disabled)..."
     (
         cd "${api_dir}"
-        firecrawl_node_retry pnpm install --frozen-lockfile --ignore-scripts
+        pnpm install --frozen-lockfile --ignore-scripts
     )
 
     firecrawl_log "Installing Firecrawl Playwright service dependencies..."
     (
         cd "${pw_dir}"
-        firecrawl_node_retry pnpm install --frozen-lockfile
+        pnpm install --frozen-lockfile
     )
 
     # Keep browser binaries inside this project's runtime rather than
@@ -510,7 +426,7 @@ firecrawl_install_js() {
     mkdir -p "${FIRECRAWL_PLAYWRIGHT_CACHE}"
     (
         cd "${pw_dir}"
-        firecrawl_node_retry env PLAYWRIGHT_BROWSERS_PATH="${FIRECRAWL_PLAYWRIGHT_CACHE}" \
+        PLAYWRIGHT_BROWSERS_PATH="${FIRECRAWL_PLAYWRIGHT_CACHE}" \
             pnpm exec playwright install chromium
     )
 
@@ -1654,7 +1570,7 @@ firecrawl_build_native() {
     # the Rust N-API addon explicitly here.
     pnpm install --frozen-lockfile --ignore-scripts 2>/dev/null || \
       pnpm install --ignore-scripts
-    firecrawl_node_retry pnpm run build
+    pnpm run build
   )
 
   # napi-rs generates the platform .node addon alongside the JS wrapper.
@@ -1699,13 +1615,13 @@ firecrawl_build_native() {
 firecrawl_build_api() {
   cd "${FIRECRAWL_SRC}/apps/api"
   firecrawl_log "Building Firecrawl API..."
-  firecrawl_node_retry pnpm run build
+  pnpm run build
 }
 
 firecrawl_build_playwright() {
   cd "${FIRECRAWL_SRC}/apps/playwright-service-ts"
   firecrawl_log "Building Firecrawl Playwright service..."
-  firecrawl_node_retry pnpm run build
+  pnpm run build
 }
 
 firecrawl_playwright_running() {
@@ -1798,13 +1714,13 @@ firecrawl_start_api() {
 
 prepare_firecrawl() {
   firecrawl_prepare_dirs
-  firecrawl_preflight_resources
   firecrawl_ensure_node_pnpm || return 1
   firecrawl_ensure_rust || return 1
   firecrawl_ensure_go || return 1
   firecrawl_require git || return 1
   firecrawl_clone || return 1
   firecrawl_install_js || return 1
+  firecrawl_build_go_lib || return 1
   firecrawl_build_pg_cron || return 1
   firecrawl_pg_init || return 1
   firecrawl_apply_nuq || return 1
