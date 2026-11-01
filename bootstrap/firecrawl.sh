@@ -348,34 +348,96 @@ firecrawl_ensure_go() {
 firecrawl_ensure_pnpm() {
   local want="10.16.1"
   local prefix="${FIRECRAWL_DIR}/pnpm-cli"
-  mkdir -p "${prefix}" "${FIRECRAWL_LOG_DIR}"
-  export PATH="${prefix}/bin:${PATH}"
+  local bin_dir="${prefix}/bin"
+  local node_bin npm_root pnpm_entry got
+
+  node_bin="$(command -v node 2>/dev/null || true)"
+  [[ -n "${node_bin}" && -x "${node_bin}" ]] || {
+    firecrawl_error "Cannot install pnpm: Node.js executable was not found."
+    return 1
+  }
+
+  mkdir -p "${prefix}" "${bin_dir}" "${FIRECRAWL_LOG_DIR}"
+  export PATH="${bin_dir}:${PATH}"
   hash -r 2>/dev/null || true
 
-  if [[ -x "${prefix}/bin/pnpm" && "$("${prefix}/bin/pnpm" --version 2>/dev/null || true)" == "${want}" ]]; then
-    firecrawl_log "Using pnpm ${want} (${prefix}/bin/pnpm)"
-    return 0
+  # A previous npm attempt may have installed the package but failed to
+  # create the global executable shim (for example after Node aborted with
+  # exit 134). Validate the actual package, not just the shim.
+  npm_root="$(npm root --global --prefix "${prefix}" 2>/dev/null || true)"
+  pnpm_entry=""
+  if [[ -n "${npm_root}" && -f "${npm_root}/pnpm/bin/pnpm.cjs" ]]; then
+    pnpm_entry="${npm_root}/pnpm/bin/pnpm.cjs"
+  elif [[ -f "${prefix}/lib/node_modules/pnpm/bin/pnpm.cjs" ]]; then
+    pnpm_entry="${prefix}/lib/node_modules/pnpm/bin/pnpm.cjs"
+  elif [[ -f "${prefix}/node_modules/pnpm/bin/pnpm.cjs" ]]; then
+    pnpm_entry="${prefix}/node_modules/pnpm/bin/pnpm.cjs"
   fi
 
-  firecrawl_log "Installing pnpm ${want} into ${prefix} (npm, no corepack)..."
+  if [[ -n "${pnpm_entry}" ]]; then
+    got="$("${node_bin}" "${pnpm_entry}" --version 2>/dev/null || true)"
+    if [[ "${got}" == "${want}" ]]; then
+      # npm's global bin-link creation is not reliable in every environment.
+      # Create a deterministic project-local launcher ourselves.
+      printf '#!/usr/bin/env bash\nexec %q %q "$@"\n' \
+        "${node_bin}" "${pnpm_entry}" > "${bin_dir}/pnpm"
+      chmod 755 "${bin_dir}/pnpm"
+      hash -r 2>/dev/null || true
+      firecrawl_log "Using pnpm ${want} (${bin_dir}/pnpm; package ${pnpm_entry})"
+      return 0
+    fi
+  fi
+
+  firecrawl_log "Installing pnpm ${want} into project runtime ${prefix}..."
+  # --bin-links=true asks npm to create the normal shim. We still construct
+  # our own shim below because some npm builds complete package installation
+  # but omit prefix/bin links.
   firecrawl_node_retry npm install --global --prefix "${prefix}" \
-    --no-audit --no-fund --loglevel=error "pnpm@${want}" || {
-    firecrawl_error "Could not install pnpm ${want}."
+    --bin-links=true --no-audit --no-fund --loglevel=error "pnpm@${want}" || {
+    firecrawl_error "npm could not install pnpm ${want}."
     firecrawl_report_limits
-    firecrawl_error "If pids/threads are near the limit, stop leftover processes (old mvn/java/node/turbo, n8n) and re-run."
+    firecrawl_error "Check ${FIRECRAWL_LOG_DIR}/bootstrap.log and available process/thread limits."
     return 1
   }
 
   hash -r 2>/dev/null || true
-  local got
-  got="$("${prefix}/bin/pnpm" --version 2>/dev/null || true)"
-  [[ "$got" == "${want}" ]] || {
-    firecrawl_error "Expected pnpm ${want}; found '${got:-nothing}'."
+  npm_root="$(npm root --global --prefix "${prefix}" 2>/dev/null || true)"
+  pnpm_entry=""
+  if [[ -n "${npm_root}" && -f "${npm_root}/pnpm/bin/pnpm.cjs" ]]; then
+    pnpm_entry="${npm_root}/pnpm/bin/pnpm.cjs"
+  elif [[ -f "${prefix}/lib/node_modules/pnpm/bin/pnpm.cjs" ]]; then
+    pnpm_entry="${prefix}/lib/node_modules/pnpm/bin/pnpm.cjs"
+  elif [[ -f "${prefix}/node_modules/pnpm/bin/pnpm.cjs" ]]; then
+    pnpm_entry="${prefix}/node_modules/pnpm/bin/pnpm.cjs"
+  fi
+
+  if [[ -z "${pnpm_entry}" ]]; then
+    firecrawl_error "npm reported success, but pnpm's CLI file was not found under ${prefix}."
+    firecrawl_error "npm global root: ${npm_root:-unavailable}"
+    firecrawl_error "Contents of install prefix: $(find "${prefix}" -type f 2>/dev/null | head -30 | tr '\n' ' ')"
+    return 1
+  fi
+
+  got="$("${node_bin}" "${pnpm_entry}" --version 2>/dev/null || true)"
+  [[ "${got}" == "${want}" ]] || {
+    firecrawl_error "Expected pnpm ${want}; package at ${pnpm_entry} reported '${got:-nothing}'."
     return 1
   }
-  firecrawl_log "pnpm ${want} ready."
-}
 
+  # Do not depend on npm's platform-specific global symlink behaviour.
+  printf '#!/usr/bin/env bash\nexec %q %q "$@"\n' \
+    "${node_bin}" "${pnpm_entry}" > "${bin_dir}/pnpm"
+  chmod 755 "${bin_dir}/pnpm"
+  hash -r 2>/dev/null || true
+
+  got="$("${bin_dir}/pnpm" --version 2>/dev/null || true)"
+  [[ "${got}" == "${want}" ]] || {
+    firecrawl_error "Created pnpm launcher failed validation; expected ${want}, found '${got:-nothing}'."
+    return 1
+  }
+
+  firecrawl_log "pnpm ${want} ready (${bin_dir}/pnpm)."
+}
 firecrawl_ensure_node_pnpm() {
   if [[ "$(uname -s)" == "Darwin" ]]; then
     firecrawl_install_mac_prereqs || return 1
