@@ -49,59 +49,86 @@ async function checkN8nAccessible(url) {
 /**
  * Dynamically resolves the n8n base URL with full automation.
  *
- * This function probes multiple possible n8n locations in order of likelihood,
- * ensuring the iframe works whether accessed via localhost, domain, or public IP.
+ * Requirement: Check if port 5678 is mapped with any domain/reverse proxy by
+ * the deployed system. If a mapped domain/proxy is found (e.g. /n8n or
+ * custom domain mapping), use that. Else (or if unmapped), fall back to
+ * localhost:5678.
  *
- * Detection priority (fully automatic — no manual config needed):
- *   1. VITE_N8N_BASE_URL env var — explicit build-time override (highest priority)
+ * Detection Priority:
+ *   1. VITE_N8N_BASE_URL env var — explicit build-time override
  *   2. localStorage "N8N_BASE_URL" — user's manual override from Settings
- *   3. Current hostname:5678 — if UI is on a domain/IP, try that same host on port 5678
- *   4. localhost:5678 — for local development (browser on same machine as n8n)
- *   5. Same-origin /n8n proxy path — Spring Boot reverse proxy mode
- *   6. Public IP:5678 — when server has n8n on 0.0.0.0 and domain maps to it
- *   7. Fallback to /n8n proxy path — last resort for embedded deployments
+ *   3. Smart derived domain URLs (n8n.<domain>, n8n-<hostname>, <hostname>-n8n.ngrok-free.dev)
+ *   4. Same-origin proxy /n8n (mapped domain path on the deployed system)
+ *   5. http://localhost:5678 — default local n8n instance
+ *   6. Current hostname:5678 (if remote domain maps port 5678 directly)
+ *   7. Public IP:5678 (server deployment with n8n on 0.0.0.0)
+ *   8. Fallback to http://localhost:5678
  *
  * The detection is async because it probes real servers; the component
  * that uses this waits for the result before rendering the iframe.
  */
 async function getN8nBaseUrl() {
-  // 1. Build-time env var (explicit override — always wins)
+  // 1. Build-time env var (explicit override)
   const viteEnv = import.meta.env.VITE_N8N_BASE_URL;
   if (viteEnv) {
     return viteEnv.replace(/\/+$/, "");
   }
 
-  // 2. User override from localStorage (manual setting in UI)
+  // 2. User override from localStorage
   const stored = localStorage.getItem("N8N_BASE_URL");
   if (stored) {
     return stored.replace(/\/+$/, "");
   }
 
-  // Determine if we're on localhost for branching logic
-  const isLocalhost =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1";
+  const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+  const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
 
-  // 3. Try current hostname:5678 — works when UI is served from a domain/IP
-  //    and n8n is bound to 0.0.0.0 on the same server
+  // 3. Automatically derive and probe potential mapped n8n domains/subdomains
+  //    (Handles cases where n8n is mapped to a different URL/subdomain than the main UI)
   if (!isLocalhost) {
-    const currentHostUrl = `${window.location.protocol}//${window.location.hostname}:5678`;
-    const hostOk = await checkN8nAccessible(currentHostUrl);
-    if (hostOk) return currentHostUrl;
+    const potentialUrls = [];
+
+    // Pattern A: n8n.<domain> (e.g. https://n8n.mycompany.com or https://n8n.ngrok-free.dev)
+    const parts = hostname.split(".");
+    if (parts.length >= 2) {
+      const rootDomain = parts.slice(-2).join(".");
+      potentialUrls.push(`${protocol}//n8n.${rootDomain}`);
+      potentialUrls.push(`${protocol}//n8n.${hostname}`);
+    }
+
+    // Pattern B: <hostname-without-extension>-n8n.<domain> or ngrok prefix pattern
+    potentialUrls.push(`${protocol}//n8n-${hostname}`);
+    if (hostname.includes("ngrok-free.dev") || hostname.includes("ngrok.io")) {
+      const baseName = hostname.split(".")[0];
+      potentialUrls.push(`${protocol}//${baseName}-n8n.ngrok-free.dev`);
+      potentialUrls.push(`${protocol}//n8n.${hostname}`);
+    }
+
+    // Probe each derived potential URL
+    for (const url of potentialUrls) {
+      const ok = await checkN8nAccessible(url);
+      if (ok) return url;
+    }
   }
 
-  // 4. Try localhost:5678 — standard local development setup
-  if (isLocalhost) {
-    const localOk = await checkN8nAccessible("http://localhost:5678");
-    if (localOk) return "http://localhost:5678";
-  }
-
-  // 5. Try same-origin /n8n path — Spring Boot reverse proxy integration
+  // 4. Try same-origin /n8n proxy path
   const proxyUrl = `${window.location.origin}/n8n`;
   const proxyOk = await checkN8nAccessible(proxyUrl);
   if (proxyOk) return proxyUrl;
 
-  // 6. Try public IP:5678 — when server has external IP and n8n on 0.0.0.0
+  // 5. Try http://localhost:5678 — default local n8n instance
+  const localOk = await checkN8nAccessible("http://localhost:5678");
+  if (localOk) return "http://localhost:5678";
+
+  // 6. Try current hostname:5678
+  if (!isLocalhost) {
+    const currentHostUrl = `${protocol}//${hostname}:5678`;
+    const hostOk = await checkN8nAccessible(currentHostUrl);
+    if (hostOk) return currentHostUrl;
+  }
+
+  // 7. Try public IP:5678
   if (!isLocalhost) {
     try {
       const ipRes = await fetch("https://api.ipify.org?format=json", {
@@ -113,12 +140,12 @@ async function getN8nBaseUrl() {
       const publicOk = await checkN8nAccessible(publicUrl);
       if (publicOk) return publicUrl;
     } catch {
-      // public IP detection failed — fall through to proxy fallback
+      // public IP detection failed — fall through
     }
   }
 
-  // 7. Final fallback — assume reverse proxy path for embedded deployments
-  return isLocalhost ? "http://localhost:5678" : `${window.location.origin}/n8n`;
+  // 8. Final fallback to localhost:5678
+  return "http://localhost:5678";
 }
 
 // Tab component for the workflows page
@@ -245,7 +272,6 @@ const N8nView = () => {
 
   useEffect(() => {
     let active = true;
-    setUrlResolving(true);
     getN8nBaseUrl().then((url) => {
       if (active) {
         setN8nBaseUrl(url);
