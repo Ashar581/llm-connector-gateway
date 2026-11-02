@@ -490,12 +490,38 @@ start_n8n() {
         N8N_ENCRYPTION_KEY="$(cat "$N8N_KEY_FILE")"
         export N8N_ENCRYPTION_KEY
 
+        # n8n is intentionally private: the browser must reach it through the
+        # Spring Boot same-origin reverse proxy (for example, /n8n -> 127.0.0.1:5678).
         export N8N_LISTEN_ADDRESS="127.0.0.1"
         export N8N_PORT="$N8N_PORT"
         export N8N_PROTOCOL="http"
         export N8N_HOST="127.0.0.1"
-        export N8N_EDITOR_BASE_URL="${N8N_EDITOR_BASE_URL:-http://127.0.0.1:${N8N_PORT}}"
-        export WEBHOOK_URL="${WEBHOOK_URL:-http://127.0.0.1:${N8N_PORT}/}"
+
+        # Trust Spring Boot as the final reverse proxy. Default to one hop for
+        # local access; set N8N_PROXY_HOPS=2 when traffic also passes through ngrok
+        # and both proxy hops are preserved/trusted by the Spring Boot proxy.
+        # The final proxy must forward X-Forwarded-For/Host/Proto.
+        export N8N_PROXY_HOPS="${N8N_PROXY_HOPS:-1}"
+
+        # Allow n8n to be embedded by the same origin as the React/Spring UI.
+        # Do not whitelist a temporary ngrok hostname: the browser sees the
+        # Spring Boot/ngrok origin, and 'self' follows it automatically.
+        export N8N_SECURITY_POLICY_MANAGED_BY_ENV="${N8N_SECURITY_POLICY_MANAGED_BY_ENV:-true}"
+        # Preserve n8n's default nonce-based CSP and add only the same-origin
+        # framing permission. This avoids replacing n8n's normal script policy.
+        export N8N_CONTENT_SECURITY_POLICY="${N8N_CONTENT_SECURITY_POLICY:-script-src <nonce> 'strict-dynamic' 'unsafe-eval'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'}"
+
+        # Set these only when the caller has a stable public URL. Leaving them
+        # unset avoids baking localhost or a changing ngrok URL into n8n.
+        if [[ -n "${N8N_EDITOR_BASE_URL:-}" ]]; then
+            export N8N_EDITOR_BASE_URL
+        fi
+        if [[ -n "${N8N_WEBHOOK_URL:-${WEBHOOK_URL:-}}" ]]; then
+            export N8N_WEBHOOK_URL="${N8N_WEBHOOK_URL:-$WEBHOOK_URL}"
+        fi
+
+        # The reverse proxy terminates HTTPS for ngrok. n8n itself remains HTTP
+        # on loopback; forwarded proto headers let n8n identify the public scheme.
         export N8N_SECURE_COOKIE="${N8N_SECURE_COOKIE:-false}"
 
         export N8N_DIAGNOSTICS_ENABLED="false"
