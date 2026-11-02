@@ -23,24 +23,102 @@ const RefreshIcon = () => (
 );
 
 /**
- * Gets the n8n URL to use.
- * - In production/deployment: respects VITE_N8N_BASE_URL env var (set by Spring Boot build)
- * - In local dev: defaults to http://localhost:5678 and relies on bootstrap n8n.sh CSP fix
- *
- * For iframe embedding to work with Spring Boot reverse proxy:
- * - Set VITE_N8N_BASE_URL=/n8n (or whatever proxy path) in the Vite config
- * - Spring Boot must proxy that path to http://localhost:5678
- * - The iframe src becomes relative (/n8n) which resolves to same origin
+ * Checks if a URL is accessible (server is reachable).
+ * Uses no-cors mode to avoid CORS issues; just detects reachability.
  */
-function getN8nBaseUrl() {
-  // Check for Vite env var first (set during production build)
+async function checkN8nAccessible(url) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+  try {
+    await fetch(url, {
+      method: "GET",
+      signal: controller.signal,
+      mode: "no-cors",
+    });
+    clearTimeout(timeoutId);
+    return true;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    // AbortError = timeout (server not reachable in time)
+    // Other errors = connection refused or CORS block (still not usable)
+    return false;
+  }
+}
+
+/**
+ * Dynamically resolves the n8n base URL with full automation.
+ *
+ * This function probes multiple possible n8n locations in order of likelihood,
+ * ensuring the iframe works whether accessed via localhost, domain, or public IP.
+ *
+ * Detection priority (fully automatic — no manual config needed):
+ *   1. VITE_N8N_BASE_URL env var — explicit build-time override (highest priority)
+ *   2. localStorage "N8N_BASE_URL" — user's manual override from Settings
+ *   3. Current hostname:5678 — if UI is on a domain/IP, try that same host on port 5678
+ *   4. localhost:5678 — for local development (browser on same machine as n8n)
+ *   5. Same-origin /n8n proxy path — Spring Boot reverse proxy mode
+ *   6. Public IP:5678 — when server has n8n on 0.0.0.0 and domain maps to it
+ *   7. Fallback to /n8n proxy path — last resort for embedded deployments
+ *
+ * The detection is async because it probes real servers; the component
+ * that uses this waits for the result before rendering the iframe.
+ */
+async function getN8nBaseUrl() {
+  // 1. Build-time env var (explicit override — always wins)
   const viteEnv = import.meta.env.VITE_N8N_BASE_URL;
   if (viteEnv) {
-    // Ensure it ends without trailing slash for consistent handling
     return viteEnv.replace(/\/+$/, "");
   }
-  // Local development default
-  return "http://localhost:5678";
+
+  // 2. User override from localStorage (manual setting in UI)
+  const stored = localStorage.getItem("N8N_BASE_URL");
+  if (stored) {
+    return stored.replace(/\/+$/, "");
+  }
+
+  // Determine if we're on localhost for branching logic
+  const isLocalhost =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
+  // 3. Try current hostname:5678 — works when UI is served from a domain/IP
+  //    and n8n is bound to 0.0.0.0 on the same server
+  if (!isLocalhost) {
+    const currentHostUrl = `${window.location.protocol}//${window.location.hostname}:5678`;
+    const hostOk = await checkN8nAccessible(currentHostUrl);
+    if (hostOk) return currentHostUrl;
+  }
+
+  // 4. Try localhost:5678 — standard local development setup
+  if (isLocalhost) {
+    const localOk = await checkN8nAccessible("http://localhost:5678");
+    if (localOk) return "http://localhost:5678";
+  }
+
+  // 5. Try same-origin /n8n path — Spring Boot reverse proxy integration
+  const proxyUrl = `${window.location.origin}/n8n`;
+  const proxyOk = await checkN8nAccessible(proxyUrl);
+  if (proxyOk) return proxyUrl;
+
+  // 6. Try public IP:5678 — when server has external IP and n8n on 0.0.0.0
+  if (!isLocalhost) {
+    try {
+      const ipRes = await fetch("https://api.ipify.org?format=json", {
+        signal: AbortSignal.timeout(3000),
+      });
+      const ipData = await ipRes.json();
+      const publicIp = ipData.ip;
+      const publicUrl = `http://${publicIp}:5678`;
+      const publicOk = await checkN8nAccessible(publicUrl);
+      if (publicOk) return publicUrl;
+    } catch {
+      // public IP detection failed — fall through to proxy fallback
+    }
+  }
+
+  // 7. Final fallback — assume reverse proxy path for embedded deployments
+  return isLocalhost ? "http://localhost:5678" : `${window.location.origin}/n8n`;
 }
 
 // Tab component for the workflows page
@@ -157,22 +235,35 @@ const WorkflowsList = () => {
 const N8nView = () => {
   const [loaded, setLoaded] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
-  const n8nBaseUrl = getN8nBaseUrl();
-  // For local dev we use full URL; for production with proxy we use path only
-  const n8nUrl = n8nBaseUrl.startsWith("http") ? n8nBaseUrl : `/${n8nBaseUrl.replace(/^\/+/, "")}`;
+  const [n8nBaseUrl, setN8nBaseUrl] = useState("http://localhost:5678");
+  const [urlResolving, setUrlResolving] = useState(true);
   const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     setTimeout(() => setLoaded(true), 80);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    setUrlResolving(true);
+    getN8nBaseUrl().then((url) => {
+      if (active) {
+        setN8nBaseUrl(url);
+        setUrlResolving(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [retryKey]);
+
   const handleRefresh = () => {
     setIframeLoaded(false);
     setRetryKey((prev) => prev + 1);
   };
 
-  // Detect if we're in a proxy/local-dev mode by checking the URL format
-  const isLocalDevMode = !n8nBaseUrl.startsWith("http");
+  const n8nUrl = n8nBaseUrl.startsWith("http") ? n8nBaseUrl : `/${n8nBaseUrl.replace(/^\/+/, "")}`;
+  const isLocalDevMode = n8nBaseUrl.includes("localhost") || n8nBaseUrl.includes("127.0.0.1");
 
   return (
     <div className={`transition-all duration-700 delay-100 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
@@ -205,11 +296,11 @@ const N8nView = () => {
       </div>
 
       <Card className="p-0 overflow-hidden relative" style={{ minHeight: "75vh" }}>
-        {!iframeLoaded && (
+        {(!iframeLoaded || urlResolving) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-[var(--bg-primary)] bg-opacity-80 backdrop-blur-sm">
             <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
             <p className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-              Connecting to n8n instance...
+              {urlResolving ? "Detecting n8n instance URL..." : "Connecting to n8n instance..."}
             </p>
             {isLocalDevMode && (
               <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>
@@ -218,21 +309,23 @@ const N8nView = () => {
             )}
             {!isLocalDevMode && (
               <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>
-                Production mode - using reverse proxy integration
+                Targeting <code className="text-amber-400">{n8nBaseUrl}</code>
               </p>
             )}
           </div>
         )}
 
-        <iframe
-          key={retryKey}
-          src={n8nUrl}
-          title="n8n Workflow Automation"
-          className="w-full border-0 rounded-lg"
-          style={{ height: "75vh", backgroundColor: "var(--bg-primary)" }}
-          onLoad={() => setIframeLoaded(true)}
-          allow="clipboard-read; clipboard-write"
-        />
+        {!urlResolving && (
+          <iframe
+            key={`${n8nUrl}-${retryKey}`}
+            src={n8nUrl}
+            title="n8n Workflow Automation"
+            className="w-full border-0 rounded-lg"
+            style={{ height: "75vh", backgroundColor: "var(--bg-primary)" }}
+            onLoad={() => setIframeLoaded(true)}
+            allow="clipboard-read; clipboard-write"
+          />
+        )}
       </Card>
     </div>
   );
