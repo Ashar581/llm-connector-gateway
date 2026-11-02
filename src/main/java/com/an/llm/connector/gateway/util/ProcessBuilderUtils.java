@@ -11,7 +11,7 @@ public class ProcessBuilderUtils {
         return String.format(
                 "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
-                        "-c %s -np %s -t 4   -cb %s" +
+                        "-c %s -np %s -t 4 -tb 4 -cb %s" +
                         "--batch-size 4096 " +
                         "--ubatch-size 1024 " +
                         "--cache-type-k q8_0 " +
@@ -26,7 +26,7 @@ public class ProcessBuilderUtils {
         return String.format(
                 "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
-                        "-c %s -np %s -t 4 -cb %s" +
+                        "-c %s -np %s -t 4 -tb 4 -cb %s" +
                         "--batch-size 4096 " +
                         "--ubatch-size 1024 " +
                         "--cache-type-k q8_0 " +
@@ -43,7 +43,7 @@ public class ProcessBuilderUtils {
                 "cd %s && ./build/bin/llama-server " +
                         "-m models/%s " +
                         "--mmproj models/%s " +
-                        "-c %s -np %s -t 4 -cb %s" +
+                        "-c %s -np %s -t 4 -tb 4 -cb %s" +
                         "--cache-type-k q8_0 " +
                         "--cache-type-v q8_0 " +
                         "--batch-size 4096 " +
