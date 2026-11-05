@@ -195,7 +195,7 @@ public class FirecrawlTools {
         Returns the scraped pages and their contents.
         """)
     public CrawlJob crawlWebsite(@NonNull String website) {
-
+        log.info("Crawling website {}",website);
         return firecrawlService.crawl(
                 website,
                 CrawlOptions.builder()
@@ -232,7 +232,7 @@ public class FirecrawlTools {
         Returns URLs discovered on the website.
         """)
     public MapData mapWebsite(@NonNull String website) {
-
+        log.info("Discovering websites within a website {}.",website);
         return firecrawlService.map(
                 website,
                 MapOptions.builder()
